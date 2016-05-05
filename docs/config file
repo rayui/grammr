@@ -1,0 +1,79 @@
+Config file is composed of Item and Location type objects.
+
+Example item:
+
+{
+  "type": "item",
+  "name": "Bedroom door",
+  "description": "A battered pine bedroom door.",
+  "actions": {
+    "use": {
+      "instructions": [
+        ["go", "Landing"],
+        ["look"]
+      ]
+    },
+    "use with": {
+      "arg": "Bedroom door handle",
+      "instructions": [
+        ["use", "Bedroom door"]
+      ]
+    }
+  }
+}
+
+Example location:
+
+{
+  "type": "location",
+  "name": "Front entrance",
+  "description": "The wallpaper is damp and curling off the walls in yellow triangles around a cobwebbed gas meter.",
+  "items": ["red front door", "shit old bike"],
+}
+
+Item actions are a set of actions that can be performed on objects in the game model. Several pre-defined types of action are provided with varying levels of complexity, as follows:
+
+use: use single item. E.g. "use lamp post"
+use with: use one item with another, E.g. "use dog with cat"
+
+Any item that can have an action performed on it has a list of actions attached to it. This list of actions is transformed directly into a list parser instructions. Parser instructions have one operator, and up to two string arguments.
+
+CONFIG FILE AND INTERPRETER
+
+Actions from the config file are inlined with the command interpeter's program when the use and use with commands are invoked from the prompt. The interpreter consumes instructions from a parser and makes use of registers to control program flow.
+
+Registers:
+
+Equality register: Contains result of last logical comparison
+Word register: Can be set to
+
+Special variables
+
+Special variables are available to the parser and can be used in the argument list of instructions present in actions in the config file. The list of special variables is as follows:
+
+$L: current location name
+$E: value of equality register
+$1: first argument to action
+$2: second argument to action
+
+There is a specific set of instructions available to the parser, as follows:
+
+Command, Parser Instruction, arg1 | NULL, arg2 | NULL, description
+
+"EQ", INST_EQ, NAME, NAME, sets equality register to 0 if arguments are different or 1 if they are the same
+"HASITEM", INST_HASITEM, ITEM|LOCATION|INVENTORY, NAME, sets equality register to 1 if named item is in items list of arg1 or 0 if it is not
+"HASEXIT", INST_HASEXIT, LOCATION, NAME, sets equality register to 1 if location has named exit or 0 if it is not
+"NOT", NULL, NULL, inverts value of equality register
+"IF", INST_IF, NULL, NULL, skips next instruction if equality register is equal to 0
+"SETLOC", INST_SETLOC, LOCATION, NULL, sets current location to LOCATION
+"ADDITEM", INST_ADDITEM, ITEM|LOCATION|INVENTORY, ITEM, adds second ITEM to list of items in first ITEM or LOCATION
+"DELITEM", INST_DELITEM, ITEM|LOCATION|INVENTORY, ITEM, removes second ITEM from list of items in first ITEM or LOCATION
+"RETURN", INST_RETURN, NULL, NULL, end current exexution
+"GOTO", INST_GOTO, NAME, NULL, skips execution until label is found or end of execution
+"LABEL", INST_LABEL, NAME, NULL, goto label NOOP
+"PRINT", INST_PRINT, STRING, NULL, output some text
+"PRINTDESC", INST_PRINTDESC, ITEM|LOCATION, NULL, outputs object's description
+"PRINTEXITS", INST_PRINTEXITS, LOCATION, NULL, outputs list of exits in location
+"PRINTITEMS", INST_PRINTEXITS, ITEM|LOCATION|INVENTORY, NULL, outputs list of items in location or object
+"NEWLINE", INST_NEWLINE, NULL, NULL, inserts a new line in the output
+"FF $S $O" ANY DIGIT PLUS ANY TWO ARGS calls action number FF

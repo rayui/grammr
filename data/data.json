@@ -1,0 +1,269 @@
+{
+  "type": "verb",
+  "name": "look",
+  "transitivity": 0
+},
+{
+  "type": "verb",
+  "name": "go",
+  "transitivity": 1
+},
+{
+  "type": "verb",
+  "name": "use",
+  "transitivity": 1
+},
+{
+  "type": "verb",
+  "name": "put",
+  "transitivity": 2
+},
+{
+  "type": "verb",
+  "name": "take",
+  "transitivity": 1
+},
+{
+  "type": "verb",
+  "name": "call",
+  "transitivity": 1
+},
+{
+  "type": "action",
+  "id": 0,
+  "name": "go",
+  "default": 1,
+  "instruction": "
+    HE,$L,$S;
+    NT;
+    IF;
+    GT,ERROR;
+    LS,$S;
+    PR,Current location: ;
+    PR,$L;
+    GT,END;
+    LB,ERROR;
+    PR,Couldn't move to ;
+    PR,$S;
+    LB,END;
+    PR,. ;
+  "
+},
+{
+  "type": "action",
+  "id": 0,
+  "name": "go to",
+  "default": 1,
+  "instruction": "
+    ac,0,$S;
+  "
+},
+{
+  "type": "action",
+  "id": 1,
+  "name": "look",
+  "default": 1,
+  "instruction": "
+    PR,Current location: ;
+    PR,$L;
+    PL;
+    PD,$L;
+    PL;
+    PR,You can see: ;
+    PI,$L;
+    PL;
+    PR,There are exits to: ;
+    PE,$L;
+  "
+},
+{
+  "type": "action",
+  "id": 2,
+  "name": "look at",
+  "default": 1,
+  "instruction": "
+    LI,$L,$S;
+    NT;
+    IF;
+    GT,ERROR;
+    PD,$S;
+    GT,END;
+    LB,ERROR;
+    PR,You couldn't see a ;
+    PR,$S;
+    LB,END;
+    PR,. ;
+  "
+},
+{
+  "type": "action",
+  "id": 10,
+  "name": "use",
+  "instructions": "
+    EQ,$L,Bedroom;
+    IF;
+    GT,LANDING;
+    AC,0,Bedroom;
+    GT,END;
+    LB,LANDING;
+    AC,0,Landing;
+    LB,END;
+  "
+},
+{
+  "type": "action",
+  "id": 11,
+  "name": "use",
+  "instructions": "
+    EQ,$L,Landing;
+    IF;
+    GT,ENTRANCE;
+    LS,Landing;
+    GT,END;
+    LB,ENTRANCE;
+    LS,Front entrance;
+    LB,END;
+    PR,Current location: ;
+    PR,$L;
+    PL;
+  "
+},
+{
+  "type": "item",
+  "name": "Oyster card",
+  "description": "You have $5 of credit on this card"
+},
+{
+  "type": "item",
+  "name": "Office keys",
+  "description": "An RFID key that allows access to your office"
+},
+{
+  "type": "item",
+  "name": "Laptop",
+  "description": "It is a Toshiba T2200",
+  "actions":[12]
+},
+{
+  "type": "item",
+  "name": "Mobile phone",
+  "description": "It is a Nokia 3210",
+  "actions":[13]
+},
+{
+  "type": "item",
+  "name": "Microsoft Badge",
+  "description": "An encrypted RFID identity badge that allows access to your office"
+},
+{
+  "type": "item",
+  "name": "Bedroom door handle",
+  "description": "It's a handle. On your bedroom door",
+  "actions": []
+},
+{
+  "type": "item",
+  "name": "Door",
+  "description": "A battered pine bedroom door",
+  "actions": [10]
+},
+{
+  "type": "item",
+  "name": "Stairs",
+  "description": "They sport a heavily worn carpet and peeling gloss white ballustrade, of which one of the supports is missing.",
+  "actions": [11]
+},
+{
+  "type": "item",
+  "name": "Shower",
+  "description": "It's dilapidated. The shower head slowly drips and the curtain has mildew"
+},
+{
+  "type": "item",
+  "name": "Toilet",
+  "description": "Of the traditional black abd white variety. Dubious stains skirt its rim"
+},
+{
+  "type": "item",
+  "name": "Boiler",
+  "description": "The pilot light is out"
+},
+{
+  "type": "item",
+  "name": "Lamp post",
+  "description": "UK Standard SAPA 15m phosphorescent column"
+},
+{
+  "type": "item",
+  "name": "Dog",
+  "description": "A scruffy dog. It snarls at you"
+},
+{
+  "type": "item",
+  "name": "red front door",
+  "description": "It's a big, old front door but the lock is half hanging off. It's been that way since the immigration thing and the landlord never got around to fixing it"
+},
+{
+  "type": "item",
+  "name": "shit old bike",
+  "description": "Rusted and sad, it hangs on the wall and hasn't move since your flatmate left 6 months previously"
+},
+{
+  "type": "item",
+  "name": "Dog",
+  "description": "A scruffy dog. It snarls at you"
+},
+{
+  "type": "item",
+  "name": "Metro Newspaper",
+  "description": "A publication that mostly focusses on local murders and which celebrities are sleeping together"
+},
+{
+  "type": "location",
+  "name": "Bedroom",
+  "description": "You awake in a darkened room",
+  "items": ["Oyster card", "Office keys", "Microsoft Badge", "Laptop", "Mobile phone", "Door", "Bedroom door handle"],
+  "exits": ["Landing"]
+},
+{
+  "type": "location",
+  "name": "Landing",
+  "description": "It's cold. The bare floorboards creak as you walk",
+  "items": ["Door", "Stairs"],
+  "exits": ["Bedroom", "Bathroom"]
+},
+{
+  "type": "location",
+  "name": "Bathroom",
+  "description": "The bathroom is icy and it looks like the boiler's broken",
+  "items": ["Toilet", "Shower", "Boiler"],
+  "exits": ["Landing"]
+},
+{
+  "type": "location",
+  "name": "Front entrance",
+  "description": "The wallpaper is damp and curling off the walls in yellow triangles around a cobwebbed gas meter",
+  "items": ["red front door", "shit old bike", "Stairs"],
+  "exits": ["Street"]
+},
+{
+  "type": "location",
+  "name": "Street",
+  "description": "You are on a dark, grey, London street. It is raining",
+  "items": ["Lamp post"],
+  "exits": ["Front entrance", "Bus stop", "Tube station"]
+},
+{
+  "type": "location",
+  "name": "Bus stop",
+  "description": "You arrive at a typical TFL bus stop. There is no next bus indicator",
+  "items": ["Dog"],
+  "exits": ["Street"]
+},
+{
+  "type": "location",
+  "name": "Tube station",
+  "description": "You are at a tube station somewhere on the Central Line",
+  "items": ["Metro Newspaper"],
+  "exits": ["Street"]
+}

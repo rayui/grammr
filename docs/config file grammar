@@ -1,0 +1,15 @@
+location_object
+  object_type object_name object_description items_array exits_object
+
+item_object
+  object_type object_name object_description
+
+object
+  item_object
+  |
+  location_object
+
+objects
+  object
+  |
+  objects object
