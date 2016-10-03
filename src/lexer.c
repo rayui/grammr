@@ -33,19 +33,6 @@ char isPreposition(char* val) {
       toLowerCaseCompare(val, "for") || toLowerCaseCompare(val, "to")
   ) {
 
-    if (lastToken->type == TOK_WORD && isVerbPhrasal(lastToken->val)) {
-      lastToken->type = TOK_PREPOSITION;
-    }
-
-    return 1;
-  }
-  return 0;
-}
-
-char isVerbPhrasal(char* val) {
-  if (toLowerCaseCompare(val, "at") || toLowerCaseCompare(val, "in") ||
-    toLowerCaseCompare(val, "up") || toLowerCaseCompare(val, "down") ||
-    toLowerCaseCompare(val, "to")) {
     return 1;
   }
   return 0;
@@ -100,8 +87,6 @@ enum TokenType tokenTypeFromValue(char* val) {
   //then , if token appears somewhere in list of actions, token type is TOK_VERB
   if (isConjunction(val)) {
     return TOK_CONJUNCTION;
-  } else if (lastToken->type == TOK_VERB && isVerbPhrasal(val)) {
-    return TOK_VERB_PHRASAL;
   } else if (isPronoun(val)) {
     return TOK_PRONOUN;
   } else if (isPreposition(val)) {

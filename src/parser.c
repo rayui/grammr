@@ -17,7 +17,7 @@ const char CON_SPLIT_ARG_CHAR = ',';
 enum RunState ERR = SE_OK;
 int cc_counter = 0;
 char cc_word_reg[MAXNAMESZ];
-NameList* cc_stack_names;
+NameList* cc_name_stack;
 char cc_action_reg[MAXNAMESZ];
 
 extern InstructionList* instructionList;
@@ -34,8 +34,8 @@ void cc_readtok() {
 }
 
 void cc_empty_name_list() {
-  SGLIB_LIST_MAP_ON_ELEMENTS(NameList, cc_stack_names, mappedName, next, {
-    SGLIB_LIST_DELETE(NameList, cc_stack_names, mappedName, next);
+  SGLIB_LIST_MAP_ON_ELEMENTS(NameList, cc_name_stack, mappedName, next, {
+    SGLIB_LIST_DELETE(NameList, cc_name_stack, mappedName, next);
     free(mappedName);
   });
 }
@@ -64,7 +64,7 @@ void cc_push_to_cc_word_reg() {
   struct NameList* newName = malloc(sizeof(struct NameList));
   strcpy(newName->name, cc_word_reg);
 
-  SGLIB_LIST_ADD(struct NameList, cc_stack_names, newName, next);
+  SGLIB_LIST_ADD(struct NameList, cc_name_stack, newName, next);
 }
 
 void cc_convertSpecialVariable(char* arg, char* direct, char* indirect) {
@@ -259,12 +259,6 @@ void cc_action(char transitivity) {
   cc_set_action_reg();
   cc_accept(TOK_VERB);
 
-  if (cc_peek(TOK_VERB_PHRASAL)) {
-    cc_concat_action_reg(" ");
-    cc_accept(TOK_VERB_PHRASAL);
-    transitivity++;
-  }
-
   switch(transitivity) {
     case 0:
       cc_verb_intrans();
@@ -280,13 +274,13 @@ void cc_action(char transitivity) {
       break;
   }
 
-  SGLIB_LIST_REVERSE(NameList, cc_stack_names, next);
-  SGLIB_LIST_LEN(NameList, cc_stack_names, next, len);
+  SGLIB_LIST_REVERSE(NameList, cc_name_stack, next);
+  SGLIB_LIST_LEN(NameList, cc_name_stack, next, len);
 
   if (transitivity > 0 && len > 0) {
-    //ref to first item in cc_stack_names will now be at head
-    item = findItemByName(cc_stack_names->name);
-    location = findLocationByName(cc_stack_names->name);
+    //ref to first item in cc_name_stack will now be at head
+    item = findItemByName(cc_name_stack->name);
+    location = findLocationByName(cc_name_stack->name);
 
     if (item != NULL || location != NULL) {
       action = findActionByNameAndItem(item, cc_action_reg);
@@ -294,14 +288,14 @@ void cc_action(char transitivity) {
         action = findDefaultActionByName(cc_action_reg);
       }
     } else {
-      cc_error(CC_ITEM_EXPECTED, cc_stack_names->name);
+      cc_error(CC_ITEM_EXPECTED, cc_name_stack->name);
     }
   } else {
     action = findActionByName(cc_action_reg);
   }
 
   if (action != NULL) {
-    lastInstruction = cc_push_instructions(action->instructions, lastInstruction, len > 0 ? cc_stack_names->name : NULL, len > 1 ? cc_stack_names->next->name : NULL);
+    lastInstruction = cc_push_instructions(action->instructions, lastInstruction, len > 0 ? cc_name_stack->name : NULL, len > 1 ? cc_name_stack->next->name : NULL);
   } else {
     cc_error(CC_NO_SUCH_ACTION, token->val);
   }
@@ -354,7 +348,7 @@ enum RunState parse() {
   cc_counter = 0;
   lastInstruction = instructionList;
 
-  while(tokenList != NULL && !(cc_peek(TOK_EOL)) && ERR == SE_OK) {
+  while(tokenList != NULL && ERR == SE_OK) {
     cc_commands();
   }
 

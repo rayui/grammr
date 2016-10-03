@@ -8,7 +8,6 @@
 
 enum TokenType {
   TOK_VERB,
-  TOK_VERB_PHRASAL,
   TOK_QUIT,
   TOK_CONJUNCTION,
   TOK_COMPLEX,
