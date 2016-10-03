@@ -8,15 +8,15 @@ DIST_DIR=dist/
 all: yamamdore create_image
 
 create_image: data.pet
-	c1541 -format "yammadore,01" d64 $(DIST_DIR)yammadore.d64
-	c1541 -attach $(DIST_DIR)yammadore.d64 -write $(BUILD_DIR)yammadore
-	c1541 -attach $(DIST_DIR)yammadore.d64 -write $(BUILD_DIR)data.pet
+	c1541 -format "grammr,01" d64 $(DIST_DIR)grammr.d64
+	c1541 -attach $(DIST_DIR)grammr.d64 -write $(BUILD_DIR)grammr
+	c1541 -attach $(DIST_DIR)grammr.d64 -write $(BUILD_DIR)data.pet
 
 yamamdore: io.o error.o lexer.o parser.o interpreter.o locations.o items.o instruction.o utils.o config_parser.o jsmn.o\
 	text.o debugmalloc.o
-	cc65 -O -t c64 --static-locals $(SRC_DIR)yammadore.c -o $(BUILD_DIR)yammadore.s
-	ca65 $(BUILD_DIR)yammadore.s -o $(BUILD_DIR)yammadore.o
-	ld65 -o $(BUILD_DIR)yammadore -t c64 $(BUILD_DIR)yammadore.o $(BUILD_DIR)error.o $(BUILD_DIR)lexer.o \
+	cc65 -O -t c64 --static-locals $(SRC_DIR)main.c -o $(BUILD_DIR)main.s
+	ca65 $(BUILD_DIR)main.s -o $(BUILD_DIR)main.o
+	ld65 -o $(BUILD_DIR)grammr -t c64 $(BUILD_DIR)main.o $(BUILD_DIR)error.o $(BUILD_DIR)lexer.o \
 		$(BUILD_DIR)parser.o $(BUILD_DIR)interpreter.o $(BUILD_DIR)locations.o $(BUILD_DIR)items.o \
 		$(BUILD_DIR)jsmn.o $(BUILD_DIR)config_parser.o $(BUILD_DIR)instruction.o $(BUILD_DIR)text.o \
 		$(BUILD_DIR)utils.o $(BUILD_DIR)io.o c64.lib
