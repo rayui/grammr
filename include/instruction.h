@@ -1,4 +1,4 @@
-#define MAXARGSIZE 32
+#define MAX_INST_ARG_SIZE 128
 
 enum Instruction {
   INST_INVALID,
@@ -24,15 +24,15 @@ enum Instruction {
 
 typedef struct InstructionList {
   enum Instruction fn;
-  char arg1[MAXARGSIZE];
-  char arg2[MAXARGSIZE];
+  char arg1[MAX_INST_ARG_SIZE];
+  char arg2[MAX_INST_ARG_SIZE];
   struct InstructionList* next;
   struct InstructionList* prev;
 } InstructionList;
 
 typedef struct Actions {
   char id;
-  char name[MAXARGSIZE];
+  char name[MAX_INST_ARG_SIZE];
   char args;
   char isDefault;
   char* instructions;

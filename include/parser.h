@@ -13,7 +13,7 @@ typedef struct NameList {
 void cc_empty_name_list(void);
 void cc_set_word_reg(void);
 
-InstructionList* cc_push_instructions(char* instructions, InstructionList* lastInstruction, char* direct, char* indirect);
+InstructionList* cc_push_instructions(char* instructions, InstructionList* last, char* direct, char* indirect);
 InstructionList* cc_create_instruction(char* instructionStr, char* direct, char* indirect);
 void cc_push_to_cc_word_reg(void);
 
@@ -22,10 +22,10 @@ void cc_command(void);
 void cc_eol(void);
 void cc_quit(void);
 
-void cc_item_name(void);
 void cc_item(void);
 void cc_items(void);
-void cc_word(void);
+void cc_words(void);
+void cc_concat_words(void);
 
 void cc_go(void);
 

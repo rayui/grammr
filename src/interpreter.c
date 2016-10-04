@@ -21,9 +21,9 @@ extern Item* items;
 int equalityRegister = 0;
 int skip = SKIP_NONE;
 
-char gotoLabel[MAXARGSIZE];
-char arg1[MAXARGSIZE];
-char arg2[MAXARGSIZE];
+char gotoLabel[MAX_INST_ARG_SIZE];
+char arg1[MAX_INST_ARG_SIZE];
+char arg2[MAX_INST_ARG_SIZE];
 
 InstructionList* currInstruction = NULL;
 

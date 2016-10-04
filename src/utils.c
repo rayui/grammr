@@ -71,6 +71,13 @@ char toLowerCaseContains(char *str1, char* str2) {
   return compare;
 }
 
+char strComp(char *str1, char* str2) {
+  if (strcmp(str1, str2) == 0) {
+    return 1;
+  }
+  return 0;
+}
+
 char toLowerCaseCompare(char *str1, char* str2) {
   char compare = 0;
   char str1Lwr[MAXNAMESZ];

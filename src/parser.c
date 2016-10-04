@@ -21,7 +21,7 @@ NameList* cc_name_stack;
 char cc_action_reg[MAXNAMESZ];
 
 extern InstructionList* instructionList;
-extern TokenList* tokenList;
+extern Token* tokenList;
 extern ErrorList* errorList;
 extern Item* items;
 extern Actions* actions;
@@ -60,7 +60,7 @@ void cc_concat_word_reg() {
   strcat(cc_word_reg, tokenList->val);
 }
 
-void cc_push_to_cc_word_reg() {
+void cc_push_word_reg_to_item_reg() {
   struct NameList* newName = malloc(sizeof(struct NameList));
   strcpy(newName->name, cc_word_reg);
 
@@ -167,7 +167,7 @@ InstructionList* cc_push_instructions(char* instructions, InstructionList* last,
 
   free(tmpStr);
 
-  return lastInstruction;
+  return last;
 }
 
 void cc_error(enum ErrorType error, char* val) {
@@ -178,32 +178,32 @@ void cc_error(enum ErrorType error, char* val) {
   cc_readtok();
 }
 
-void cc_word() {
+void cc_words() {
   if (cc_peek(TOK_WORD)) {
     cc_set_word_reg();
     cc_accept(TOK_WORD);
+    if (cc_peek(TOK_WORD)) {
+      cc_concat_words();
+    }
   } else {
     cc_error(CC_WORD_EXPECTED, tokenList->val);
   }
 }
 
-void cc_item_name() {
+void cc_concat_words() {
+  cc_concat_word_reg();
+  cc_accept(TOK_WORD);
+
   if (cc_peek(TOK_WORD)) {
-    cc_concat_word_reg();
-    cc_accept(TOK_WORD);
-    cc_item_name();
+    cc_concat_words();
   }
 }
 
 void cc_item() {
-  if (cc_peek(TOK_WORD)) {
-    if (cc_peek(TOK_PRONOUN)) {
-      PRINT("PRONOUN!\r\n");
-    }
+  if (cc_peek(TOK_WORD) || cc_peek(TOK_PRONOUN)) {
     cc_accept(TOK_PRONOUN);
-    cc_word();
-    cc_item_name();
-    cc_push_to_cc_word_reg();
+    cc_words();
+    cc_push_word_reg_to_item_reg();
   } else {
     cc_error(CC_ITEM_EXPECTED, tokenList->val);
   }
@@ -213,71 +213,43 @@ void cc_location_name() {
   cc_item();
 }
 
-void cc_preposition() {
-  if (cc_peek(TOK_PREPOSITION)) {
-    cc_concat_action_reg(",");
-    cc_accept(TOK_PREPOSITION);
-  } else {
-    cc_error(CC_PREPOSITION_EXPECTED, tokenList->val);
-  }
-}
-
 void cc_conjunction() {
   if (cc_peek(TOK_CONJUNCTION)) {
-    cc_concat_action_reg(",");
     cc_accept(TOK_CONJUNCTION);
   } else {
     cc_error(CC_CONJUNCTION_EXPECTED, tokenList->val);
   }
 }
 
-void cc_verb_intrans () {
-
-}
-
-void cc_verb_monotrans () {
-  cc_item();
-  if (cc_peek(TOK_CONJUNCTION)) {
-    cc_conjunction();
-    cc_item();
-  }
-}
-
-void cc_verb_ditrans () {
-  cc_item();
-  cc_preposition();
-  cc_item();
-}
-
-void cc_action(char transitivity) {
-  TokenList* token = tokenList;
+void cc_action() {
+  Token* token = tokenList;
   Actions* action = NULL;
   Location* location = NULL;
   Item* item = NULL;
-  char len = 0;
+  char numItems = 0;
 
   cc_set_action_reg();
   cc_accept(TOK_VERB);
 
-  switch(transitivity) {
-    case 0:
-      cc_verb_intrans();
-      break;
-    case 1:
-      cc_verb_monotrans();
-      break;
-    case 2:
-      cc_verb_ditrans();
-      break;
-    default:
-      cc_error(CC_NO_SUCH_ACTION, token->val);
-      break;
+  if (cc_peek(TOK_PREPOSITION)) {
+    cc_concat_action_reg(" ");
+    cc_accept(TOK_PREPOSITION);
+  }
+
+  if (cc_peek(TOK_WORD) || cc_peek(TOK_PRONOUN)) {
+    cc_item();
+  }
+
+  if (cc_peek(TOK_CONJUNCTION)) {
+    cc_concat_action_reg(" ");
+    cc_accept(TOK_CONJUNCTION);
+    cc_item();
   }
 
   SGLIB_LIST_REVERSE(NameList, cc_name_stack, next);
-  SGLIB_LIST_LEN(NameList, cc_name_stack, next, len);
+  SGLIB_LIST_LEN(NameList, cc_name_stack, next, numItems);
 
-  if (transitivity > 0 && len > 0) {
+  if (numItems > 0) {
     //ref to first item in cc_name_stack will now be at head
     item = findItemByName(cc_name_stack->name);
     location = findLocationByName(cc_name_stack->name);
@@ -295,7 +267,7 @@ void cc_action(char transitivity) {
   }
 
   if (action != NULL) {
-    lastInstruction = cc_push_instructions(action->instructions, lastInstruction, len > 0 ? cc_name_stack->name : NULL, len > 1 ? cc_name_stack->next->name : NULL);
+    lastInstruction = cc_push_instructions(action->instructions, lastInstruction, numItems > 0 ? cc_name_stack->name : NULL, numItems > 1 ? cc_name_stack->next->name : NULL);
   } else {
     cc_error(CC_NO_SUCH_ACTION, token->val);
   }
@@ -305,7 +277,7 @@ void cc_command() {
   cc_empty_name_list();
 
   if (cc_peek(TOK_VERB)) {
-    cc_action(getVerbTransitivityByName(tokenList->val));
+    cc_action();
   } else if (cc_accept(TOK_QUIT)) {
     cc_quit();
   } else {
@@ -342,7 +314,7 @@ void free_parser() {
 
 enum RunState parse() {
   //gotta remember where we are so we can clean the tokens after!
-  struct TokenList* tokenStart = tokenList;
+  struct Token* tokenStart = tokenList;
 
   ERR = SE_OK;
   cc_counter = 0;

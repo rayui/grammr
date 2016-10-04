@@ -19,11 +19,12 @@ enum TokenType {
   TOK_UNKNOWN
 };
 
-typedef struct TokenList {
+typedef struct Token {
+  int i;
   enum TokenType type;
   char val[MAXTOKSZ];
-  struct TokenList* next;
-} TokenList;
+  struct Token* next;
+} Token;
 
 typedef struct Verbs {
   char name[MAXTOKSZ];
@@ -40,7 +41,6 @@ char isConjunction(char* val);
 char isVerbPhrasal(char* val);
 enum TokenType tokenTypeFromValue(char* val);
 enum TokenType readtok(char* input);
-struct Verbs* createVerb(char* name, char transitivity);
 char getVerbTransitivityByName(char* name);
 int lex(char* input);
 void free_lexer(void);

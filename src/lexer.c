@@ -8,78 +8,56 @@
 #include "../include/lexer.h"
 
 const char SPLIT_CHAR[2] = " \0";
-int counter;
-extern Verbs* verbs;
-extern TokenList* tokenList;
+extern Token* tokenList;
 extern ErrorList* errorList;
+int counter;
 char ERR;
-
-TokenList* lastToken;
 
 char isNumber(char* val) {
   return isStringNumeric(val);
 }
 
 char isConjunction(char* val) {
-  if (toLowerCaseCompare(val, "with") || toLowerCaseCompare(val, "and")) {
+  if (strComp(val, "with") || strComp(val, "and")) {
     return 1;
   }
   return 0;
 }
 
 char isPreposition(char* val) {
-  if (toLowerCaseCompare(val, "in") || toLowerCaseCompare(val, "out") ||
-      toLowerCaseCompare(val, "on") || toLowerCaseCompare(val, "off") ||
-      toLowerCaseCompare(val, "for") || toLowerCaseCompare(val, "to")
+  if (strComp(val, "in") || strComp(val, "out") ||
+      strComp(val, "on") || strComp(val, "off") ||
+      strComp(val, "for") || strComp(val, "to") ||
+      strComp(val, "at") || strComp(val, "with") ||
+      strComp(val, "up") || strComp(val, "down")
   ) {
-
     return 1;
   }
   return 0;
 }
 
 char isPronoun(char* val) {
-  if (toLowerCaseCompare(val, "the")) {
+  if (strComp(val, "the")) {
     return 1;
   }
   return 0;
 }
 
 char isComplex(char* val) {
-  if (toLowerCaseCompare(val, "then")) {
+  if (strComp(val, "then")) {
     return 1;
   }
   return 0;
 }
 
 char isVerb(char* val) {
-  char ret = 0;
-
-  SGLIB_LIST_MAP_ON_ELEMENTS(Verbs, verbs, verb, next, {
-    if (toLowerCaseCompare(verb->name, val)) {
-      ret = 1;
-    }
-  });
-
-  return ret;
-}
-
-Verbs* getVerbByName(char* name) {
-  SGLIB_LIST_MAP_ON_ELEMENTS(Verbs, verbs, verb, next, {
-    if (toLowerCaseCompare(name, verb->name)) {
-      return verb;
-    }
-  });
-
-  return NULL;
-}
-
-char getVerbTransitivityByName(char* name) {
-  Verbs* verb = getVerbByName(name);
-  if (verb != NULL) {
-    return verb->transitivity;
+  if (strComp(val, "look") || strComp(val, "go") ||
+      strComp(val, "use") || strComp(val, "put") ||
+      strComp(val, "take") || strComp(val, "call")
+  ) {
+    return 1;
   }
-  return NULL;
+  return 0;
 }
 
 enum TokenType tokenTypeFromValue(char* val) {
@@ -110,7 +88,7 @@ enum TokenType tokenTypeFromValue(char* val) {
 
 enum TokenType readtok(char* input) {
   char *val;
-  TokenList* token = malloc(sizeof(TokenList));
+  Token* token = malloc(sizeof(Token));
 
   if (input != NULL) {
     val = strtok(input, SPLIT_CHAR);
@@ -118,26 +96,21 @@ enum TokenType readtok(char* input) {
     val = strtok(NULL, SPLIT_CHAR);
   }
 
+  token->i = counter;
   token->type = tokenTypeFromValue(val);
-  strcpy(token->val, val);
 
-  SGLIB_LIST_ADD(TokenList, tokenList, token, next);
-  lastToken = token;
+  if (token->type != TOK_EOL) {
+    toLowerCase(val);
+    strcpy(token->val, val);
+  } else {
+    strcpy(token->val, "\0");
+  }  
+
+  SGLIB_LIST_ADD(Token, tokenList, token, next);
 
   counter++;
 
   return token->type;
-}
-
-struct Verbs* createVerb(char* name, char transitivity) {
-  Verbs* verb = malloc(sizeof(Verbs));
-
-  if (verb != NULL) {
-    strcpy(verb->name, name);
-    verb->transitivity = transitivity;
-  }
-
-  return verb;
 }
 
 int lex(char* source) {
@@ -155,14 +128,14 @@ int lex(char* source) {
     type = readtok(NULL);
   }
 
-  SGLIB_LIST_REVERSE(struct TokenList, tokenList, next);
+  SGLIB_LIST_REVERSE(struct Token, tokenList, next);
 
   return ERR;
 }
 
 void free_lexer() {
-  SGLIB_LIST_MAP_ON_ELEMENTS(struct TokenList, tokenList, token, next, {
-    SGLIB_LIST_DELETE(struct TokenList, tokenList, token, next);
+  SGLIB_LIST_MAP_ON_ELEMENTS(struct Token, tokenList, token, next, {
+    SGLIB_LIST_DELETE(struct Token, tokenList, token, next);
     free(token);
   });
 }

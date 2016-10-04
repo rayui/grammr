@@ -4,6 +4,8 @@
 #define CONFIGFILEBUFFSIZE 240
 #define MAXINSTRUCTIONSIZE 512
 
+#define MAXARGSIZE 32
+
 #endif
 
 void con_getVal(char* name);

@@ -33,7 +33,6 @@ extern ErrorList* errorList;
 extern Item* items;
 extern Location* locations;
 extern Actions* actions;
-extern Verbs* verbs;
 
 void con_set_int_reg() {
   char int_reg[MAXARGSIZE];
@@ -168,19 +167,6 @@ int con_id() {
 
 int con_default() {
   if (con_acceptVal("default")) {
-    if (con_peek(JSMN_PRIMITIVE)) {
-      con_set_int_reg();
-      con_accept(JSMN_PRIMITIVE);
-      return 1;
-    }
-  }
-
-  return NULL;
-}
-
-
-int con_transitivity() {
-  if (con_acceptVal("transitivity")) {
     if (con_peek(JSMN_PRIMITIVE)) {
       con_set_int_reg();
       con_accept(JSMN_PRIMITIVE);
@@ -362,21 +348,6 @@ void con_action() {
   }
 }
 
-void con_verb() {
-  Verbs* verb;
-
-  if (con_name()) {
-    if (con_transitivity()) {
-      verb = createVerb(con_word_reg_b, con_int_reg);
-      SGLIB_LIST_ADD(Verbs, verbs, verb, next);
-    } else {
-      con_error(CON_UNEXPECTED_TOKEN);
-    }
-  } else {
-    con_error(CON_UNEXPECTED_TOKEN);
-  }
-}
-
 void con_object() {
   if (con_type()) {
     if (con_compare_word_reg(con_word_reg_a, "item")) {
@@ -385,8 +356,6 @@ void con_object() {
       con_location();
     } else if (con_compare_word_reg(con_word_reg_a, "action")) {
       con_action();
-    } else if (con_compare_word_reg(con_word_reg_a, "verb")) {
-      con_verb();
     } else {
       con_error(CON_OBJECT_EXPECTED);
     }

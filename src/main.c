@@ -15,11 +15,10 @@
 #include "../include/items.h"
 #include "../include/config_parser.h"
 
-TokenList* tokenList = NULL;
+Token* tokenList = NULL;
 InstructionList* instructionList = NULL;
 ErrorList* errorList = NULL;
 Actions* actions = NULL;
-Verbs* verbs = NULL;
 Item* items = NULL;
 Location* currentLocation;
 Location* locations = NULL;

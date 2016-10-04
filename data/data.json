@@ -1,34 +1,4 @@
 {
-  "type": "verb",
-  "name": "look",
-  "transitivity": 0
-},
-{
-  "type": "verb",
-  "name": "go",
-  "transitivity": 1
-},
-{
-  "type": "verb",
-  "name": "use",
-  "transitivity": 1
-},
-{
-  "type": "verb",
-  "name": "put",
-  "transitivity": 2
-},
-{
-  "type": "verb",
-  "name": "take",
-  "transitivity": 1
-},
-{
-  "type": "verb",
-  "name": "call",
-  "transitivity": 1
-},
-{
   "type": "action",
   "id": 0,
   "name": "go",
@@ -129,6 +99,28 @@
   "
 },
 {
+  "type": "action",
+  "id": 14,
+  "name": "use with",
+  "instructions": "
+    PR,Using $S and $O...;
+    PL;
+    PR,You are now connected to the Internet;
+    PL;
+  "
+},
+{
+  "type": "action",
+  "id": 15,
+  "name": "look at with",
+  "instructions": "
+    PR,Looking at $S with $O...;
+    PL;
+    PR,You are an idiot. A $O is not a microscope;
+    PL;
+  "
+},
+{
   "type": "item",
   "name": "Oyster card",
   "description": "You have $5 of credit on this card"
@@ -142,13 +134,13 @@
   "type": "item",
   "name": "Laptop",
   "description": "It is a Toshiba T2200",
-  "actions":[12]
+  "actions":[12, 14, 15]
 },
 {
   "type": "item",
   "name": "Mobile phone",
   "description": "It is a Nokia 3210",
-  "actions":[13]
+  "actions":[13, 14]
 },
 {
   "type": "item",
