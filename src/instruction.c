@@ -7,8 +7,6 @@
 #include "../include/utils.h"
 #include "../include/instruction.h"
 
-extern InstructionList* instructionList;
-
 enum Instruction inst_get_instruction(char* instructionStr) {
   char instruction[3];
 
@@ -134,13 +132,13 @@ InstructionList* cc_create_instruction(char* instructionStr, char* direct, char*
   return instruction;
 }
 
-InstructionList* cc_push_instructions(char* instructions, InstructionList* last, char* direct, char* indirect) {
+InstructionList* cc_push_instructions(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect) {
   char* instructionStr;
-  char len = strlen(instructions);
+  char len = strlen(newInstructions);
   char* tmpStr = malloc(len + 1);
   InstructionList* instruction = NULL;
 
-  strncpy(tmpStr, instructions, len);
+  strncpy(tmpStr, newInstructions, len);
   tmpStr[len] = '\0';
 
   instructionStr = strtok(tmpStr, CON_SPLIT_INSTR_CHAR);
@@ -148,8 +146,8 @@ InstructionList* cc_push_instructions(char* instructions, InstructionList* last,
   while(instructionStr != NULL) {
     instruction = cc_create_instruction(instructionStr, direct, indirect);
     SGLIB_DL_LIST_ADD_AFTER(InstructionList, last, instruction, prev, next);
-    if (instructionList == NULL) {
-      instructionList = last;
+    if (*instructions == NULL) {
+      *instructions = last;
     }
     instructionStr = strtok(NULL, CON_SPLIT_INSTR_CHAR);
     last = instruction;

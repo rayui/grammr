@@ -17,7 +17,7 @@
 #include "../include/config_parser.h"
 
 Token* tokenList = NULL;
-InstructionList* instructionList = NULL;
+InstructionList* instruction = NULL;
 ErrorList* errorList = NULL;
 Actions* actions = NULL;
 Item* items = NULL;
@@ -66,14 +66,14 @@ int main() {
 
       if(err == SE_OK) {
         PRINT(".");
-        err = parse();
+        err = parse(&instructions);
         ifError(err, input, output);
         if(err == SE_OK) {
           PRINT(".");
-          err = interpret(output);
+          err = interpret(instructions, output);
           ifError(err, input, output);
         }
-        free_parser();
+        free_parser(&instructions);
       }
 
       free_lexer();

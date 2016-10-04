@@ -36,5 +36,5 @@ enum Instruction inst_get_instruction(char* instruction);
 char parseNumArgsFromInstructions(char* instructions);
 struct InstructionList* createInstructionList(enum Instruction fn, char* arg1, char* arg2);
 void cc_convertSpecialVariable(char* arg, char* direct, char* indirect);
-InstructionList* cc_push_instructions(char* instructions, InstructionList* last, char* direct, char* indirect);
+InstructionList* cc_push_instructions(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect);
 InstructionList* cc_create_instruction(char* instructionStr, char* direct, char* indirect);

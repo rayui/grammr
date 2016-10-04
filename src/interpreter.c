@@ -13,11 +13,8 @@
 #include "../include/parser.h"
 #include "../include/interpreter.h"
 
-extern InstructionList* instructionList;
 extern ErrorList* errorList;
 extern Location* currentLocation;
-extern Location* locations;
-extern Item* items;
 extern Actions* actions;
 
 int equalityRegister = 0;
@@ -37,7 +34,7 @@ void inst_convertSpecialVariable(char* result, char* arg) {
   }
 }
 
-void inst_create_instructions(char* output, char* arg1, char* arg2) {
+void inst_action(char* output, InstructionList* instructions, char* arg1, char* arg2) {
   Actions* action;
   char actionId;
   char *first_comma = strchr(arg2, ',');
@@ -58,7 +55,7 @@ void inst_create_instructions(char* output, char* arg1, char* arg2) {
   inst_convertSpecialVariable(arg2, arg2);
 
   if (action != NULL) {
-    cc_push_instructions(action->instructions, currInstruction, arg1, arg2);
+    cc_push_instructions(&instructions, action->instructions, currInstruction, arg1, arg2);
   } else {
     sprintf(output, "%sNO SUCH ACTION: %d\r\n", output, actionId);
   }
@@ -189,11 +186,7 @@ void inst_newline(char* output) {
   sprintf(output, "%s\r\n", output);
 }
 
-void inst_action(output, arg1, arg2) {
-  inst_create_instructions(output, arg1, arg2);
-}
-
-void inst_switchfn(char* output, InstructionList* instruction) {
+void inst_switchfn(char* output, InstructionList* instructions, InstructionList* instruction) {
   enum Instruction fn = instruction->fn;
 
   if (fn != INST_ACTION) {
@@ -260,18 +253,18 @@ void inst_switchfn(char* output, InstructionList* instruction) {
       inst_newline(output);
       break;
     case INST_ACTION:
-      inst_action(output, arg1, arg2);
+      inst_action(output, instructions, arg1, arg2);
       break;
     default:
       sprintf(output, "%sUNKOWN TOKEN: %d %s %s\r\n", output, fn, arg1, arg2);
   }
 }
 
-enum RunState interpret(char* output) {
+enum RunState interpret(InstructionList* instructions, char* output) {
   enum RunState ERR = SE_OK;
   skip = SKIP_NONE;
 
-  currInstruction = instructionList;
+  currInstruction = instructions;
 
   while (currInstruction != NULL) {
     if (skip == SKIP_GOTO &&
@@ -282,7 +275,7 @@ enum RunState interpret(char* output) {
     } else if (skip == SKIP_ONE) {
       skip = SKIP_NONE;
     } else if (skip == SKIP_NONE) {
-      inst_switchfn(output, currInstruction);
+      inst_switchfn(output, instructions, currInstruction);
     }
 
     currInstruction = currInstruction->next;

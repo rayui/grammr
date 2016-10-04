@@ -15,8 +15,8 @@ void cc_set_word_reg(void);
 
 void cc_push_to_cc_word_reg(void);
 
-void cc_commands(void);
-void cc_command(void);
+void cc_commands(InstructionList** instructions);
+void cc_command(InstructionList** instructions);
 void cc_eol(void);
 void cc_quit(void);
 
@@ -41,5 +41,5 @@ int cc_acceptVal(char *s);
 void cc_expect(enum TokenType type);
 void cc_readtok(void);
 
-void free_parser(void);
-enum RunState parse(void);
+void free_parser(InstructionList** instructions);
+enum RunState parse(InstructionList** instructions);

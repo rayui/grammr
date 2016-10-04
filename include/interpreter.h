@@ -10,5 +10,5 @@
 #define MAXITEMSTEXTLENGTH 128
 #define MAXOUTPUTSIZE 1024
 
-enum RunState interpret(char* output);
+enum RunState interpret(InstructionList* instructions, char* output);
 void inst_convertSpecialVariable(char* result, char* arg);

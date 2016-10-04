@@ -18,7 +18,6 @@ char cc_word_reg[MAXNAMESZ];
 NameList* cc_name_stack;
 char cc_action_reg[MAXNAMESZ];
 
-extern InstructionList* instructionList;
 extern Token* tokenList;
 extern ErrorList* errorList;
 extern Item* items;
@@ -143,7 +142,7 @@ void cc_conjunction() {
   }
 }
 
-void cc_action() {
+void cc_action(InstructionList** instructions) {
   Token* token = tokenList;
   Actions* action = NULL;
   Location* location = NULL;
@@ -189,17 +188,17 @@ void cc_action() {
   }
 
   if (action != NULL) {
-    lastInstruction = cc_push_instructions(action->instructions, lastInstruction, numItems > 0 ? cc_name_stack->name : NULL, numItems > 1 ? cc_name_stack->next->name : NULL);
+    lastInstruction = cc_push_instructions(instructions, action->instructions, lastInstruction, numItems > 0 ? cc_name_stack->name : NULL, numItems > 1 ? cc_name_stack->next->name : NULL);
   } else {
     cc_error(CC_NO_SUCH_ACTION, token->val);
   }
 }
 
-void cc_command() {
+void cc_command(InstructionList** instructions) {
   cc_empty_name_list();
 
   if (cc_peek(TOK_VERB)) {
-    cc_action();
+    cc_action(instructions);
   } else if (cc_accept(TOK_QUIT)) {
     cc_quit();
   } else {
@@ -207,13 +206,13 @@ void cc_command() {
   }
 }
 
-void cc_commands() {
-  cc_command();
+void cc_commands(InstructionList** instructions) {
+  cc_command(instructions);
 
   if (cc_accept(TOK_EOL)) {
     cc_eol();
   } else if (cc_accept(TOK_COMPLEX)) {
-    cc_commands();
+    cc_commands(instructions);
   } else {
     cc_error(CC_ERR_END_OF_COMMAND_EXPECTED, tokenList->val);
   }
@@ -227,23 +226,23 @@ void cc_quit() {
   cc_error(CC_QUIT, tokenList->val);
 }
 
-void free_parser() {
-  SGLIB_DL_LIST_MAP_ON_ELEMENTS(struct InstructionList, instructionList, instruction, prev, next, {
-    SGLIB_DL_LIST_DELETE(struct InstructionList, instructionList, instruction, prev, next);
+void free_parser(InstructionList** instructions) {
+  SGLIB_DL_LIST_MAP_ON_ELEMENTS(InstructionList, *instructions, instruction, prev, next, {
+    SGLIB_DL_LIST_DELETE(InstructionList, *instructions, instruction, prev, next);
     free(instruction);
   });
 }
 
-enum RunState parse() {
+enum RunState parse(InstructionList** instructions) {
   //gotta remember where we are so we can clean the tokens after!
   struct Token* tokenStart = tokenList;
 
   ERR = SE_OK;
   cc_counter = 0;
-  lastInstruction = instructionList;
+  lastInstruction = *instructions;
 
   while(tokenList != NULL && ERR == SE_OK) {
-    cc_commands();
+    cc_commands(instructions);
   }
 
   //reset the token start pointer
