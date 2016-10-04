@@ -41,6 +41,10 @@ void toC64Case(char* str) {
 void toLowerCase(char* str) {
   int i = 0;
 
+  if (str == NULL) {
+    return;
+  }
+
   while (str[i] != '\0') {
     if (str[i] >= 97 && str[i] <= 122) {
       str[i] = str[i] - 32;

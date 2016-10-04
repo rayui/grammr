@@ -76,7 +76,6 @@ int main() {
       }
 
       free_lexer();
-      //clrscr();
 
       PRINT("%s\r\n", output);
 

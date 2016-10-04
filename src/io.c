@@ -6,27 +6,39 @@
 
 extern const char str_command[];
 
-int getAndEchoKeyboardInput(void) {
-  int c;
-	PUT(c = (int)cgetc());
-	return c;
+void printPrompt(char* input) {
+		cputsxy(0, 24, "                              ");
+		cputsxy(0, 24, str_command);
+		cputsxy(2, 24, input);
+		gotoxy(2 + strlen(input), 24);
 }
 
 void acceptInput(char** input) {
-	int count = 0;
-	int charIn;
+	char count = 0;
+	char charIn = 0;
 
-	PRINT("%s ", str_command);
+	printPrompt("\0");
 
-	while ((charIn = getAndEchoKeyboardInput()) != '\n' && count < COMMAND_SIZE) {
-		(*input)[count] = charIn;
-		count++;
+	while (charIn != 13 && count < COMMAND_SIZE) {
+
+		charIn = cgetc();
+
+		//20 is delete/backspace in PETSCII
+		if (charIn == 20 && count > 0) {
+			(*input)[count -  1] = 0;
+			count--;
+		} else if  (charIn == 32 ||
+								charIn >= 65 && charIn <= 90 ||
+								charIn >= 97 && charIn <= 122) {
+			(*input)[count] = charIn;
+			count++;
+		} else if (charIn == 13) {
+			(*input)[count] = '\0';
+			count++;
+		}
+
+		printPrompt(*input);
 	}
-
-	PRINT("\r\n");
-
-	(*input)[count] = 0;
-
 }
 
 

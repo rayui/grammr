@@ -96,15 +96,16 @@ enum TokenType readtok(char* input) {
     val = strtok(NULL, SPLIT_CHAR);
   }
 
+  toLowerCase(val);
+
   token->i = counter;
   token->type = tokenTypeFromValue(val);
 
   if (token->type != TOK_EOL) {
-    toLowerCase(val);
     strcpy(token->val, val);
   } else {
     strcpy(token->val, "\0");
-  }  
+  }
 
   SGLIB_LIST_ADD(Token, tokenList, token, next);
 
