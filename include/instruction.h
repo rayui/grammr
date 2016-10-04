@@ -1,4 +1,6 @@
 #define MAX_INST_ARG_SIZE 128
+#define CON_SPLIT_INSTR_CHAR ";\0"
+#define CON_SPLIT_ARG_CHAR ','
 
 enum Instruction {
   INST_INVALID,
@@ -30,20 +32,9 @@ typedef struct InstructionList {
   struct InstructionList* prev;
 } InstructionList;
 
-typedef struct Actions {
-  char id;
-  char name[MAX_INST_ARG_SIZE];
-  char args;
-  char isDefault;
-  char* instructions;
-  struct Actions* next;
-} Actions;
-
 enum Instruction inst_get_instruction(char* instruction);
 char parseNumArgsFromInstructions(char* instructions);
 struct InstructionList* createInstructionList(enum Instruction fn, char* arg1, char* arg2);
-struct Actions* createAction(char id, char* name, char* instructions, char isDefault);
-Actions* findActionById(char id);
-Actions* findActionByName(char* name);
-Actions* findActionByNameAndItem(struct Item* item, char* name);
-Actions* findDefaultActionByName(char* name);
+void cc_convertSpecialVariable(char* arg, char* direct, char* indirect);
+InstructionList* cc_push_instructions(char* instructions, InstructionList* last, char* direct, char* indirect);
+InstructionList* cc_create_instruction(char* instructionStr, char* direct, char* indirect);

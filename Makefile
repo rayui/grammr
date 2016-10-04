@@ -5,19 +5,20 @@ TEXT_DIR=text/
 DATA_DIR=data/
 DIST_DIR=dist/
 
-all: yamamdore create_image
+all: grammr create_image
 
 create_image: data.pet
 	c1541 -format "grammr,01" d64 $(DIST_DIR)grammr.d64
 	c1541 -attach $(DIST_DIR)grammr.d64 -write $(BUILD_DIR)grammr
 	c1541 -attach $(DIST_DIR)grammr.d64 -write $(BUILD_DIR)data.pet
 
-yamamdore: io.o error.o lexer.o parser.o interpreter.o locations.o items.o instruction.o utils.o config_parser.o jsmn.o\
-	text.o debugmalloc.o
+grammr: io.o error.o lexer.o parser.o interpreter.o locations.o items.o instruction.o utils.o config_parser.o jsmn.o\
+	actions.o text.o debugmalloc.o
 	cc65 -O -t c64 --static-locals $(SRC_DIR)main.c -o $(BUILD_DIR)main.s
 	ca65 $(BUILD_DIR)main.s -o $(BUILD_DIR)main.o
 	ld65 -o $(BUILD_DIR)grammr -t c64 $(BUILD_DIR)main.o $(BUILD_DIR)error.o $(BUILD_DIR)lexer.o \
 		$(BUILD_DIR)parser.o $(BUILD_DIR)interpreter.o $(BUILD_DIR)locations.o $(BUILD_DIR)items.o \
+		$(BUILD_DIR)actions.o \
 		$(BUILD_DIR)jsmn.o $(BUILD_DIR)config_parser.o $(BUILD_DIR)instruction.o $(BUILD_DIR)text.o \
 		$(BUILD_DIR)utils.o $(BUILD_DIR)io.o c64.lib
 
@@ -52,6 +53,10 @@ locations.o: items.o debugmalloc.o
 items.o: utils.o debugmalloc.o
 	cc65 -O -t c64 --static-locals $(SRC_DIR)items.c $(BUILD_DIR)utils.o -o $(BUILD_DIR)items.s
 	ca65 $(BUILD_DIR)items.s -o $(BUILD_DIR)items.o
+
+actions.o: actions.o debugmalloc.o
+	cc65 -O -t c64 --static-locals $(SRC_DIR)actions.c $(BUILD_DIR)utils.o -o $(BUILD_DIR)actions.s
+	ca65 $(BUILD_DIR)actions.s -o $(BUILD_DIR)actions.o
 
 instruction.o:
 	cc65 -O -t c64 --static-locals $(SRC_DIR)instruction.c -o $(BUILD_DIR)instruction.s

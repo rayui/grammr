@@ -12,6 +12,7 @@
 #include "../include/parser.h"
 #include "../include/interpreter.h"
 #include "../include/locations.h"
+#include "../include/actions.h"
 #include "../include/items.h"
 #include "../include/config_parser.h"
 
@@ -76,6 +77,7 @@ int main() {
       }
 
       free_lexer();
+      clrscr();
 
       PRINT("%s\r\n", output);
 

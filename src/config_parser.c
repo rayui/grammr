@@ -9,7 +9,7 @@
 #include "../include/lexer.h"
 #include "../include/items.h"
 #include "../include/locations.h"
-#include "../include/instruction.h"
+#include "../include/actions.h"
 #include "../include/config_parser.h"
 
 FILE* fp;

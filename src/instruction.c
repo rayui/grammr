@@ -7,49 +7,50 @@
 #include "../include/utils.h"
 #include "../include/instruction.h"
 
-extern Actions* actions;
+extern InstructionList* instructionList;
 
 enum Instruction inst_get_instruction(char* instructionStr) {
   char instruction[3];
 
   strncpy(instruction, instructionStr, 2);
+  toLowerCase(instruction);
   instruction[3] = '\0';
 
-  if (toLowerCaseCompare(instruction, "eq")) {
+  if (strComp(instruction, "eq")) {
     return INST_EQ;
-  } else if (toLowerCaseCompare(instruction, "li")) {
+  } else if (strComp(instruction, "li")) {
     return INST_ITEMINLOCATION;
-  } else if (toLowerCaseCompare(instruction, "ii")) {
+  } else if (strComp(instruction, "ii")) {
     return INST_ITEMININVENTORY;
-  } else if (toLowerCaseCompare(instruction, "he")) {
+  } else if (strComp(instruction, "he")) {
     return INST_HASEXIT;
-  } else if (toLowerCaseCompare(instruction, "nt")) {
+  } else if (strComp(instruction, "nt")) {
     return INST_NOT;
-  } else if (toLowerCaseCompare(instruction, "if")) {
+  } else if (strComp(instruction, "if")) {
     return INST_IF;
-  } else if (toLowerCaseCompare(instruction, "ls")) {
+  } else if (strComp(instruction, "ls")) {
     return INST_SETLOC;
-  } else if (toLowerCaseCompare(instruction, "ia")) {
+  } else if (strComp(instruction, "ia")) {
     return INST_ADDITEM;
-  } else if (toLowerCaseCompare(instruction, "id")) {
+  } else if (strComp(instruction, "id")) {
     return INST_DELITEM;
-  } else if (toLowerCaseCompare(instruction, "rt")) {
+  } else if (strComp(instruction, "rt")) {
     return INST_RETURN;
-  } else if (toLowerCaseCompare(instruction, "gt")) {
+  } else if (strComp(instruction, "gt")) {
     return INST_GOTO;
-  } else if (toLowerCaseCompare(instruction, "lb")) {
+  } else if (strComp(instruction, "lb")) {
     return INST_LABEL;
-  } else if (toLowerCaseCompare(instruction, "pr")) {
+  } else if (strComp(instruction, "pr")) {
     return INST_PRINT;
-  } else if (toLowerCaseCompare(instruction, "pd")) {
+  } else if (strComp(instruction, "pd")) {
     return INST_PRINTDESC;
-  } else if (toLowerCaseCompare(instruction, "pe")) {
+  } else if (strComp(instruction, "pe")) {
     return INST_PRINTEXITS;
-  } else if (toLowerCaseCompare(instruction, "pi")) {
+  } else if (strComp(instruction, "pi")) {
     return INST_PRINTITEMS;
-  } else if (toLowerCaseCompare(instruction, "pl")) {
+  } else if (strComp(instruction, "pl")) {
     return INST_NEWLINE;
-  } else if (toLowerCaseCompare(instruction, "ac")) {
+  } else if (strComp(instruction, "ac")) {
     return INST_ACTION;
   }
 
@@ -83,67 +84,78 @@ InstructionList* createInstructionList(enum Instruction fn, char* arg1, char* ar
   return instruction;
 }
 
-Actions* createAction(char id, char* name, char* instructions, char isDefault) {
-  int instLen = strlen(instructions);
+void cc_convertSpecialVariable(char* arg, char* direct, char* indirect) {
+  char* argRepl;
 
-  Actions* action = malloc(sizeof(struct Actions));
-  if (action == NULL) {
-    return NULL;
+  if (arg == NULL) return;
+
+  if (direct) {
+    argRepl = replace_str(arg, "$S", direct);
+    strcpy(arg, argRepl);
   }
 
-  action->id = id;
-  strcpy(action->name, name);
-  action->instructions = malloc(instLen + 1 * sizeof(char));
-  strcpy(action->instructions, instructions);
-  action->isDefault = isDefault;
-  (action->instructions)[instLen] = 0;
-  action->next = NULL;
-
-  return action;
+  if (indirect) {
+    argRepl = replace_str(arg, "$O", indirect);
+    strcpy(arg, argRepl);
+  }
 }
 
-Actions* findActionByName(char* name) {
-  SGLIB_LIST_MAP_ON_ELEMENTS(Actions, actions, action, next, {
-    if (toLowerCaseCompare(action->name, name)) {
-      return action;
+InstructionList* cc_create_instruction(char* instructionStr, char* direct, char* indirect) {
+  InstructionList* instruction;
+  enum Instruction fn;
+  char fnName[MAX_INST_ARG_SIZE];
+  char arg1[MAX_INST_ARG_SIZE];
+  char arg2[MAX_INST_ARG_SIZE];
+  char *first_comma = strchr(instructionStr, CON_SPLIT_ARG_CHAR);
+  char *second_comma;
+
+  memset(arg1, 0, MAX_INST_ARG_SIZE);
+  memset(arg2, 0, MAX_INST_ARG_SIZE);
+
+  fn = inst_get_instruction(instructionStr);
+
+  if (first_comma) {
+    second_comma = strchr(first_comma + 1, CON_SPLIT_ARG_CHAR);
+    if (second_comma) {
+      strncpy(arg1, first_comma + 1, second_comma - first_comma - 1);
+      strcpy(arg2, second_comma + 1);
+    } else {
+      strcpy(arg1, first_comma + 1);
     }
-  });
-
-  return NULL;
-}
-
-Actions* findActionById(char id) {
-  SGLIB_LIST_MAP_ON_ELEMENTS(Actions, actions, action, next, {
-    if (action->id == id) {
-      return action;
-    }
-  });
-
-  return NULL;
-}
-
-Actions* findDefaultActionByName(char* name) {
-  SGLIB_LIST_MAP_ON_ELEMENTS(Actions, actions, action, next, {
-    if (toLowerCaseCompare(action->name, name) && action->isDefault) {
-      return action;
-    }
-  });
-
-  return NULL;
-}
-
-Actions* findActionByNameAndItem(struct Item* item, char* name) {
-  char i;
-
-  for (i = 0; i < MAXINSTRUCTIONS; i++) {
-    SGLIB_LIST_MAP_ON_ELEMENTS(Actions, actions, action, next, {
-      if (action->id == (item->actions)[i]) {
-        if (toLowerCaseCompare(action->name, name)) {
-          return action;
-        }
-      }
-    });
+  } else {
+    strcpy(fnName, instructionStr);
   }
 
-  return NULL;
+  cc_convertSpecialVariable(arg1, direct, indirect);
+  cc_convertSpecialVariable(arg2, direct, indirect);
+
+  instruction = createInstructionList(fn, arg1, arg2);
+
+  return instruction;
+}
+
+InstructionList* cc_push_instructions(char* instructions, InstructionList* last, char* direct, char* indirect) {
+  char* instructionStr;
+  char len = strlen(instructions);
+  char* tmpStr = malloc(len + 1);
+  InstructionList* instruction = NULL;
+
+  strncpy(tmpStr, instructions, len);
+  tmpStr[len] = '\0';
+
+  instructionStr = strtok(tmpStr, CON_SPLIT_INSTR_CHAR);
+
+  while(instructionStr != NULL) {
+    instruction = cc_create_instruction(instructionStr, direct, indirect);
+    SGLIB_DL_LIST_ADD_AFTER(InstructionList, last, instruction, prev, next);
+    if (instructionList == NULL) {
+      instructionList = last;
+    }
+    instructionStr = strtok(NULL, CON_SPLIT_INSTR_CHAR);
+    last = instruction;
+  }
+
+  free(tmpStr);
+
+  return last;
 }

@@ -100,23 +100,34 @@
 },
 {
   "type": "action",
+  "id": 12,
+  "name": "go down",
+  "default": 0,
+  "instruction": "
+    EQ,$L,Landing;
+    IF;
+    AC,11,$L;
+  "
+},
+{
+  "type": "action",
+  "id": 13,
+  "name": "go up",
+  "default": 0,
+  "instruction": "
+    EQ,$L,Front entrance;
+    IF;
+    AC,11,$L;
+  "
+},
+{
+  "type": "action",
   "id": 14,
   "name": "use with",
   "instructions": "
     PR,Using $S and $O...;
     PL;
     PR,You are now connected to the Internet;
-    PL;
-  "
-},
-{
-  "type": "action",
-  "id": 15,
-  "name": "look at with",
-  "instructions": "
-    PR,Looking at $S with $O...;
-    PL;
-    PR,You are an idiot. A $O is not a microscope;
     PL;
   "
 },
@@ -134,13 +145,13 @@
   "type": "item",
   "name": "Laptop",
   "description": "It is a Toshiba T2200",
-  "actions":[12, 14, 15]
+  "actions":[14]
 },
 {
   "type": "item",
   "name": "Mobile phone",
   "description": "It is a Nokia 3210",
-  "actions":[13, 14]
+  "actions":[14]
 },
 {
   "type": "item",
@@ -162,8 +173,8 @@
 {
   "type": "item",
   "name": "Stairs",
-  "description": "They sport a heavily worn carpet and peeling gloss white ballustrade, of which one of the supports is missing.",
-  "actions": [11]
+  "description": "They sport a heavily worn carpet and peeling gloss white ballustrade, of which one of the supports is missing",
+  "actions": [11, 12, 13]
 },
 {
   "type": "item",

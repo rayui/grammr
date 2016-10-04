@@ -4,6 +4,7 @@
 #include "../include/sglib.h"
 #include "../include/utils.h"
 #include "../include/locations.h"
+#include "../include/actions.h"
 #include "../include/items.h"
 #include "../include/io.h"
 #include "../include/error.h"
@@ -17,6 +18,7 @@ extern ErrorList* errorList;
 extern Location* currentLocation;
 extern Location* locations;
 extern Item* items;
+extern Actions* actions;
 
 int equalityRegister = 0;
 int skip = SKIP_NONE;
@@ -50,7 +52,7 @@ void inst_create_instructions(char* output, char* arg1, char* arg2) {
     arg2[0] = '\0';
   }
 
-  action = findActionById(actionId);
+  action = findActionById(actions, actionId);
 
   inst_convertSpecialVariable(arg1, arg1);
   inst_convertSpecialVariable(arg2, arg2);
