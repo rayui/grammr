@@ -8,7 +8,6 @@
 #include "../include/lexer.h"
 
 const char SPLIT_CHAR[2] = " \0";
-extern Token* tokenList;
 extern ErrorList* errorList;
 int counter;
 char ERR;
@@ -86,7 +85,7 @@ enum TokenType tokenTypeFromValue(char* val) {
   return NULL;
 }
 
-enum TokenType readtok(char* input) {
+enum TokenType readtok(Token** tokens, char* input) {
   char *val;
   Token* token = malloc(sizeof(Token));
 
@@ -107,14 +106,14 @@ enum TokenType readtok(char* input) {
     strcpy(token->val, "\0");
   }
 
-  SGLIB_LIST_ADD(Token, tokenList, token, next);
+  SGLIB_LIST_ADD(Token, *tokens, token, next);
 
   counter++;
 
   return token->type;
 }
 
-int lex(char* source) {
+int lex(Token** tokens, char* source) {
   enum TokenType type;
   static char input[MAXCOMMANDSIZE];
 
@@ -124,19 +123,19 @@ int lex(char* source) {
   strncpy(input, source, MAXCOMMANDSIZE - 2);
   input[MAXCOMMANDSIZE - 1] = '\0';
 
-  type = readtok(input);
+  type = readtok(tokens, input);
   while(type != TOK_EOL) {
-    type = readtok(NULL);
+    type = readtok(tokens, NULL);
   }
 
-  SGLIB_LIST_REVERSE(struct Token, tokenList, next);
+  SGLIB_LIST_REVERSE(struct Token, *tokens, next);
 
   return ERR;
 }
 
-void free_lexer() {
-  SGLIB_LIST_MAP_ON_ELEMENTS(struct Token, tokenList, token, next, {
-    SGLIB_LIST_DELETE(struct Token, tokenList, token, next);
+void free_lexer(Token** tokens) {
+  SGLIB_LIST_MAP_ON_ELEMENTS(struct Token, *tokens, token, next, {
+    SGLIB_LIST_DELETE(struct Token, *tokens, token, next);
     free(token);
   });
 }

@@ -5,6 +5,7 @@
 #include "../include/io.h"
 #include "../include/utils.h"
 #include "../include/error.h"
+#include "../include/io.h"
 #include "../include/items.h"
 #include "../include/locations.h"
 #include "../include/actions.h"
@@ -15,26 +16,17 @@
 enum RunState ERR = SE_OK;
 int cc_counter = 0;
 char cc_word_reg[MAXNAMESZ];
-NameList* cc_name_stack;
 char cc_action_reg[MAXNAMESZ];
+NameList* cc_name_stack;
+Token* tokenList;
+InstructionList* lastInstruction;
 
-extern Token* tokenList;
-extern ErrorList* errorList;
 extern Item* items;
 extern Actions* actions;
-
-InstructionList* lastInstruction;
 
 void cc_readtok() {
   tokenList = tokenList->next;
   cc_counter++;
-}
-
-void cc_empty_name_list() {
-  SGLIB_LIST_MAP_ON_ELEMENTS(NameList, cc_name_stack, mappedName, next, {
-    SGLIB_LIST_DELETE(NameList, cc_name_stack, mappedName, next);
-    free(mappedName);
-  });
 }
 
 void cc_set_action_reg() {
@@ -48,13 +40,21 @@ void cc_concat_action_reg(char* split) {
 }
 
 void cc_set_word_reg() {
-  memset(cc_word_reg, 0, MAXNAMESZ);
-  strcpy(cc_word_reg, tokenList->val);
+  if (strlen(cc_word_reg)) {
+    strcat(cc_word_reg, " ");
+  }
+  strcat(cc_word_reg, tokenList->val);
 }
 
-void cc_concat_word_reg() {
-  strcat(cc_word_reg, " ");
-  strcat(cc_word_reg, tokenList->val);
+void cc_empty_word_reg() {
+  memset(cc_word_reg, 0, MAXNAMESZ);
+}
+
+void cc_empty_name_list() {
+  SGLIB_LIST_MAP_ON_ELEMENTS(NameList, cc_name_stack, mappedName, next, {
+    SGLIB_LIST_DELETE(NameList, cc_name_stack, mappedName, next);
+    free(mappedName);
+  });
 }
 
 void cc_push_word_reg_to_item_reg() {
@@ -62,6 +62,8 @@ void cc_push_word_reg_to_item_reg() {
   strcpy(newName->name, cc_word_reg);
 
   SGLIB_LIST_ADD(struct NameList, cc_name_stack, newName, next);
+
+  cc_empty_word_reg();
 }
 
 int cc_peek(enum TokenType type) {
@@ -77,14 +79,18 @@ int cc_peekVal(char *s) {
 
 int cc_accept(enum TokenType type) {
   if (cc_peek(type)) {
-    cc_readtok();
-    return 1;
-  }
-  return 0;
-}
-
-int cc_acceptVal(char *s) {
-  if (cc_peekVal(s)) {
+    switch (type) {
+      case TOK_WORD:
+        cc_set_word_reg();
+        break;
+      case TOK_VERB:
+        cc_set_action_reg();
+        break;
+      case TOK_PREPOSITION:
+      case TOK_CONJUNCTION:
+        cc_concat_action_reg(" ");
+        break;
+    }
     cc_readtok();
     return 1;
   }
@@ -99,46 +105,15 @@ void cc_error(enum ErrorType error, char* val) {
   cc_readtok();
 }
 
-void cc_words() {
-  if (cc_peek(TOK_WORD)) {
-    cc_set_word_reg();
-    cc_accept(TOK_WORD);
-    if (cc_peek(TOK_WORD)) {
-      cc_concat_words();
-    }
-  } else {
-    cc_error(CC_WORD_EXPECTED, tokenList->val);
-  }
-}
-
-void cc_concat_words() {
-  cc_concat_word_reg();
-  cc_accept(TOK_WORD);
-
-  if (cc_peek(TOK_WORD)) {
-    cc_concat_words();
-  }
-}
-
 void cc_item() {
-  if (cc_peek(TOK_WORD) || cc_peek(TOK_PRONOUN)) {
-    cc_accept(TOK_PRONOUN);
-    cc_words();
+  cc_accept(TOK_PRONOUN);
+  if (cc_peek(TOK_WORD)) {
+    while (cc_peek(TOK_WORD)) {
+      cc_accept(TOK_WORD);
+    }
     cc_push_word_reg_to_item_reg();
   } else {
     cc_error(CC_ITEM_EXPECTED, tokenList->val);
-  }
-}
-
-void cc_location_name() {
-  cc_item();
-}
-
-void cc_conjunction() {
-  if (cc_peek(TOK_CONJUNCTION)) {
-    cc_accept(TOK_CONJUNCTION);
-  } else {
-    cc_error(CC_CONJUNCTION_EXPECTED, tokenList->val);
   }
 }
 
@@ -149,22 +124,14 @@ void cc_action(InstructionList** instructions) {
   Item* item = NULL;
   char numItems = 0;
 
-  cc_set_action_reg();
   cc_accept(TOK_VERB);
-
-  if (cc_peek(TOK_PREPOSITION)) {
-    cc_concat_action_reg(" ");
-    cc_accept(TOK_PREPOSITION);
-  }
+  cc_accept(TOK_PREPOSITION);
 
   if (cc_peek(TOK_WORD) || cc_peek(TOK_PRONOUN)) {
     cc_item();
-  }
-
-  if (cc_peek(TOK_CONJUNCTION)) {
-    cc_concat_action_reg(" ");
-    cc_accept(TOK_CONJUNCTION);
-    cc_item();
+    if (cc_accept(TOK_CONJUNCTION)) {
+      cc_item();
+    }
   }
 
   SGLIB_LIST_REVERSE(NameList, cc_name_stack, next);
@@ -218,12 +185,12 @@ void cc_commands(InstructionList** instructions) {
   }
 }
 
-void cc_eol() {
-  return;
-}
-
 void cc_quit() {
   cc_error(CC_QUIT, tokenList->val);
+}
+
+void cc_eol() {
+  return;
 }
 
 void free_parser(InstructionList** instructions) {
@@ -233,9 +200,10 @@ void free_parser(InstructionList** instructions) {
   });
 }
 
-enum RunState parse(InstructionList** instructions) {
+enum RunState parse(Token** tokens, InstructionList** instructions) {
   //gotta remember where we are so we can clean the tokens after!
-  struct Token* tokenStart = tokenList;
+  Token* firstToken = *tokens;
+  tokenList = *tokens;
 
   ERR = SE_OK;
   cc_counter = 0;
@@ -246,7 +214,7 @@ enum RunState parse(InstructionList** instructions) {
   }
 
   //reset the token start pointer
-  tokenList = tokenStart;
+  tokens = &firstToken;
 
   return ERR;
 }

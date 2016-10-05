@@ -17,7 +17,7 @@
 #include "../include/config_parser.h"
 
 Token* tokenList = NULL;
-InstructionList* instruction = NULL;
+InstructionList* instructions = NULL;
 ErrorList* errorList = NULL;
 Actions* actions = NULL;
 Item* items = NULL;
@@ -61,12 +61,12 @@ int main() {
       clrscr();
 
       PRINT(".");
-      err = lex(input);
+      err = lex(&tokenList, input);
       ifError(err, input, output);
 
       if(err == SE_OK) {
         PRINT(".");
-        err = parse(&instructions);
+        err = parse(&tokenList, &instructions);
         ifError(err, input, output);
         if(err == SE_OK) {
           PRINT(".");
@@ -76,7 +76,7 @@ int main() {
         free_parser(&instructions);
       }
 
-      free_lexer();
+      free_lexer(&tokenList);
       clrscr();
 
       PRINT("%s\r\n", output);
