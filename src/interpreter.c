@@ -21,12 +21,10 @@ int equalityRegister = 0;
 int skip = SKIP_NONE;
 
 char gotoLabel[MAX_INST_ARG_SIZE];
-char arg1[MAX_INST_ARG_SIZE];
-char arg2[MAX_INST_ARG_SIZE];
 
 InstructionList* currInstruction = NULL;
 
-void inst_convertSpecialVariable(char* result, char* arg) {
+void intrpt_convertSpecialVariable(char* result, char* arg) {
   if (toLowerCaseCompare(arg, "$l")) {
     strcpy(result, currentLocation->name);
   } else {
@@ -34,7 +32,7 @@ void inst_convertSpecialVariable(char* result, char* arg) {
   }
 }
 
-void inst_action(char* output, InstructionList* instructions, char* arg1, char* arg2) {
+void intrpt_action(char* output, InstructionList* instructions, char* arg1, char* arg2) {
   Actions* action;
   char actionId;
   char *first_comma = strchr(arg2, ',');
@@ -51,8 +49,8 @@ void inst_action(char* output, InstructionList* instructions, char* arg1, char* 
 
   action = findActionById(actions, actionId);
 
-  inst_convertSpecialVariable(arg1, arg1);
-  inst_convertSpecialVariable(arg2, arg2);
+  intrpt_convertSpecialVariable(arg1, arg1);
+  intrpt_convertSpecialVariable(arg2, arg2);
 
   if (action != NULL) {
     cc_push_instructions(&instructions, action->instructions, currInstruction, arg1, arg2);
@@ -61,15 +59,15 @@ void inst_action(char* output, InstructionList* instructions, char* arg1, char* 
   }
 }
 
-void inst_invalid(char* output, enum Instruction fn, char* arg1, char* arg2) {
+void intrpt_invalid(char* output, enum Instruction fn, char* arg1, char* arg2) {
   sprintf(output, "%sINVALID INSTRUCTION: %d %s %s\r\n", output, fn, arg1, arg2);
 }
 
-void inst_eq(char* arg1, char* arg2) {
+void intrpt_eq(char* arg1, char* arg2) {
   equalityRegister = toLowerCaseCompare(arg1, arg2);
 }
 
-void inst_locationhasitem(char* arg1, char* arg2) {
+void intrpt_locationhasitem(char* arg1, char* arg2) {
   Location* loc = findLocationByName(arg1);
   Item* item;
 
@@ -84,7 +82,7 @@ void inst_locationhasitem(char* arg1, char* arg2) {
   equalityRegister = 0;
 }
 
-void inst_inventoryhasitem(char* arg1) {
+void intrpt_inventoryhasitem(char* arg1) {
   char i = inventoryHasItem(arg1);
 
   if (i == 1) {
@@ -94,16 +92,16 @@ void inst_inventoryhasitem(char* arg1) {
   equalityRegister = 0;
 }
 
-void inst_hasexit(char* arg1, char* arg2) {
+void intrpt_hasexit(char* arg1, char* arg2) {
   char i = locationHasExit(arg1, arg2);
   equalityRegister = i;
 }
 
-void inst_not() {
+void intrpt_not() {
   equalityRegister = !equalityRegister;
 }
 
-void inst_if() {
+void intrpt_if() {
   if (equalityRegister == 0) {
     skip = SKIP_ONE;
   } else {
@@ -111,36 +109,36 @@ void inst_if() {
   }
 }
 
-void inst_setloc(char* arg1) {
+void intrpt_setloc(char* arg1) {
   currentLocation = findLocationByName(arg1);
 }
 
-void inst_additem(char* arg1, char* arg2) {
+void intrpt_additem(char* arg1, char* arg2) {
 
 }
 
-void inst_delitem(char* arg1, char* arg2) {
+void intrpt_delitem(char* arg1, char* arg2) {
 
 }
 
-void inst_return() {
+void intrpt_return() {
   skip = SKIP_END;
 }
 
-void inst_goto(char* arg1) {
+void intrpt_goto(char* arg1) {
   skip = SKIP_GOTO;
   strcpy(gotoLabel, arg1);
 }
 
-void inst_label() {
+void intrpt_label() {
   skip = SKIP_NONE;
 }
 
-void inst_print(char* output, char* arg1) {
+void intrpt_print(char* output, char* arg1) {
   sprintf(output, "%s%s", output, arg1);
 }
 
-void inst_printdesc(char* output, char* arg1) {
+void intrpt_printdesc(char* output, char* arg1) {
   Location* loc = findLocationByName(arg1);
   Item* item;
 
@@ -154,7 +152,7 @@ void inst_printdesc(char* output, char* arg1) {
   }
 }
 
-void inst_printexits(char* output, char* arg1) {
+void intrpt_printexits(char* output, char* arg1) {
   char exits[MAXEXITSTEXTLENGTH];
   Location* loc = findLocationByName(arg1);
 
@@ -168,7 +166,7 @@ void inst_printexits(char* output, char* arg1) {
   }
 }
 
-void inst_printitems(char* output, char* arg1) {
+void intrpt_printitems(char* output, char* arg1) {
   char itemNames[MAXITEMSTEXTLENGTH];
   Location* loc = findLocationByName(arg1);
 
@@ -182,16 +180,18 @@ void inst_printitems(char* output, char* arg1) {
   }
 }
 
-void inst_newline(char* output) {
+void intrpt_newline(char* output) {
   sprintf(output, "%s\r\n", output);
 }
 
-void inst_switchfn(char* output, InstructionList* instructions, InstructionList* instruction) {
+void intrpt_instruction(char* output, InstructionList* instructions, InstructionList* instruction) {
   enum Instruction fn = instruction->fn;
+  char* arg1 = malloc(MAX_INST_ARG_SIZE);
+  char* arg2 = malloc(MAX_INST_ARG_SIZE);
 
   if (fn != INST_ACTION) {
-    inst_convertSpecialVariable(arg1, instruction->arg1);
-    inst_convertSpecialVariable(arg2, instruction->arg2);
+    intrpt_convertSpecialVariable(arg1, instruction->arg1);
+    intrpt_convertSpecialVariable(arg2, instruction->arg2);
   } else {
     strcpy(arg1, instruction->arg1);
     strcpy(arg2, instruction->arg2);
@@ -199,65 +199,68 @@ void inst_switchfn(char* output, InstructionList* instructions, InstructionList*
 
   switch (fn) {
     case INST_INVALID:
-      inst_invalid(output, fn, arg1, arg2);
+      intrpt_invalid(output, fn, arg1, arg2);
       break;
     case INST_EQ:
-      inst_eq(arg1, arg2);
+      intrpt_eq(arg1, arg2);
       break;
     case INST_ITEMINLOCATION:
-      inst_locationhasitem(arg1, arg2);
+      intrpt_locationhasitem(arg1, arg2);
       break;
     case INST_ITEMININVENTORY:
-      inst_inventoryhasitem(arg1);
+      intrpt_inventoryhasitem(arg1);
       break;
     case INST_HASEXIT:
-      inst_hasexit(arg1, arg2);
+      intrpt_hasexit(arg1, arg2);
       break;
     case INST_NOT:
-      inst_not();
+      intrpt_not();
       break;
     case INST_IF:
-      inst_if();
+      intrpt_if();
       break;
     case INST_SETLOC:
-      inst_setloc(arg1);
+      intrpt_setloc(arg1);
       break;
     case INST_ADDITEM:
-      inst_additem(arg1, arg2);
+      intrpt_additem(arg1, arg2);
       break;
     case INST_DELITEM:
-      inst_delitem(arg1, arg2);
+      intrpt_delitem(arg1, arg2);
       break;
     case INST_RETURN:
-      inst_return();
+      intrpt_return();
       break;
     case INST_GOTO:
-      inst_goto(arg1);
+      intrpt_goto(arg1);
       break;
     case INST_LABEL:
-      inst_label();
+      intrpt_label();
       break;
     case INST_PRINT:
-      inst_print(output, arg1);
+      intrpt_print(output, arg1);
       break;
     case INST_PRINTDESC:
-      inst_printdesc(output, arg1);
+      intrpt_printdesc(output, arg1);
       break;
     case INST_PRINTEXITS:
-      inst_printexits(output, arg1);
+      intrpt_printexits(output, arg1);
       break;
     case INST_PRINTITEMS:
-      inst_printitems(output, arg1);
+      intrpt_printitems(output, arg1);
       break;
     case INST_NEWLINE:
-      inst_newline(output);
+      intrpt_newline(output);
       break;
     case INST_ACTION:
-      inst_action(output, instructions, arg1, arg2);
+      intrpt_action(output, instructions, arg1, arg2);
       break;
     default:
       sprintf(output, "%sUNKOWN TOKEN: %d %s %s\r\n", output, fn, arg1, arg2);
   }
+
+  free(arg1);
+  free(arg2);
 }
 
 enum RunState interpret(InstructionList* instructions, char* output) {
@@ -275,7 +278,7 @@ enum RunState interpret(InstructionList* instructions, char* output) {
     } else if (skip == SKIP_ONE) {
       skip = SKIP_NONE;
     } else if (skip == SKIP_NONE) {
-      inst_switchfn(output, instructions, currInstruction);
+      intrpt_instruction(output, instructions, currInstruction);
     }
 
     currInstruction = currInstruction->next;

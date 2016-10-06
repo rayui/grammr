@@ -11,4 +11,3 @@
 #define MAXOUTPUTSIZE 1024
 
 enum RunState interpret(InstructionList* instructions, char* output);
-void inst_convertSpecialVariable(char* result, char* arg);
