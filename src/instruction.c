@@ -7,12 +7,12 @@
 #include "../include/utils.h"
 #include "../include/instruction.h"
 
-enum Instruction inst_get_instruction(char* instructionStr) {
+enum Instruction inst_get_instruction_code(char* instructionStr) {
   char instruction[3];
 
   strncpy(instruction, instructionStr, 2);
   toLowerCase(instruction);
-  instruction[3] = '\0';
+  instruction[2] = '\0';
 
   if (strComp(instruction, "eq")) {
     return INST_EQ;
@@ -55,34 +55,7 @@ enum Instruction inst_get_instruction(char* instructionStr) {
   return INST_INVALID;
 }
 
-char parseNumArgsFromInstructions(char* instructions) {
-  char found = 0;
-
-  if (toLowerCaseContains(instructions, "$S")) {
-    found++;
-  }
-  if (toLowerCaseContains(instructions, "$O")) {
-    found++;
-  }
-
-  return found;
-}
-
-InstructionList* createInstructionList(enum Instruction fn, char* arg1, char* arg2) {
-  InstructionList* instruction = malloc(sizeof(struct InstructionList));
-  if (instruction == NULL) {
-    return NULL;
-  }
-
-  instruction->fn = fn;
-  strcpy(instruction->arg1, arg1);
-  strcpy(instruction->arg2, arg2);
-  instruction->next = NULL;
-
-  return instruction;
-}
-
-void cc_convertSpecialVariable(char* arg, char* direct, char* indirect) {
+void inst_convert_special_variable(char* arg, char* direct, char* indirect) {
   char* argRepl;
 
   if (arg == NULL) return;
@@ -98,19 +71,15 @@ void cc_convertSpecialVariable(char* arg, char* direct, char* indirect) {
   }
 }
 
-InstructionList* cc_create_instruction(char* instructionStr, char* direct, char* indirect) {
-  InstructionList* instruction;
-  enum Instruction fn;
-  char fnName[MAX_INST_ARG_SIZE];
-  char arg1[MAX_INST_ARG_SIZE];
-  char arg2[MAX_INST_ARG_SIZE];
+InstructionList* inst_create(char* instructionStr, char* direct, char* indirect) {
+  InstructionList* instruction = malloc(sizeof(struct InstructionList));
+  char *arg1 = malloc(MAX_INST_ARG_SIZE);
+  char *arg2 = malloc(MAX_INST_ARG_SIZE);
   char *first_comma = strchr(instructionStr, CON_SPLIT_ARG_CHAR);
   char *second_comma;
 
   memset(arg1, 0, MAX_INST_ARG_SIZE);
   memset(arg2, 0, MAX_INST_ARG_SIZE);
-
-  fn = inst_get_instruction(instructionStr);
 
   if (first_comma) {
     second_comma = strchr(first_comma + 1, CON_SPLIT_ARG_CHAR);
@@ -120,21 +89,25 @@ InstructionList* cc_create_instruction(char* instructionStr, char* direct, char*
     } else {
       strcpy(arg1, first_comma + 1);
     }
-  } else {
-    strcpy(fnName, instructionStr);
   }
 
-  cc_convertSpecialVariable(arg1, direct, indirect);
-  cc_convertSpecialVariable(arg2, direct, indirect);
+  inst_convert_special_variable(arg1, direct, indirect);
+  inst_convert_special_variable(arg2, direct, indirect);
 
-  instruction = createInstructionList(fn, arg1, arg2);
+  instruction->fn = inst_get_instruction_code(instructionStr);
+  strcpy(instruction->arg1, arg1);
+  strcpy(instruction->arg2, arg2);
+  instruction->next = NULL;
+
+  free(arg1);
+  free(arg2);
 
   return instruction;
 }
 
-InstructionList* cc_push_instructions(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect) {
+InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect) {
   char* instructionStr;
-  char len = strlen(newInstructions);
+  int len = strlen(newInstructions);
   char* tmpStr = malloc(len + 1);
   InstructionList* instruction = NULL;
 
@@ -144,7 +117,7 @@ InstructionList* cc_push_instructions(InstructionList** instructions, char* newI
   instructionStr = strtok(tmpStr, CON_SPLIT_INSTR_CHAR);
 
   while(instructionStr != NULL) {
-    instruction = cc_create_instruction(instructionStr, direct, indirect);
+    instruction = inst_create(instructionStr, direct, indirect);
     SGLIB_DL_LIST_ADD_AFTER(InstructionList, last, instruction, prev, next);
     if (*instructions == NULL) {
       *instructions = last;

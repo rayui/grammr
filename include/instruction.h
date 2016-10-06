@@ -32,9 +32,7 @@ typedef struct InstructionList {
   struct InstructionList* prev;
 } InstructionList;
 
-enum Instruction inst_get_instruction(char* instruction);
-char parseNumArgsFromInstructions(char* instructions);
-struct InstructionList* createInstructionList(enum Instruction fn, char* arg1, char* arg2);
-void cc_convertSpecialVariable(char* arg, char* direct, char* indirect);
-InstructionList* cc_push_instructions(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect);
-InstructionList* cc_create_instruction(char* instructionStr, char* direct, char* indirect);
+enum Instruction inst_get_instruction_code(char* instruction);
+void inst_convert_special_variable(char* arg, char* direct, char* indirect);
+InstructionList* inst_create(char* instructionStr, char* direct, char* indirect);
+InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect);

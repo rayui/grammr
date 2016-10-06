@@ -155,7 +155,7 @@ void cc_action(InstructionList** instructions) {
   }
 
   if (action != NULL) {
-    lastInstruction = cc_push_instructions(instructions, action->instructions, lastInstruction, numItems > 0 ? cc_name_stack->name : NULL, numItems > 1 ? cc_name_stack->next->name : NULL);
+    lastInstruction = inst_insert(instructions, action->instructions, lastInstruction, numItems > 0 ? cc_name_stack->name : NULL, numItems > 1 ? cc_name_stack->next->name : NULL);
   } else {
     cc_error(CC_NO_SUCH_ACTION, token->val);
   }

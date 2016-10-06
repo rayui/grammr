@@ -53,7 +53,7 @@ void intrpt_action(char* output, InstructionList* instructions, char* arg1, char
   intrpt_convertSpecialVariable(arg2, arg2);
 
   if (action != NULL) {
-    cc_push_instructions(&instructions, action->instructions, currInstruction, arg1, arg2);
+    inst_insert(&instructions, action->instructions, currInstruction, arg1, arg2);
   } else {
     sprintf(output, "%sNO SUCH ACTION: %d\r\n", output, actionId);
   }
