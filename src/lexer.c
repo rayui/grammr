@@ -9,7 +9,6 @@
 
 const char SPLIT_CHAR[2] = " \0";
 extern ErrorList* errorList;
-int counter;
 char ERR;
 
 char isNumber(char* val) {
@@ -60,8 +59,6 @@ char isVerb(char* val) {
 }
 
 enum TokenType tokenTypeFromValue(char* val) {
-  //first look for conjunctions, token type is TOK_CONJUNCTION
-  //then , if token appears somewhere in list of actions, token type is TOK_VERB
   if (isConjunction(val)) {
     return TOK_CONJUNCTION;
   } else if (isPronoun(val)) {
@@ -85,7 +82,11 @@ enum TokenType tokenTypeFromValue(char* val) {
   return NULL;
 }
 
-enum TokenType readtok(Token** tokens, char* input) {
+//get this to return the actual token rather than token type
+//then we can use it to add to the next one
+//so we don't have to reverse the list every time
+
+Token* readtok(Token** tail, char* input) {
   char *val;
   Token* token = malloc(sizeof(Token));
 
@@ -97,7 +98,6 @@ enum TokenType readtok(Token** tokens, char* input) {
 
   toLowerCase(val);
 
-  token->i = counter;
   token->type = tokenTypeFromValue(val);
 
   if (token->type != TOK_EOL) {
@@ -106,29 +106,25 @@ enum TokenType readtok(Token** tokens, char* input) {
     strcpy(token->val, "\0");
   }
 
-  SGLIB_LIST_ADD(Token, *tokens, token, next);
+  SGLIB_LIST_ADD_POST(Token, *tail, token, next);
 
-  counter++;
-
-  return token->type;
+  return token;
 }
 
-int lex(Token** tokens, char* source) {
+int lex(Token** tokenHead, char* source) {
   enum TokenType type;
+  Token* tail = NULL;
   static char input[MAXCOMMANDSIZE];
 
   ERR = SE_OK;
-  counter = 0;
 
   strncpy(input, source, MAXCOMMANDSIZE - 2);
   input[MAXCOMMANDSIZE - 1] = '\0';
 
-  type = readtok(tokens, input);
-  while(type != TOK_EOL) {
-    type = readtok(tokens, NULL);
+  tail = readtok(tokenHead, input);
+  while(tail->type != TOK_EOL) {
+    tail = readtok(&tail, NULL);
   }
-
-  SGLIB_LIST_REVERSE(struct Token, *tokens, next);
 
   return ERR;
 }

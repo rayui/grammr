@@ -1,3 +1,13 @@
+#define SGLIB_LIST_ADD_POST(type, list, elem, next) {\
+  if ((list) == NULL) {\
+    (list) = (elem);\
+    (list)->next = NULL;\
+  } else {\
+    (list)->next = (elem);\
+    (elem)->next = NULL;\
+  }\
+}
+
 void *realloc_it(void *ptrmem, size_t size);
 void toC64Case(char* str);
 void toLowerCase(char* str);

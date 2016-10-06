@@ -40,7 +40,7 @@ char isVerb(char* val);
 char isConjunction(char* val);
 char isVerbPhrasal(char* val);
 enum TokenType tokenTypeFromValue(char* val);
-enum TokenType readtok(Token** tokens, char* input);
+Token* readtok(Token** tokens, char* input);
 char getVerbTransitivityByName(char* name);
 int lex(Token** tokens, char* input);
 void free_lexer(Token** tokens);

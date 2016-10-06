@@ -18,32 +18,32 @@ int parser_counter = 0;
 char parser_word_reg[MAXNAMESZ];
 char parser_action_reg[MAXNAMESZ];
 NameList* parser_name_stack;
-Token* tokenList;
+Token* currToken;
 InstructionList* lastInstruction;
 
 extern Item* items;
 extern Actions* actions;
 
 void parser_readtok() {
-  tokenList = tokenList->next;
+  currToken = currToken->next;
   parser_counter++;
 }
 
 void parser_set_action_reg() {
   memset(parser_action_reg, 0, MAXNAMESZ);
-  strcpy(parser_action_reg, tokenList->val);
+  strcpy(parser_action_reg, currToken->val);
 }
 
 void parser_concat_action_reg(char* split) {
   strcat(parser_action_reg, split);
-  strcat(parser_action_reg, tokenList->val);
+  strcat(parser_action_reg, currToken->val);
 }
 
 void parser_set_word_reg() {
   if (strlen(parser_word_reg)) {
     strcat(parser_word_reg, " ");
   }
-  strcat(parser_word_reg, tokenList->val);
+  strcat(parser_word_reg, currToken->val);
 }
 
 void parser_empty_word_reg() {
@@ -67,14 +67,14 @@ void parser_add_word_reg_to_name_list() {
 }
 
 int parser_peek(enum TokenType type) {
-  if (tokenList->type == type) {
+  if (currToken->type == type) {
     return 1;
   }
   return 0;
 }
 
 int parser_peekVal(char *s) {
-  return (strcmp(tokenList->val, s) == 0);
+  return (strcmp(currToken->val, s) == 0);
 }
 
 int parser_accept(enum TokenType type) {
@@ -107,18 +107,16 @@ void parser_error(enum ErrorType error, char* val) {
 
 void parser_item() {
   parser_accept(TOK_PRONOUN);
-  if (parser_peek(TOK_WORD)) {
-    while (parser_peek(TOK_WORD)) {
-      parser_accept(TOK_WORD);
-    }
+  if (parser_accept(TOK_WORD)) {
+    while (parser_accept(TOK_WORD)) {}
     parser_add_word_reg_to_name_list();
   } else {
-    parser_error(CC_ITEM_EXPECTED, tokenList->val);
+    parser_error(CC_ITEM_EXPECTED, currToken->val);
   }
 }
 
 void parser_action(InstructionList** instructions) {
-  Token* token = tokenList;
+  Token* token = currToken;
   Actions* action = NULL;
   Location* location = NULL;
   Item* item = NULL;
@@ -169,7 +167,7 @@ void parser_command(InstructionList** instructions) {
   } else if (parser_accept(TOK_QUIT)) {
     parser_quit();
   } else {
-    parser_error(CC_ERR_COMMAND_EXPECTED, tokenList->val);
+    parser_error(CC_ERR_COMMAND_EXPECTED, currToken->val);
   }
 }
 
@@ -181,12 +179,12 @@ void parser_commands(InstructionList** instructions) {
   } else if (parser_accept(TOK_COMPLEX)) {
     parser_commands(instructions);
   } else {
-    parser_error(CC_ERR_END_OF_COMMAND_EXPECTED, tokenList->val);
+    parser_error(CC_ERR_END_OF_COMMAND_EXPECTED, currToken->val);
   }
 }
 
 void parser_quit() {
-  parser_error(CC_QUIT, tokenList->val);
+  parser_error(CC_QUIT, currToken->val);
 }
 
 void parser_eol() {
@@ -200,21 +198,16 @@ void free_parser(InstructionList** instructions) {
   });
 }
 
-enum RunState parse(Token** tokens, InstructionList** instructions) {
-  //gotta remember where we are so we can clean the tokens after!
-  Token* firstToken = *tokens;
-  tokenList = *tokens;
+enum RunState parse(Token** tokenHead, InstructionList** instructions) {
+  currToken = *tokenHead;
 
   ERR = SE_OK;
   lastInstruction = *instructions;
   parser_counter = 0;
 
-  while(tokenList != NULL && ERR == SE_OK) {
+  while(currToken != NULL && ERR == SE_OK) {
     parser_commands(instructions);
   }
-
-  //reset the token start pointer
-  tokens = &firstToken;
 
   return ERR;
 }
