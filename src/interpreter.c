@@ -162,7 +162,7 @@ void intrpt_printexits(char* output, char* arg1) {
     getAllLocationNames(currentLocation->exits, exits);
     sprintf(output, "%s%s", output, exits);
   } else {
-    PRINT("NO SUCH LOCATION %s\r\n", arg1);
+    printOutput("NO SUCH LOCATION %s\r\n", arg1);
   }
 }
 
@@ -176,7 +176,7 @@ void intrpt_printitems(char* output, char* arg1) {
     getAllItemNames(currentLocation->items, itemNames);
     sprintf(output, "%s%s", output, itemNames);
   } else {
-    PRINT("NO SUCH LOCATION %s\r\n", arg1);
+    printOutput("NO SUCH LOCATION %s\r\n", arg1);
   }
 }
 

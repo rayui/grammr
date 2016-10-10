@@ -5,7 +5,6 @@
 #include "../include/io.h"
 #include "../include/utils.h"
 #include "../include/error.h"
-#include "../include/io.h"
 #include "../include/items.h"
 #include "../include/locations.h"
 #include "../include/actions.h"
@@ -200,9 +199,9 @@ void free_parser(InstructionList** instructions) {
 
 enum RunState parse(Token** tokenHead, InstructionList** instructions) {
   currToken = *tokenHead;
+  lastInstruction = *instructions;
 
   ERR = SE_OK;
-  lastInstruction = *instructions;
   parser_counter = 0;
 
   while(currToken != NULL && ERR == SE_OK) {

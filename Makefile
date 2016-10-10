@@ -15,12 +15,12 @@ create_image: data.pet
 grammr: io.o error.o lexer.o parser.o interpreter.o locations.o items.o instruction.o utils.o config_parser.o jsmn.o\
 	actions.o text.o debugmalloc.o
 	cc65 -O -t c64 --static-locals $(SRC_DIR)main.c -o $(BUILD_DIR)main.s
-	ca65 $(BUILD_DIR)main.s -o $(BUILD_DIR)main.o
-	ld65 -o $(BUILD_DIR)grammr -t c64 $(BUILD_DIR)main.o $(BUILD_DIR)error.o $(BUILD_DIR)lexer.o \
+	ca65 $(BUILD_DIR)main.s -o $(BUILD_DIR)grammr.o
+	ld65 -o $(BUILD_DIR)grammr -t c64 $(BUILD_DIR)grammr.o $(BUILD_DIR)error.o $(BUILD_DIR)lexer.o \
 		$(BUILD_DIR)parser.o $(BUILD_DIR)interpreter.o $(BUILD_DIR)locations.o $(BUILD_DIR)items.o \
-		$(BUILD_DIR)actions.o \
+		$(BUILD_DIR)actions.o\
 		$(BUILD_DIR)jsmn.o $(BUILD_DIR)config_parser.o $(BUILD_DIR)instruction.o $(BUILD_DIR)text.o \
-		$(BUILD_DIR)utils.o $(BUILD_DIR)io.o c64.lib
+		$(BUILD_DIR)utils.o $(BUILD_DIR)debugmalloc.o $(BUILD_DIR)io.o c64.lib
 
 io.o: text.o debugmalloc.o
 	cc65 -O -t c64 --static-locals $(SRC_DIR)io.c $(BUILD_DIR)text.o -o $(BUILD_DIR)io.s
@@ -43,7 +43,7 @@ parser.o: lexer.o io.o utils.o debugmalloc.o text.o
 	ca65 $(BUILD_DIR)parser.s -o $(BUILD_DIR)parser.o
 
 lexer.o: utils.o io.o debugmalloc.o text.o
-	cc65 -O -t c64 $(SRC_DIR)lexer.c $(BUILD_DIR)text.o -o $(BUILD_DIR)lexer.s
+	cc65 -O -t c64 $(SRC_DIR)lexer.c $(BUILD_DIR)text.o $(BUILD_DIR)debugmalloc.o -o $(BUILD_DIR)lexer.s
 	ca65 $(BUILD_DIR)lexer.s -o $(BUILD_DIR)lexer.o
 
 locations.o: items.o debugmalloc.o

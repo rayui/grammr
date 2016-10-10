@@ -7,10 +7,20 @@
 extern const char str_command[];
 
 void printPrompt(char* input) {
-		cputsxy(0, 24, "                              ");
+		int offset = strlen(input) - INPUT_WIDTH;
+		char* output = malloc(sizeof(char) * INPUT_WIDTH);
+		memset(output, 0, INPUT_WIDTH);
+		cputsxy(0, 24, output);
 		cputsxy(0, 24, str_command);
-		cputsxy(2, 24, input);
-		gotoxy(2 + strlen(input), 24);
+		free(output);
+
+		if (offset < 0) {
+			offset = 0;
+		}
+		output = input + offset;
+
+		cputsxy(2, 24, output);
+		gotoxy(2 + strlen(output), 24);
 }
 
 void acceptInput(char** input) {

@@ -44,7 +44,7 @@ int main() {
   textcolor(TEXT_COLOR);
   cursor(true);
 
-  PRINT("LOADING GAME...");
+  printOutput("LOADING GAME...");
 
   err = parseConfigFile("data.pet");
 
@@ -60,16 +60,16 @@ int main() {
 
       clrscr();
 
-      PRINT(".");
+      printOutput(".");
       err = lex(&tokenHead, input);
       ifError(err, input, output);
 
       if(err == SE_OK) {
-        PRINT(".");
+        printOutput(".");
         err = parse(&tokenHead, &instructions);
         ifError(err, input, output);
         if(err == SE_OK) {
-          PRINT(".");
+          printOutput(".");
           err = interpret(instructions, output);
           ifError(err, input, output);
         }
@@ -77,9 +77,9 @@ int main() {
       }
 
       free_lexer(&tokenHead);
-      //clrscr();
+      clrscr();
 
-      PRINT("%s\r\n", output);
+      printOutput("%s\r\n", output);
 
       free_errors();
     }
