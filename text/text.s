@@ -25,6 +25,9 @@ _str_syntax_error_item_unavailable: .asciiz "I can't see a %s around here. Maybe
 .export _str_syntax_error_no_such_action
 _str_syntax_error_no_such_action: .asciiz "Nah, you can't %s that."
 
+.export _str_system_error_no_memory
+_str_system_error_no_memory: .asciiz "Out of memory at %s! Instruction too long; aborting."
+
 .export _str_terminal_system_error
 _str_terminal_system_error: .asciiz "TERMINAL FAILURE\r\n\r\n"
 

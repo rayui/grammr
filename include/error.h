@@ -4,6 +4,7 @@ enum RunState {
   SE_OK,
   SE_WARNING,
   SE_TERMINAL,
+  SE_OUT_OF_MEMORY,
   SE_QUIT
 };
 

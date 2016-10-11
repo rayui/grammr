@@ -153,6 +153,10 @@ void parser_action(InstructionList** instructions) {
 
   if (action != NULL) {
     lastInstruction = inst_insert(instructions, action->instructions, lastInstruction, numItems > 0 ? parser_name_stack->name : NULL, numItems > 1 ? parser_name_stack->next->name : NULL);
+    if (lastInstruction == NULL) {
+      create_error(CC_NO_MEMORY, action->name);
+      ERR = SE_TERMINAL;
+    }
   } else {
     parser_error(CC_NO_SUCH_ACTION, token->val);
   }

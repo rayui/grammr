@@ -24,6 +24,8 @@ char gotoLabel[MAX_INST_ARG_SIZE];
 
 InstructionList* currInstruction = NULL;
 
+enum RunState ERR = SE_OK;
+
 void intrpt_convertSpecialVariable(char* result, char* arg) {
   if (toLowerCaseCompare(arg, "$l")) {
     strcpy(result, currentLocation->name);
@@ -34,6 +36,7 @@ void intrpt_convertSpecialVariable(char* result, char* arg) {
 
 void intrpt_action(char* output, InstructionList* instructions, char* arg1, char* arg2) {
   Actions* action;
+  InstructionList* lastInstruction;
   char actionId;
   char *first_comma = strchr(arg2, ',');
 
@@ -53,7 +56,10 @@ void intrpt_action(char* output, InstructionList* instructions, char* arg1, char
   intrpt_convertSpecialVariable(arg2, arg2);
 
   if (action != NULL) {
-    inst_insert(&instructions, action->instructions, currInstruction, arg1, arg2);
+    lastInstruction = inst_insert(&instructions, action->instructions, currInstruction, arg1, arg2);
+    if (lastInstruction == NULL) {
+      ERR = SE_TERMINAL;
+    }
   } else {
     sprintf(output, "%sNO SUCH ACTION: %d\r\n", output, actionId);
   }
@@ -264,12 +270,11 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
 }
 
 enum RunState interpret(InstructionList* instructions, char* output) {
-  enum RunState ERR = SE_OK;
   skip = SKIP_NONE;
 
   currInstruction = instructions;
 
-  while (currInstruction != NULL) {
+  while (currInstruction != NULL && ERR == SE_OK) {
     if (skip == SKIP_GOTO &&
       currInstruction->fn == INST_LABEL &&
       toLowerCaseCompare(gotoLabel, currInstruction->arg1))

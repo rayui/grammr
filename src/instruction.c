@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "../include/sglib.h"
 #include "../include/io.h"
+#include "../include/error.h"
 #include "../include/items.h"
 #include "../include/utils.h"
 #include "../include/instruction.h"
@@ -72,11 +73,18 @@ void inst_convert_special_variable(char* arg, char* direct, char* indirect) {
 }
 
 InstructionList* inst_create(char* instructionStr, char* direct, char* indirect) {
-  InstructionList* instruction = malloc(sizeof(struct InstructionList));
+  InstructionList* instruction;
   char *arg1 = malloc(MAX_INST_ARG_SIZE);
   char *arg2 = malloc(MAX_INST_ARG_SIZE);
   char *first_comma = strchr(instructionStr, CON_SPLIT_ARG_CHAR);
   char *second_comma;
+
+  instruction = malloc(sizeof(struct InstructionList));
+  if (instruction == NULL ||
+      arg1 == NULL ||
+      arg2 == NULL) {
+    return NULL;
+  }
 
   memset(arg1, 0, MAX_INST_ARG_SIZE);
   memset(arg2, 0, MAX_INST_ARG_SIZE);
@@ -118,6 +126,10 @@ InstructionList* inst_insert(InstructionList** instructions, char* newInstructio
 
   while(instructionStr != NULL) {
     instruction = inst_create(instructionStr, direct, indirect);
+    if (instruction == NULL) {
+      free(tmpStr);
+      return NULL;
+    }
     SGLIB_DL_LIST_ADD_AFTER(InstructionList, last, instruction, prev, next);
     if (*instructions == NULL) {
       *instructions = last;

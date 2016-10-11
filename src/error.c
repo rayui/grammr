@@ -16,6 +16,7 @@ extern const char str_syntax_error_item_unavailable[];
 extern const char str_syntax_error_no_such_action[];
 extern const char str_terminal_system_error[];
 extern const char str_system_error_template[];
+extern const char str_system_error_no_memory[];
 
 extern ErrorList* errorList;
 
@@ -50,6 +51,9 @@ void print_error(char* output, enum ErrorType errorCode, char* val) {
     case CC_NO_SUCH_ACTION:
       sprintf(tmpOutput, str_syntax_error_no_such_action, val);
       break;
+    case CC_NO_MEMORY:
+      sprintf(tmpOutput, str_system_error_no_memory, val);
+      break;    
     default:
       sprintf(tmpOutput, str_system_error_template, errorCode, val);
       break;
