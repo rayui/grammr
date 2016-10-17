@@ -4,7 +4,7 @@
 #define MAXTOKSZ 24
 #define MAXNAMESZ 24
 #define MAXDIRECTIONSZ 6
-#define MAXCOMMANDSIZE 512
+#define MAXCOMMANDSIZE 256
 
 enum TokenType {
   TOK_VERB,
@@ -26,12 +26,6 @@ typedef struct Token {
   struct Token* next;
 } Token;
 
-typedef struct Verbs {
-  char name[MAXTOKSZ];
-  char transitivity;
-  struct Verbs* next;
-} Verbs;
-
 #endif
 
 char isNumber(char* val);
@@ -43,4 +37,4 @@ enum TokenType tokenTypeFromValue(char* val);
 Token* readtok(Token** tokens, char* input);
 char getVerbTransitivityByName(char* name);
 int lex(Token** tokens, char* input);
-void free_lexer(Token** tokens);
+void free_tokens(Token** tokens);

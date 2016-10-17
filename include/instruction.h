@@ -1,4 +1,5 @@
-#define MAX_INST_ARG_SIZE 128
+#define MAX_INST_ARG_SIZE 256
+#define MAX_INSTRUCTION_LENGTH 512
 #define CON_SPLIT_INSTR_CHAR ";\0"
 #define CON_SPLIT_ARG_CHAR ','
 
@@ -26,13 +27,14 @@ enum Instruction {
 
 typedef struct InstructionList {
   enum Instruction fn;
-  char arg1[MAX_INST_ARG_SIZE];
-  char arg2[MAX_INST_ARG_SIZE];
+  char *arg1;
+  char *arg2;
   struct InstructionList* next;
   struct InstructionList* prev;
 } InstructionList;
 
 enum Instruction inst_get_instruction_code(char* instruction);
 void inst_convert_special_variable(char* arg, char* direct, char* indirect);
+void free_instructions(InstructionList* instructions);
 InstructionList* inst_create(char* instructionStr, char* direct, char* indirect);
 InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect);

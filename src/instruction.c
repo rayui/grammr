@@ -72,62 +72,99 @@ void inst_convert_special_variable(char* arg, char* direct, char* indirect) {
   }
 }
 
-InstructionList* inst_create(char* instructionStr, char* direct, char* indirect) {
-  InstructionList* instruction;
-  char *arg1 = malloc(MAX_INST_ARG_SIZE);
-  char *arg2 = malloc(MAX_INST_ARG_SIZE);
-  char *first_comma = strchr(instructionStr, CON_SPLIT_ARG_CHAR);
-  char *second_comma;
+void free_instructions(InstructionList* instructions) {
+  InstructionList* instruction = instructions;
 
-  instruction = malloc(sizeof(struct InstructionList));
-  if (instruction == NULL ||
-      arg1 == NULL ||
-      arg2 == NULL) {
+  SGLIB_DL_LIST_MAP_ON_ELEMENTS(InstructionList, instructions, instruction, prev, next, {
+    if (instruction->arg1 != NULL) {
+      free(instruction->arg1);
+    }
+    if (instruction->arg2 != NULL) {
+      free(instruction->arg2);
+    }
+    free(instruction);
+  });
+}
+
+char* inst_create_arg(char* val) {
+  char* arg;
+  int len = strlen(val);
+
+  arg = malloc(len + 1);
+  if (arg == NULL) {
     return NULL;
   }
 
+  strncpy(arg, val, len);
+  arg[len] = '\0';
+
+  return arg;
+}
+
+InstructionList* inst_create(char* instructionStr, char* direct, char* indirect) {
+  InstructionList* instruction;
+  char arg1[MAX_INST_ARG_SIZE];
+  char arg2[MAX_INST_ARG_SIZE];
+  char *first_comma = NULL;
+  char *second_comma = NULL;
+
   memset(arg1, 0, MAX_INST_ARG_SIZE);
   memset(arg2, 0, MAX_INST_ARG_SIZE);
-
-  if (first_comma) {
-    second_comma = strchr(first_comma + 1, CON_SPLIT_ARG_CHAR);
-    if (second_comma) {
-      strncpy(arg1, first_comma + 1, second_comma - first_comma - 1);
-      strcpy(arg2, second_comma + 1);
-    } else {
-      strcpy(arg1, first_comma + 1);
-    }
+  
+  instruction = malloc(sizeof(struct InstructionList));
+  if (instruction == NULL) {
+    return NULL;
   }
 
-  inst_convert_special_variable(arg1, direct, indirect);
-  inst_convert_special_variable(arg2, direct, indirect);
-
   instruction->fn = inst_get_instruction_code(instructionStr);
-  strcpy(instruction->arg1, arg1);
-  strcpy(instruction->arg2, arg2);
+  instruction->arg1 = NULL;
+  instruction->arg2 = NULL;
   instruction->next = NULL;
 
-  free(arg1);
-  free(arg2);
+  first_comma = strchr(instructionStr, CON_SPLIT_ARG_CHAR);
+
+  if (first_comma != NULL) {
+    first_comma += 1;
+    second_comma = strchr(first_comma, CON_SPLIT_ARG_CHAR);
+
+    if (second_comma != NULL) {
+      second_comma += 1;
+
+      strncpy(arg1, first_comma, second_comma - first_comma - 1);
+      inst_convert_special_variable(arg1, direct, indirect);
+
+      strncpy(arg2, second_comma, strlen(second_comma));
+      inst_convert_special_variable(arg2, direct, indirect);
+
+      instruction->arg1 = inst_create_arg(arg1);
+      instruction->arg2 = inst_create_arg(arg2);
+    } else {
+      strncpy(arg1, first_comma, strlen(first_comma));
+      inst_convert_special_variable(arg1, direct, indirect);
+
+      instruction->arg1 = inst_create_arg(arg1);
+    }
+  }
 
   return instruction;
 }
 
 InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect) {
   char* instructionStr;
-  int len = strlen(newInstructions);
-  char* tmpStr = malloc(len + 1);
+  static char tmpStr[MAX_INSTRUCTION_LENGTH];
+  int len = 0;
   InstructionList* instruction = NULL;
 
+  len = strlen(newInstructions);
+
   strncpy(tmpStr, newInstructions, len);
-  tmpStr[len] = '\0';
+  tmpStr[len] = 0;
 
   instructionStr = strtok(tmpStr, CON_SPLIT_INSTR_CHAR);
 
   while(instructionStr != NULL) {
     instruction = inst_create(instructionStr, direct, indirect);
     if (instruction == NULL) {
-      free(tmpStr);
       return NULL;
     }
     SGLIB_DL_LIST_ADD_AFTER(InstructionList, last, instruction, prev, next);
@@ -137,8 +174,6 @@ InstructionList* inst_insert(InstructionList** instructions, char* newInstructio
     instructionStr = strtok(NULL, CON_SPLIT_INSTR_CHAR);
     last = instruction;
   }
-
-  free(tmpStr);
 
   return last;
 }

@@ -58,6 +58,9 @@ int main() {
       memset(output, 0, MAXOUTPUTSIZE);
       acceptInput(&input);
 
+      tokenHead = NULL;
+      instructions = NULL;
+
       clrscr();
 
       printOutput(".");
@@ -70,14 +73,14 @@ int main() {
         ifError(err, input, output);
         if(err == SE_OK) {
           printOutput(".");
-          err = interpret(instructions, output);
+          err = interpret(&instructions, output);
           ifError(err, input, output);
         }
-        free_parser(&instructions);
+        free_instructions(instructions);
       }
 
-      free_lexer(&tokenHead);
-      clrscr();
+      free_tokens(&tokenHead);
+      //clrscr();
 
       printOutput("%s\r\n", output);
 

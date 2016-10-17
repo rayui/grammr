@@ -194,13 +194,6 @@ void parser_eol() {
   return;
 }
 
-void free_parser(InstructionList** instructions) {
-  SGLIB_DL_LIST_MAP_ON_ELEMENTS(InstructionList, *instructions, instruction, prev, next, {
-    SGLIB_DL_LIST_DELETE(InstructionList, *instructions, instruction, prev, next);
-    free(instruction);
-  });
-}
-
 enum RunState parse(Token** tokenHead, InstructionList** instructions) {
   currToken = *tokenHead;
   lastInstruction = *instructions;

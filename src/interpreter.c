@@ -26,47 +26,53 @@ InstructionList* currInstruction = NULL;
 
 enum RunState ERR = SE_OK;
 
-void intrpt_convertSpecialVariable(char* result, char* arg) {
+char* intrpt_convertSpecialVariable(char* arg) {
   if (toLowerCaseCompare(arg, "$l")) {
-    strcpy(result, currentLocation->name);
-  } else {
-    strcpy(result, arg);
+    return currentLocation->name;
   }
+  return arg;
 }
 
 void intrpt_action(char* output, InstructionList* instructions, char* arg1, char* arg2) {
   Actions* action;
   InstructionList* lastInstruction;
   char actionId;
-  char *first_comma = strchr(arg2, ',');
+  char *first_comma;
+  static char newArg1[MAX_INST_ARG_SIZE];
+  static char newArg2[MAX_INST_ARG_SIZE];
+  char* newArg1Ptr;
+  char* newArg2Ptr;
 
+  memset(newArg1, 0, MAX_INST_ARG_SIZE);
+  memset(newArg2, 0, MAX_INST_ARG_SIZE);
+  
   actionId = atoi(arg1);
-
-  if (first_comma) {
-    strncpy(arg1, arg2, first_comma - arg2);
-    strcpy(arg2, first_comma + 1);
-  } else {
-    strcpy(arg1, arg2);
-    arg2[0] = '\0';
-  }
-
   action = findActionById(actions, actionId);
 
-  intrpt_convertSpecialVariable(arg1, arg1);
-  intrpt_convertSpecialVariable(arg2, arg2);
-
   if (action != NULL) {
-    lastInstruction = inst_insert(&instructions, action->instructions, currInstruction, arg1, arg2);
+    first_comma = strchr(arg2, ',');
+
+    if (first_comma) {
+      strncpy(newArg1, arg2, first_comma - arg2);
+      strcpy(newArg2, first_comma + 1);
+    } else {
+      strcpy(newArg1, arg2);
+    }
+
+    newArg1Ptr = intrpt_convertSpecialVariable(newArg1);
+    newArg2Ptr = intrpt_convertSpecialVariable(newArg2);
+
+    lastInstruction = inst_insert(&instructions, action->instructions, currInstruction, newArg1Ptr, newArg2Ptr);
     if (lastInstruction == NULL) {
       ERR = SE_TERMINAL;
     }
   } else {
     sprintf(output, "%sNO SUCH ACTION: %d\r\n", output, actionId);
-  }
+  }  
 }
 
 void intrpt_invalid(char* output, enum Instruction fn, char* arg1, char* arg2) {
-  sprintf(output, "%sINVALID INSTRUCTION: %d %s %s\r\n", output, fn, arg1, arg2);
+  sprintf(output, "%s\r\nINVALID INSTRUCTION: %d a1 %s a2 %s\r\n", output, fn, arg1, arg2);
 }
 
 void intrpt_eq(char* arg1, char* arg2) {
@@ -192,15 +198,12 @@ void intrpt_newline(char* output) {
 
 void intrpt_instruction(char* output, InstructionList* instructions, InstructionList* instruction) {
   enum Instruction fn = instruction->fn;
-  char* arg1 = malloc(MAX_INST_ARG_SIZE);
-  char* arg2 = malloc(MAX_INST_ARG_SIZE);
+  char* arg1 = instruction->arg1;
+  char* arg2 = instruction->arg2;
 
   if (fn != INST_ACTION) {
-    intrpt_convertSpecialVariable(arg1, instruction->arg1);
-    intrpt_convertSpecialVariable(arg2, instruction->arg2);
-  } else {
-    strcpy(arg1, instruction->arg1);
-    strcpy(arg2, instruction->arg2);
+    arg1 = intrpt_convertSpecialVariable(arg1);
+    arg2 = intrpt_convertSpecialVariable(arg2);
   }
 
   switch (fn) {
@@ -264,17 +267,14 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
     default:
       sprintf(output, "%sUNKOWN TOKEN: %d %s %s\r\n", output, fn, arg1, arg2);
   }
-
-  free(arg1);
-  free(arg2);
 }
 
-enum RunState interpret(InstructionList* instructions, char* output) {
+enum RunState interpret(InstructionList** instructions, char* output) {
   skip = SKIP_NONE;
-
-  currInstruction = instructions;
+  currInstruction = *instructions;
 
   while (currInstruction != NULL && ERR == SE_OK) {
+    //printOutput("%d %s %s\r\n", currInstruction->fn, currInstruction->arg1 ? currInstruction->arg1 : "NULL", currInstruction->arg2 ? currInstruction->arg2 : "NULL");
     if (skip == SKIP_GOTO &&
       currInstruction->fn == INST_LABEL &&
       toLowerCaseCompare(gotoLabel, currInstruction->arg1))
@@ -283,7 +283,7 @@ enum RunState interpret(InstructionList* instructions, char* output) {
     } else if (skip == SKIP_ONE) {
       skip = SKIP_NONE;
     } else if (skip == SKIP_NONE) {
-      intrpt_instruction(output, instructions, currInstruction);
+      intrpt_instruction(output, *instructions, currInstruction);
     }
 
     currInstruction = currInstruction->next;

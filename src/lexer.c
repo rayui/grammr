@@ -118,8 +118,8 @@ int lex(Token** tokenHead, char* source) {
 
   ERR = SE_OK;
 
-  strncpy(input, source, MAXCOMMANDSIZE - 2);
-  input[MAXCOMMANDSIZE - 1] = '\0';
+  strncpy(input, source, MAXCOMMANDSIZE - 1);
+  input[MAXCOMMANDSIZE] = '\0';
 
   tail = readtok(tokenHead, input);
   while(tail->type != TOK_EOL) {
@@ -129,7 +129,7 @@ int lex(Token** tokenHead, char* source) {
   return ERR;
 }
 
-void free_lexer(Token** tokens) {
+void free_tokens(Token** tokens) {
   SGLIB_LIST_MAP_ON_ELEMENTS(struct Token, *tokens, token, next, {
     SGLIB_LIST_DELETE(struct Token, *tokens, token, next);
     free(token);
