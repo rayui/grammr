@@ -26,7 +26,7 @@ InstructionList* currInstruction = NULL;
 
 enum RunState ERR = SE_OK;
 
-char* intrpt_convertSpecialVariable(char* arg) {
+char* intrpt_convert_special_variable(char* arg) {
   if (toLowerCaseCompare(arg, "$l")) {
     return currentLocation->name;
   }
@@ -59,8 +59,8 @@ void intrpt_action(char* output, InstructionList* instructions, char* arg1, char
       strcpy(newArg1, arg2);
     }
 
-    newArg1Ptr = intrpt_convertSpecialVariable(newArg1);
-    newArg2Ptr = intrpt_convertSpecialVariable(newArg2);
+    newArg1Ptr = intrpt_convert_special_variable(newArg1);
+    newArg2Ptr = intrpt_convert_special_variable(newArg2);
 
     lastInstruction = inst_insert(&instructions, action->instructions, currInstruction, newArg1Ptr, newArg2Ptr);
     if (lastInstruction == NULL) {
@@ -133,7 +133,7 @@ void intrpt_delitem(char* arg1, char* arg2) {
 
 }
 
-void intrpt_return() {
+void intrpt_return(void) {
   skip = SKIP_END;
 }
 
@@ -142,7 +142,7 @@ void intrpt_goto(char* arg1) {
   strcpy(gotoLabel, arg1);
 }
 
-void intrpt_label() {
+void intrpt_label(void) {
   skip = SKIP_NONE;
 }
 
@@ -202,8 +202,8 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
   char* arg2 = instruction->arg2;
 
   if (fn != INST_ACTION) {
-    arg1 = intrpt_convertSpecialVariable(arg1);
-    arg2 = intrpt_convertSpecialVariable(arg2);
+    arg1 = intrpt_convert_special_variable(arg1);
+    arg2 = intrpt_convert_special_variable(arg2);
   }
 
   switch (fn) {
@@ -274,7 +274,6 @@ enum RunState interpret(InstructionList** instructions, char* output) {
   currInstruction = *instructions;
 
   while (currInstruction != NULL && ERR == SE_OK) {
-    //printOutput("%d %s %s\r\n", currInstruction->fn, currInstruction->arg1 ? currInstruction->arg1 : "NULL", currInstruction->arg2 ? currInstruction->arg2 : "NULL");
     if (skip == SKIP_GOTO &&
       currInstruction->fn == INST_LABEL &&
       toLowerCaseCompare(gotoLabel, currInstruction->arg1))

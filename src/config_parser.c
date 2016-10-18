@@ -34,6 +34,9 @@ extern Item* items;
 extern Location* locations;
 extern Actions* actions;
 
+Location* locationsTail;
+Actions* actionsTail;
+
 void con_set_int_reg() {
   char int_reg[MAXARGSIZE];
   sprintf(int_reg, "%.*s", con_tok[con_counter].end - con_tok[con_counter].start, source + con_tok[con_counter].start);
@@ -313,7 +316,12 @@ void con_location() {
     if (con_description()) {
       location = createLocation(con_word_reg_b, con_word_reg_c, NULL, NULL);
 
-      SGLIB_LIST_ADD(Location, locations, location, next);
+      SGLIB_LIST_ADD_AFTER(Location, locationsTail, location, next);
+      if (locations == NULL) {
+        locations = locationsTail;
+      }
+
+      locationsTail = location;
 
       if (con_acceptVal("items")) {
         con_location_items(location);
@@ -342,7 +350,12 @@ void con_action() {
       isDefault = con_default() ? con_int_reg : 0;
       if (con_instruction()) {
         action = createAction(id, con_word_reg_b, con_word_reg_c, isDefault);
-        SGLIB_LIST_ADD(Actions, actions, action, next);
+        SGLIB_LIST_ADD_AFTER(Actions, actionsTail, action, next);
+        if (actions == NULL) {
+          actions = actionsTail;
+        }
+
+        actionsTail = action;
       }
     }
   }
@@ -406,6 +419,8 @@ void con_fill_exits(int len) {
 
 enum RunState parseConfigFile(char* filename) {
   jsmn_parser p;
+  locationsTail = NULL;
+  actionsTail = NULL;
 
   CON_ERR = SE_OK;
   con_counter = 0;
@@ -463,12 +478,8 @@ enum RunState parseConfigFile(char* filename) {
       con_objects();
     }
 
-    SGLIB_LIST_REVERSE(Actions, actions, next);
-
     //now fill in the exits
     con_fill_exits(con_tok_num);
-
-    SGLIB_LIST_REVERSE(Location, locations, next);
 
     free(con_tok);
   }

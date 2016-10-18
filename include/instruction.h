@@ -30,7 +30,6 @@ typedef struct InstructionList {
   char *arg1;
   char *arg2;
   struct InstructionList* next;
-  struct InstructionList* prev;
 } InstructionList;
 
 enum Instruction inst_get_instruction_code(char* instruction);

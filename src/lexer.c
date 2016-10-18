@@ -82,10 +82,6 @@ enum TokenType tokenTypeFromValue(char* val) {
   return NULL;
 }
 
-//get this to return the actual token rather than token type
-//then we can use it to add to the next one
-//so we don't have to reverse the list every time
-
 Token* readtok(Token** tail, char* input) {
   char *val;
   Token* token = malloc(sizeof(Token));
@@ -106,7 +102,7 @@ Token* readtok(Token** tail, char* input) {
     strcpy(token->val, "\0");
   }
 
-  SGLIB_LIST_ADD_POST(Token, *tail, token, next);
+  SGLIB_LIST_ADD_AFTER(Token, *tail, token, next);
 
   return token;
 }

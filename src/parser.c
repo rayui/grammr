@@ -16,7 +16,8 @@ enum RunState ERR = SE_OK;
 int parser_counter = 0;
 char parser_word_reg[MAXNAMESZ];
 char parser_action_reg[MAXNAMESZ];
-NameList* parser_name_stack;
+NameList* parser_name_stack = NULL;
+NameList* parser_name_stack_tail = NULL;
 Token* currToken;
 InstructionList* lastInstruction;
 
@@ -54,13 +55,19 @@ void parser_empty_name_list() {
     SGLIB_LIST_DELETE(NameList, parser_name_stack, mappedName, next);
     free(mappedName);
   });
+  parser_name_stack_tail = NULL;
+  parser_name_stack = NULL;
 }
 
 void parser_add_word_reg_to_name_list() {
   struct NameList* newName = malloc(sizeof(struct NameList));
   strcpy(newName->name, parser_word_reg);
 
-  SGLIB_LIST_ADD(struct NameList, parser_name_stack, newName, next);
+  SGLIB_LIST_ADD_AFTER(struct NameList, parser_name_stack_tail, newName, next);
+  if (parser_name_stack == NULL) {
+    parser_name_stack = parser_name_stack_tail;
+  }
+  parser_name_stack_tail = newName;
 
   parser_empty_word_reg();
 }
@@ -131,7 +138,6 @@ void parser_action(InstructionList** instructions) {
     }
   }
 
-  SGLIB_LIST_REVERSE(NameList, parser_name_stack, next);
   SGLIB_LIST_LEN(NameList, parser_name_stack, next, numItems);
 
   if (numItems > 0) {

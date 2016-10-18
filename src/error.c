@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../include/sglib.h"
+#include "../include/utils.h"
 #include "../include/io.h"
 #include "../include/error.h"
 
@@ -19,6 +20,8 @@ extern const char str_system_error_template[];
 extern const char str_system_error_no_memory[];
 
 extern ErrorList* errorList;
+
+ErrorList* lastError = NULL;
 
 void print_error(char* output, enum ErrorType errorCode, char* val) {
   char tmpOutput[MAXERRSIZE];
@@ -68,7 +71,6 @@ void print_errors(enum RunState err, char* output) {
     strcpy(output, str_terminal_system_error);
   }
 
-  SGLIB_LIST_REVERSE(ErrorList, errorList, next);
   SGLIB_LIST_MAP_ON_ELEMENTS(ErrorList, errorList, mappedError, next, {
     print_error(output, mappedError->error, mappedError->val);
   });
@@ -79,6 +81,7 @@ void free_errors() {
     SGLIB_LIST_DELETE(ErrorList, errorList, mappedError, next);
     free(mappedError);
   });
+  lastError = NULL;
 }
 
 void create_error(enum ErrorType error, char* val) {
@@ -87,5 +90,9 @@ void create_error(enum ErrorType error, char* val) {
   errToken->error = error;
   strcpy(errToken->val, val);
 
-  SGLIB_LIST_ADD(ErrorList, errorList, errToken, next);
+  SGLIB_LIST_ADD_AFTER(ErrorList, lastError, errToken, next);
+  if (errorList == NULL) {
+    errorList = lastError;
+  }
+  lastError = errToken;
 }

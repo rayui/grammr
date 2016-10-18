@@ -1,10 +1,10 @@
-#define SGLIB_LIST_ADD_POST(type, list, elem, next) {\
-  if ((list) == NULL) {\
-    (list) = (elem);\
-    (list)->next = NULL;\
+#define SGLIB_LIST_ADD_AFTER(type, place, elem, next) {\
+  if ((place) == NULL) {\
+    (place) = (elem);\
+    (place)->next = NULL;\
   } else {\
-    (list)->next = (elem);\
-    (elem)->next = NULL;\
+    (elem)->next = (place)->next;\
+    (place)->next = (elem);\
   }\
 }
 
