@@ -17,6 +17,7 @@ extern ErrorList* errorList;
 extern Location* currentLocation;
 extern Actions* actions;
 extern ItemList* inventory;
+extern enum RunState RUNSTATE;
 
 int equalityRegister = 0;
 int skip = SKIP_NONE;
@@ -34,38 +35,35 @@ char* intrpt_convert_special_variable(char* arg) {
   return arg;
 }
 
-void intrpt_action(char* output, InstructionList* instructions, char* arg1, char* arg2) {
+void intrpt_action(char* output, InstructionList* instructions, char* actionIDStr, char* args) {
   Actions* action;
   InstructionList* lastInstruction;
   char actionId;
   char *first_comma;
-  static char newArg1[MAX_INST_ARG_SIZE];
-  static char newArg2[MAX_INST_ARG_SIZE];
-  char* newArg1Ptr;
-  char* newArg2Ptr;
+  static char arg1[MAX_INST_ARG_SIZE];
+  static char arg2[MAX_INST_ARG_SIZE];
 
-  memset(newArg1, 0, MAX_INST_ARG_SIZE);
-  memset(newArg2, 0, MAX_INST_ARG_SIZE);
-  
-  actionId = atoi(arg1);
-  action = findActionById(actions, actionId);
+  action = findActionById(actions, atoi(actionIDStr));
 
   if (action != NULL) {
+    strcpy(arg1, actionIDStr);
+    strcpy(arg2, args);
+    
     first_comma = strchr(arg2, ',');
 
     if (first_comma) {
-      strncpy(newArg1, arg2, first_comma - arg2);
-      strcpy(newArg2, first_comma + 1);
+      strncpy(arg1, arg2, first_comma - arg2);
+      strcpy(arg2, first_comma + 1);
     } else {
-      strcpy(newArg1, arg2);
+      strcpy(arg1, arg2);
     }
 
-    newArg1Ptr = intrpt_convert_special_variable(newArg1);
-    newArg2Ptr = intrpt_convert_special_variable(newArg2);
+    strcpy(arg1, intrpt_convert_special_variable(arg1));
+    strcpy(arg2, intrpt_convert_special_variable(arg2));
 
-    lastInstruction = inst_insert(&instructions, action->instructions, currInstruction, newArg1Ptr, newArg2Ptr);
+    lastInstruction = inst_insert(&instructions, action->instructions, currInstruction, arg1, arg2);
     if (lastInstruction == NULL) {
-      ERR = SE_TERMINAL;
+      RUNSTATE = SE_TERMINAL;
     }
   } else {
     sprintf(output, "%sNO SUCH ACTION: %d\r\n", output, actionId);
@@ -97,6 +95,12 @@ void intrpt_locationhasitem(char* arg1, char* arg2) {
 
 void intrpt_inventoryhasitem(char* arg1) {
   equalityRegister = inventoryHasItem(arg1);
+}
+
+void intrprt_inventoryorcurrentlocationhasitem(char* arg1, char* arg2) {
+  int inv = inventoryHasItem(arg2);
+  intrpt_locationhasitem(arg1, arg2);
+  equalityRegister = equalityRegister || inv;
 }
 
 void intrpt_hasexit(char* arg1, char* arg2) {
@@ -231,6 +235,9 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
     case INST_ITEMININVENTORY:
       intrpt_inventoryhasitem(arg1);
       break;
+    case INST_ITEMININVENTORYORLOCATION:
+      intrprt_inventoryorcurrentlocationhasitem(arg1, arg2);
+      break;
     case INST_HASEXIT:
       intrpt_hasexit(arg1, arg2);
       break;
@@ -281,11 +288,11 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
   }
 }
 
-enum RunState interpret(InstructionList** instructions, char* output) {
+void interpret(InstructionList** instructions, char* output) {
   skip = SKIP_NONE;
   currInstruction = *instructions;
 
-  while (currInstruction != NULL && ERR == SE_OK) {
+  while (currInstruction != NULL && RUNSTATE == SE_OK) {
     if (skip == SKIP_GOTO &&
       currInstruction->fn == INST_LABEL &&
       toLowerCaseCompare(gotoLabel, currInstruction->arg1))
@@ -299,6 +306,4 @@ enum RunState interpret(InstructionList** instructions, char* output) {
 
     currInstruction = currInstruction->next;
   }
-
-  return ERR;
 }

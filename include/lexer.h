@@ -36,5 +36,5 @@ char isVerbPhrasal(char* val);
 enum TokenType tokenTypeFromValue(char* val);
 Token* readtok(Token** tokens, char* input);
 char getVerbTransitivityByName(char* name);
-int lex(Token** tokens, char* input);
+void lex(Token** tokens, char* input);
 void free_tokens(Token** tokens);

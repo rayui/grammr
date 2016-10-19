@@ -34,4 +34,4 @@ void parser_commands(InstructionList** instructions);
 void parser_quit(void);
 void parser_eol(void);
 
-enum RunState parse(Token** tokens, InstructionList** instructions);
+void parse(Token** tokens, InstructionList** instructions);

@@ -5,8 +5,12 @@
 #include "../include/io.h"
 #include "../include/error.h"
 #include "../include/items.h"
+#include "../include/locations.h"
 #include "../include/utils.h"
 #include "../include/instruction.h"
+
+extern Location* currentLocation;
+extern enum RunState RUNSTATE;
 
 enum Instruction inst_get_instruction_code(char* instructionStr) {
   char instruction[3];
@@ -21,6 +25,8 @@ enum Instruction inst_get_instruction_code(char* instructionStr) {
     return INST_ITEMINLOCATION;
   } else if (strComp(instruction, "ii")) {
     return INST_ITEMININVENTORY;
+  } else if (strComp(instruction, "il")) {
+    return INST_ITEMININVENTORYORLOCATION;
   } else if (strComp(instruction, "he")) {
     return INST_HASEXIT;
   } else if (strComp(instruction, "nt")) {
@@ -54,6 +60,14 @@ enum Instruction inst_get_instruction_code(char* instructionStr) {
   }
 
   return INST_INVALID;
+}
+
+char inst_object_in_context(char* object) {
+  if (inventoryHasItem(object) || findItemInList(currentLocation->items, object) ||
+      findLocationByName(object) || locationHasExit(currentLocation->name, object)) {
+    return 1;
+  }
+  return 0;
 }
 
 void inst_convert_special_variable(char* arg, char* direct, char* indirect) {
@@ -111,6 +125,7 @@ InstructionList* inst_create(char* instructionStr, char* direct, char* indirect)
   
   instruction = malloc(sizeof(struct InstructionList));
   if (instruction == NULL) {
+    create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, instructionStr);
     return NULL;
   }
 
@@ -153,12 +168,23 @@ InstructionList* inst_insert(InstructionList** instructions, char* newInstructio
   static char tmpStr[MAX_INSTRUCTION_LENGTH];
   InstructionList* instruction = NULL;
 
+  //check if direct and indirect objects are in context here,
+  //viz in current location or in inventory or is an exit (or a person?)
+
+  if (direct && !inst_object_in_context(direct)) {
+    create_error(SE_PARSER, ERR_ITEM_NOT_FOUND, direct);
+  }
+  if (indirect && !inst_object_in_context(indirect)) {
+    create_error(SE_PARSER, ERR_ITEM_NOT_FOUND, indirect);
+  }
+
   strcpy(tmpStr, newInstructions);
   instructionStr = strtok(tmpStr, CON_SPLIT_INSTR_CHAR);
 
   while(instructionStr != NULL) {
     instruction = inst_create(instructionStr, direct, indirect);
     if (instruction == NULL) {
+      create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, instruction->fn);
       return NULL;
     }
     SGLIB_LIST_ADD_AFTER(struct InstructionList, last, instruction, next);

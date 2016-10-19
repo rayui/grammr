@@ -24,17 +24,10 @@ Item* items = NULL;
 Location* currentLocation;
 Location* locations = NULL;
 ItemList* inventory = NULL;
-
-void ifError(enum RunState err, char* input, char* output) {
-  if (err != SE_OK) {
-    sprintf(output, "You wrote: %s\r\n\r\n", input);
-    print_errors(err, output);
-  }
-}
+enum RunState RUNSTATE = SE_OK;
 
 int main() {
   int i = 0;
-  enum RunState err = SE_OK;
   char* input = malloc(COMMAND_SIZE * sizeof(char));
   char* output = malloc(MAXOUTPUTSIZE * sizeof(char));
 
@@ -46,15 +39,13 @@ int main() {
 
   printOutput("LOADING GAME...");
 
-  err = parseConfigFile("data.pet");
+  parseConfigFile("data.pet");
 
-  printOutput("%d", err);
-
-  if (err == SE_OK) {
+  if (RUNSTATE == SE_OK) {
     currentLocation = locations;
 
-    while(err != SE_TERMINAL) {
-      err = SE_OK;
+    while(RUNSTATE != SE_TERMINAL) {
+      RUNSTATE = SE_OK;
 
       memset(input, 0, COMMAND_SIZE);
       memset(output, 0, MAXOUTPUTSIZE);
@@ -66,17 +57,14 @@ int main() {
       clrscr();
 
       printOutput(".");
-      err = lex(&tokenHead, input);
-      ifError(err, input, output);
+      lex(&tokenHead, input);
 
-      if(err == SE_OK) {
+      if(RUNSTATE == SE_OK) {
         printOutput(".");
-        err = parse(&tokenHead, &instructions);
-        ifError(err, input, output);
-        if(err == SE_OK) {
+        parse(&tokenHead, &instructions);
+        if(RUNSTATE == SE_OK) {
           printOutput(".");
-          err = interpret(&instructions, output);
-          ifError(err, input, output);
+          interpret(&instructions, output);
         }
         free_instructions(instructions);
       }
@@ -84,13 +72,16 @@ int main() {
       free_tokens(&tokenHead);
       //clrscr();
 
+      if (RUNSTATE != SE_OK) {
+        print_errors(input, output);
+      }
       printOutput("%s\r\n", output);
 
       free_errors();
     }
   }
 
-  ifError(err, input, output);
+  print_errors("", output);
   free_errors();
 
   free(input);

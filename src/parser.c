@@ -12,7 +12,6 @@
 #include "../include/lexer.h"
 #include "../include/parser.h"
 
-enum RunState ERR = SE_OK;
 int parser_counter = 0;
 char parser_word_reg[MAXNAMESZ];
 char parser_action_reg[MAXNAMESZ];
@@ -23,6 +22,7 @@ InstructionList* lastInstruction;
 
 extern Item* items;
 extern Actions* actions;
+extern enum RunState RUNSTATE;
 
 void parser_readtok() {
   currToken = currToken->next;
@@ -104,10 +104,7 @@ int parser_accept(enum TokenType type) {
 }
 
 void parser_error(enum ErrorType error, char* val) {
-  ERR = SE_WARNING;
-
-  create_error(error, val);
-
+  create_error(SE_PARSER, error, val);
   parser_readtok();
 }
 
@@ -117,7 +114,7 @@ void parser_item() {
     while (parser_accept(TOK_WORD)) {}
     parser_add_word_reg_to_name_list();
   } else {
-    parser_error(CC_ITEM_EXPECTED, currToken->val);
+    parser_error(ERR_ITEM_EXPECTED, currToken->val);
   }
 }
 
@@ -151,7 +148,7 @@ void parser_action(InstructionList** instructions) {
         action = findDefaultActionByName(actions, parser_action_reg);
       }
     } else {
-      parser_error(CC_ITEM_EXPECTED, parser_name_stack->name);
+      parser_error(ERR_ITEM_EXPECTED, parser_name_stack->name);
     }
   } else {
     action = findActionByName(actions, parser_action_reg);
@@ -159,12 +156,8 @@ void parser_action(InstructionList** instructions) {
 
   if (action != NULL) {
     lastInstruction = inst_insert(instructions, action->instructions, lastInstruction, numItems > 0 ? parser_name_stack->name : NULL, numItems > 1 ? parser_name_stack->next->name : NULL);
-    if (lastInstruction == NULL) {
-      create_error(CC_NO_MEMORY, action->name);
-      ERR = SE_TERMINAL;
-    }
   } else {
-    parser_error(CC_NO_SUCH_ACTION, token->val);
+    parser_error(ERR_NO_SUCH_ACTION, token->val);
   }
 }
 
@@ -176,7 +169,7 @@ void parser_command(InstructionList** instructions) {
   } else if (parser_accept(TOK_QUIT)) {
     parser_quit();
   } else {
-    parser_error(CC_ERR_COMMAND_EXPECTED, currToken->val);
+    parser_error(ERR_COMMAND_EXPECTED, currToken->val);
   }
 }
 
@@ -188,28 +181,26 @@ void parser_commands(InstructionList** instructions) {
   } else if (parser_accept(TOK_COMPLEX)) {
     parser_commands(instructions);
   } else {
-    parser_error(CC_ERR_END_OF_COMMAND_EXPECTED, currToken->val);
+    parser_error(ERR_END_OF_COMMAND_EXPECTED, currToken->val);
   }
 }
 
 void parser_quit() {
-  parser_error(CC_QUIT, currToken->val);
+  parser_error(ERR_QUIT, currToken->val);
 }
 
 void parser_eol() {
   return;
 }
 
-enum RunState parse(Token** tokenHead, InstructionList** instructions) {
+void parse(Token** tokenHead, InstructionList** instructions) {
   currToken = *tokenHead;
   lastInstruction = *instructions;
 
-  ERR = SE_OK;
+  RUNSTATE = SE_OK;
   parser_counter = 0;
 
-  while(currToken != NULL && ERR == SE_OK) {
+  while(currToken != NULL && RUNSTATE == SE_OK) {
     parser_commands(instructions);
   }
-
-  return ERR;
 }

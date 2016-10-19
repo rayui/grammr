@@ -112,6 +112,7 @@
   "type": "action",
   "id": 10,
   "name": "use",
+  "default": 0,
   "instruction": "
     EQ,$L,Bedroom;
     IF;
@@ -265,7 +266,17 @@
 {
   "type": "item",
   "name": "Metro Newspaper",
-  "description": "A publication that mostly focusses on local murders and which celebrities are sleeping together"
+  "description": "A rather bleak publication that focusses on supporting the meta-interests of the wealthy elite"
+},
+{
+  "type": "item",
+  "name": "Oyster Machine",
+  "description": "You can top up your Oyster Card here"
+},
+{
+  "type": "item",
+  "name": "Ticket barrier",
+  "description": "Use your Oyster Card to travel to other places in London"
 },
 {
   "type": "location",
@@ -313,6 +324,6 @@
   "type": "location",
   "name": "Tube station",
   "description": "You are at a tube station somewhere on the Central Line",
-  "items": ["Metro Newspaper"],
+  "items": ["Metro Newspaper", "Oyster Machine", "Ticket barrier"],
   "exits": ["Street"]
 }

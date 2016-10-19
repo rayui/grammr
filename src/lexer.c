@@ -9,7 +9,7 @@
 
 const char SPLIT_CHAR[2] = " \0";
 extern ErrorList* errorList;
-char ERR;
+extern enum RunState RUNSTATE;
 
 char isNumber(char* val) {
   return isStringNumeric(val);
@@ -71,8 +71,7 @@ enum TokenType tokenTypeFromValue(char* val) {
   } else if (isVerb(val)) {
     return TOK_VERB;
   } else if (isNumber(val)) {
-    ERR = SE_WARNING;
-    create_error(LEX_UNRECOGNISED_TOKEN, val);
+    create_error(SE_PARSER, ERR_UNRECOGNISED_TOKEN, val);
     return TOK_NUMBER;
   } else if (isStringAlpha(val)) {
     return TOK_WORD;
@@ -108,12 +107,12 @@ Token* readtok(Token** tail, char* input) {
   return token;
 }
 
-int lex(Token** tokenHead, char* source) {
+void lex(Token** tokenHead, char* source) {
   enum TokenType type;
   Token* tail = NULL;
   static char input[MAXCOMMANDSIZE];
 
-  ERR = SE_OK;
+  RUNSTATE = SE_OK;
 
   strncpy(input, source, MAXCOMMANDSIZE - 1);
   input[MAXCOMMANDSIZE] = '\0';
@@ -122,8 +121,6 @@ int lex(Token** tokenHead, char* source) {
   while(tail->type != TOK_EOL) {
     tail = readtok(&tail, NULL);
   }
-
-  return ERR;
 }
 
 void free_tokens(Token** tokens) {

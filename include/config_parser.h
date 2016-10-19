@@ -30,4 +30,4 @@ void con_location(void);
 void con_action(void);
 
 void con_fill_exits(int len);
-enum RunState parseConfigFile(char* filename);
+void parseConfigFile(char* filename);

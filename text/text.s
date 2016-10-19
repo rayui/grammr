@@ -7,9 +7,6 @@ _str_syntax_error_command_expected: .asciiz "I expected something starting with 
 .export _str_syntax_error_word_expected
 _str_syntax_error_word_expected: .asciiz "Maybe you wanted a particular item, or exit?"
 
-.export _str_syntax_error_direction_expected
-_str_syntax_error_direction_expected: .asciiz "I don't know how to go to %s. Try one of the exits..."
-
 .export _str_syntax_error_item_expected
 _str_syntax_error_item_expected: .asciiz "Hm, I don't recognise %s. Did you want an item in particular?"
 
@@ -27,6 +24,9 @@ _str_syntax_error_no_such_action: .asciiz "Nah, you can't %s that."
 
 .export _str_system_error_no_memory
 _str_system_error_no_memory: .asciiz "Out of memory at %s! Instruction too long; aborting."
+
+.export _str_parse_error_item_not_found
+_str_parse_error_item_not_found: .asciiz "I can't see a %s here."
 
 .export _str_terminal_system_error
 _str_terminal_system_error: .asciiz "TERMINAL FAILURE\r\n\r\n"

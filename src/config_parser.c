@@ -28,11 +28,11 @@ char con_word_reg_a[MAX_ITEM_NAME_LENGTH];
 char con_word_reg_b[MAX_ITEM_NAME_LENGTH];
 char con_word_reg_c[MAXINSTRUCTIONSIZE];
 
-enum RunState CON_ERR;
 extern ErrorList* errorList;
 extern Item* items;
 extern Location* locations;
 extern Actions* actions;
+extern enum RunState RUNSTATE;
 
 Location* locationsTail;
 Actions* actionsTail;
@@ -60,7 +60,7 @@ void con_set_word_reg_b() {
 void con_set_word_reg_c() {
   int size = con_tok[con_counter].end - con_tok[con_counter].start;
   if (size > MAXINSTRUCTIONSIZE) {
-    con_error(CON_OVERSIZE_INSTRUCTION);
+    con_error(ERR_CONFIG_OVERSIZE_INSTRUCTION);
   } else {
     sprintf(con_word_reg_c, "%.*s", size, source + con_tok[con_counter].start);
   }
@@ -79,9 +79,8 @@ int con_set_word_reg_by_index(int reg) {
 }
 
 void con_error(enum ErrorType error) {
-  CON_ERR = SE_TERMINAL;
   con_set_word_reg_a();
-  create_error(error, con_word_reg_a);
+  create_error(SE_TERMINAL, error, con_word_reg_a);
 }
 
 int con_compare_word_reg(char* s, char* reg) {
@@ -230,14 +229,14 @@ void con_item_actions(char* actions) {
           con_accept(JSMN_PRIMITIVE);
           actions[i] = con_int_reg;
         } else {
-          con_error(CON_NUMER_EXPECTED);
+          con_error(ERR_JSON_NUMBER_EXPECTED);
         }
       }
     } else {
-      con_error(CON_TOO_MANY_ACTIONS);
+      con_error(ERR_CONFIG_TOO_MANY_ACTIONS);
     }
   } else {
-    con_error(CON_OBJECT_EXPECTED);
+    con_error(ERR_JSON_OBJECT_EXPECTED);
   }
 }
 
@@ -251,10 +250,10 @@ void con_item() {
         con_item_actions(item->actions);
       }
     } else {
-      con_error(CON_DESCRIPTION_EXPECTED);
+      con_error(ERR_CONFIG_DESCRIPTION_EXPECTED);
     }
   } else {
-    con_error(CON_NAME_EXPECTED);
+    con_error(ERR_CONFIG_NAME_EXPECTED);
   }
 }
 
@@ -274,16 +273,16 @@ void con_location_items(Location* location) {
         if (foundItem != NULL) {
           createItemList(&(location->items), foundItem);
         } else {
-          con_error(CON_ITEM_NOT_FOUND);
+          con_error(ERR_ITEM_NOT_FOUND);
         }
         con_accept(JSMN_STRING);
       } else {
-        con_error(CON_NAME_EXPECTED);
+        con_error(ERR_CONFIG_NAME_EXPECTED);
         break;
       }
     }
   } else {
-    con_error(CON_ARRAY_EXPECTED);
+    con_error(ERR_JSON_ARRAY_EXPECTED);
   }
 }
 
@@ -300,12 +299,12 @@ void con_location_exits() {
         //loop
         //we fill in the locations later
       } else {
-        con_error(CON_NAME_EXPECTED);
+        con_error(ERR_CONFIG_NAME_EXPECTED);
         break;
       }
     }
   } else {
-    con_error(CON_ARRAY_EXPECTED);
+    con_error(ERR_JSON_ARRAY_EXPECTED);
   }
 }
 
@@ -332,10 +331,10 @@ void con_location() {
       }
 
     } else {
-      con_error(CON_DESCRIPTION_EXPECTED);
+      con_error(ERR_CONFIG_DESCRIPTION_EXPECTED);
     }
   } else {
-    con_error(CON_NAME_EXPECTED);
+    con_error(ERR_CONFIG_NAME_EXPECTED);
   }
 }
 
@@ -370,7 +369,7 @@ void con_object() {
     } else if (con_compare_word_reg(con_word_reg_a, "action")) {
       con_action();
     } else {
-      con_error(CON_OBJECT_EXPECTED);
+      con_error(ERR_JSON_OBJECT_EXPECTED);
     }
   }
 }
@@ -379,7 +378,7 @@ void con_objects() {
   if (con_accept(JSMN_OBJECT)) {
     con_object();
   } else {
-    con_error(CON_UNEXPECTED_TOKEN);
+    con_error(ERR_JSON_UNEXPECTED_TOKEN);
   }
 }
 
@@ -390,7 +389,7 @@ void con_fill_exits(int len) {
   Location* doorway;
   con_counter = 0;
 
-  while (con_counter < len && CON_ERR == SE_OK) {
+  while (con_counter < len && RUNSTATE == SE_OK) {
     con_acceptUntilVal("location");
     con_acceptUntilVal("name");
     con_set_word_reg_a();
@@ -408,7 +407,7 @@ void con_fill_exits(int len) {
             createLocationList(&(origin->exits), doorway);
             con_accept(JSMN_STRING);
           } else {
-            con_error(CON_NAME_EXPECTED);
+            con_error(ERR_CONFIG_NAME_EXPECTED);
             break;
           }
         }
@@ -417,25 +416,24 @@ void con_fill_exits(int len) {
   }
 }
 
-enum RunState parseConfigFile(char* filename) {
+void parseConfigFile(char* filename) {
   int jsmn;
   int i = 0;
   jsmn_parser p;
   locationsTail = NULL;
   actionsTail = NULL;
 
-  CON_ERR = SE_OK;
   con_counter = 0;
 
   fp = fopen(filename, "r");
   if (!fp) {
-    return SE_TERMINAL;
+    con_error(ERR_FILE);
   }
 
   source = malloc((CONFIGFILEBUFFSIZE) * sizeof(char));
   if (source == NULL) {
-    con_error(CON_NO_MEMORY);
-    return CON_ERR;
+    con_error(ERR_OUT_OF_MEMORY);
+    return;
   }
   memset(source, 0, CONFIGFILEBUFFSIZE);
 
@@ -443,8 +441,7 @@ enum RunState parseConfigFile(char* filename) {
     fp_bytes = fread(buf, sizeof(char), CONFIGFILEBUFFSIZE, fp);
 
     if (fp_bytes < 0) {
-      CON_ERR = SE_TERMINAL;
-      con_error(CON_FILE_ERROR);
+      con_error(ERR_FILE);
       break;
     } else if (fp_bytes == 0) {
       //could be an error but ignore, just break
@@ -454,8 +451,7 @@ enum RunState parseConfigFile(char* filename) {
     source = realloc_it(source, source_len + fp_bytes + 1);
 
     if (source == NULL) {
-      CON_ERR = SE_TERMINAL;
-      con_error(CON_NO_MEMORY);
+      con_error(ERR_OUT_OF_MEMORY);
       break;
     }
 
@@ -471,32 +467,33 @@ enum RunState parseConfigFile(char* filename) {
 
   toC64Case(source);
 
-  if (CON_ERR != SE_TERMINAL) {
+  if (RUNSTATE != SE_TERMINAL) {
     //find out how many tokens we need to parse this file and create them
     jsmn_init(&p);
     con_tok_num = jsmn_parse(&p, source, source_len, NULL, 0);
 
     if (con_tok_num < 0) {
-      con_error(CON_BAD_JSON);
+      con_error(ERR_CONFIG_BAD_JSON);
+      return;
     } 
 
     con_tok = malloc(con_tok_num * sizeof(jsmntok_t));
     if (con_tok == NULL) {
-      con_error(CON_NO_MEMORY);
-      return CON_ERR;
+      con_error(ERR_OUT_OF_MEMORY);
+      return;
     }
 
     //now parse the file into it
     jsmn_init(&p);
     jsmn = jsmn_parse(&p, source, source_len, con_tok, con_tok_num);
     if (jsmn >= 0) {
-      while (con_counter < con_tok_num && CON_ERR == SE_OK) {
+      while (con_counter < con_tok_num && RUNSTATE == SE_OK) {
         con_objects();
       }
       //now fill in the exits
       con_fill_exits(con_tok_num);
     } else {
-      con_error(CON_BAD_JSON);
+      con_error(ERR_CONFIG_BAD_JSON);
     }
 
     free(con_tok);
@@ -504,6 +501,4 @@ enum RunState parseConfigFile(char* filename) {
 
   //clean up
   free(source);
-
-  return CON_ERR;
 }
