@@ -16,6 +16,7 @@
 extern ErrorList* errorList;
 extern Location* currentLocation;
 extern Actions* actions;
+extern ItemList* inventory;
 
 int equalityRegister = 0;
 int skip = SKIP_NONE;
@@ -95,18 +96,11 @@ void intrpt_locationhasitem(char* arg1, char* arg2) {
 }
 
 void intrpt_inventoryhasitem(char* arg1) {
-  char i = inventoryHasItem(arg1);
-
-  if (i == 1) {
-    equalityRegister = 1;
-  }
-
-  equalityRegister = 0;
+  equalityRegister = inventoryHasItem(arg1);
 }
 
 void intrpt_hasexit(char* arg1, char* arg2) {
-  char i = locationHasExit(arg1, arg2);
-  equalityRegister = i;
+  equalityRegister = locationHasExit(arg1, arg2);
 }
 
 void intrpt_not() {
@@ -126,11 +120,29 @@ void intrpt_setloc(char* arg1) {
 }
 
 void intrpt_additem(char* arg1, char* arg2) {
+  Item* object, subject;
 
+  if (toLowerCaseCompare(arg2, "$i")) {
+    //add item to the inventory
+    object = findItemInList(currentLocation->items, arg1);
+    deleteItemList(&(currentLocation->items), object);
+    createItemList(&inventory, object);
+  } else {
+    //put one item inside another
+  }
 }
 
 void intrpt_delitem(char* arg1, char* arg2) {
+  Item* object, subject;
 
+  if (toLowerCaseCompare(arg2, "$i")) {
+    //add item to the inventory
+    object = findItemInList(inventory, arg1);
+    deleteItemList(&inventory, object);
+    createItemList(&(currentLocation->items), object);
+  } else {
+    //put one item inside another
+  }
 }
 
 void intrpt_return(void) {

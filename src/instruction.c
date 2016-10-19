@@ -132,6 +132,8 @@ InstructionList* inst_create(char* instructionStr, char* direct, char* indirect)
       inst_convert_special_variable(tmpStr, direct, indirect);
       instruction->arg1 = inst_create_arg(tmpStr);
 
+      memset(tmpStr, 0, MAX_INST_ARG_SIZE);
+
       strncpy(tmpStr, second_comma, strlen(second_comma));
       inst_convert_special_variable(tmpStr, direct, indirect);
       instruction->arg2 = inst_create_arg(tmpStr);

@@ -9,7 +9,6 @@ typedef struct Item {
   char *name;
   char *description;
   char actions[MAXINSTRUCTIONS];
-  struct ItemList* items;
   struct Item *next;
 } Item;
 
@@ -22,9 +21,8 @@ typedef struct ItemList {
 
 Item* createItem(char* name, char* description);
 ItemList* createItemList(ItemList** items, Item* item);
+void deleteItemList(ItemList** items, Item* item);
 struct Item* findItemByName(char* name);
 Item* findItemInList(ItemList* list, char* name);
 char inventoryHasItem(char* name);
-void addItemToList(ItemList* list, Item* item);
-void addItemToInventory(char* name);
 void getAllItemNames(ItemList* list, char* itemNames);

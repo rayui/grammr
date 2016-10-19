@@ -21,7 +21,7 @@
 },
 {
   "type": "action",
-  "id": 0,
+  "id": 1,
   "name": "go to",
   "default": 1,
   "instruction": "
@@ -30,7 +30,7 @@
 },
 {
   "type": "action",
-  "id": 1,
+  "id": 2,
   "name": "look",
   "default": 1,
   "instruction": "
@@ -48,7 +48,7 @@
 },
 {
   "type": "action",
-  "id": 2,
+  "id": 3,
   "name": "look at",
   "default": 1,
   "instruction": "
@@ -67,9 +67,52 @@
 },
 {
   "type": "action",
+  "id": 4,
+  "name": "take",
+  "default": 0,
+  "instruction": "
+    LI,$L,$S;
+    NT;
+    IF;
+    GT,ERROR;
+    IA,$S,$I;
+    PR,You put the ;
+    PR,$S;
+    PR,in your inventory;
+    GT,END;
+    LB,ERROR;
+    PR,There's no ;
+    PR,$S;
+    PR,here;
+    LB,END;
+    PR,. ;
+  "
+},
+{
+  "type": "action",
+  "id": 5,
+  "name": "drop",
+  "default": 0,
+  "instruction": "
+    II,$S;
+    NT;
+    IF;
+    GT,ERROR;
+    ID,$S,$I;
+    PR,You dropped the ;
+    GT,END;
+    LB,ERROR;
+    PR,You're not carrying a ;
+    LB,END;
+    PR,$S;
+    PR,. ;
+  "
+},
+{
+  "type": "action",
   "id": 10,
   "name": "use",
-  "instructions": "
+  "instruction": "
     EQ,$L,Bedroom;
     IF;
     GT,LANDING;
@@ -84,7 +127,7 @@
   "type": "action",
   "id": 11,
   "name": "use",
-  "instructions": "
+  "instruction": "
     EQ,$L,Landing;
     IF;
     GT,ENTRANCE;
@@ -124,7 +167,7 @@
   "type": "action",
   "id": 14,
   "name": "use with",
-  "instructions": "
+  "instruction": "
     PR,Using $S and $O...;
     PL;
     PR,You are now connected to the Internet;
@@ -134,41 +177,44 @@
 {
   "type": "item",
   "name": "Oyster card",
-  "description": "You have $5 of credit on this card"
+  "description": "You have $5 of credit on this card",
+  "actions":[4,5]
 },
 {
   "type": "item",
   "name": "Office keys",
-  "description": "An RFID key that allows access to your office"
+  "description": "An RFID key that allows access to your office",
+  "actions":[4,5]
 },
 {
   "type": "item",
   "name": "Laptop",
   "description": "It is a Toshiba T2200",
-  "actions":[14]
+  "actions":[4,5,14]
 },
 {
   "type": "item",
   "name": "Mobile phone",
   "description": "It is a Nokia 3210",
-  "actions":[14]
+  "actions":[4,5,14]
 },
 {
   "type": "item",
-  "name": "Microsoft Badge",
-  "description": "An encrypted RFID identity badge that allows access to your office"
+  "name": "RFID Badge",
+  "description": "An encrypted RFID identity badge that allows access to your office",
+  "actions":[4,5]
 },
 {
   "type": "item",
   "name": "Bedroom door handle",
   "description": "It's a handle. On your bedroom door",
-  "actions": []
+  "actions":[10]
 },
 {
   "type": "item",
   "name": "Door",
   "description": "A battered pine bedroom door",
-  "actions": [10]
+  "actions":[10]
 },
 {
   "type": "item",
@@ -225,7 +271,7 @@
   "type": "location",
   "name": "Bedroom",
   "description": "You awake in a darkened room",
-  "items": ["Oyster card", "Office keys", "Microsoft Badge", "Laptop", "Mobile phone", "Door", "Bedroom door handle"],
+  "items": ["Oyster card", "Office keys", "RFID Badge", "Laptop", "Mobile phone", "Door", "Bedroom door handle"],
   "exits": ["Landing"]
 },
 {

@@ -48,6 +48,8 @@ int main() {
 
   err = parseConfigFile("data.pet");
 
+  printOutput("%d", err);
+
   if (err == SE_OK) {
     currentLocation = locations;
 

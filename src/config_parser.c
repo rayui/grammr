@@ -418,6 +418,8 @@ void con_fill_exits(int len) {
 }
 
 enum RunState parseConfigFile(char* filename) {
+  int jsmn;
+  int i = 0;
   jsmn_parser p;
   locationsTail = NULL;
   actionsTail = NULL;
@@ -431,6 +433,10 @@ enum RunState parseConfigFile(char* filename) {
   }
 
   source = malloc((CONFIGFILEBUFFSIZE) * sizeof(char));
+  if (source == NULL) {
+    con_error(CON_NO_MEMORY);
+    return CON_ERR;
+  }
   memset(source, 0, CONFIGFILEBUFFSIZE);
 
   for(;;) {
@@ -438,7 +444,7 @@ enum RunState parseConfigFile(char* filename) {
 
     if (fp_bytes < 0) {
       CON_ERR = SE_TERMINAL;
-      create_error(CON_FILE_ERROR, NULL);
+      con_error(CON_FILE_ERROR);
       break;
     } else if (fp_bytes == 0) {
       //could be an error but ignore, just break
@@ -449,7 +455,7 @@ enum RunState parseConfigFile(char* filename) {
 
     if (source == NULL) {
       CON_ERR = SE_TERMINAL;
-      create_error(CON_NO_MEMORY, buf);
+      con_error(CON_NO_MEMORY);
       break;
     }
 
@@ -469,17 +475,29 @@ enum RunState parseConfigFile(char* filename) {
     //find out how many tokens we need to parse this file and create them
     jsmn_init(&p);
     con_tok_num = jsmn_parse(&p, source, source_len, NULL, 0);
+
+    if (con_tok_num < 0) {
+      con_error(CON_BAD_JSON);
+    } 
+
     con_tok = malloc(con_tok_num * sizeof(jsmntok_t));
+    if (con_tok == NULL) {
+      con_error(CON_NO_MEMORY);
+      return CON_ERR;
+    }
 
     //now parse the file into it
     jsmn_init(&p);
-    jsmn_parse(&p, source, source_len, con_tok, con_tok_num);
-    while (con_counter < con_tok_num && CON_ERR == SE_OK) {
-      con_objects();
+    jsmn = jsmn_parse(&p, source, source_len, con_tok, con_tok_num);
+    if (jsmn >= 0) {
+      while (con_counter < con_tok_num && CON_ERR == SE_OK) {
+        con_objects();
+      }
+      //now fill in the exits
+      con_fill_exits(con_tok_num);
+    } else {
+      con_error(CON_BAD_JSON);
     }
-
-    //now fill in the exits
-    con_fill_exits(con_tok_num);
 
     free(con_tok);
   }

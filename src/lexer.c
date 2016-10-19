@@ -51,7 +51,8 @@ char isComplex(char* val) {
 char isVerb(char* val) {
   if (strComp(val, "look") || strComp(val, "go") ||
       strComp(val, "use") || strComp(val, "put") ||
-      strComp(val, "take") || strComp(val, "call")
+      strComp(val, "take") || strComp(val, "drop") ||
+      strComp(val, "call")
   ) {
     return 1;
   }

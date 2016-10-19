@@ -42,6 +42,15 @@ ItemList* createItemList(ItemList** items, Item* item) {
   return itemList;
 }
 
+void deleteItemList(ItemList** items, Item* item) {
+  SGLIB_LIST_MAP_ON_ELEMENTS(ItemList, *items, listItem, next, {
+    if (listItem->item == item) {
+      SGLIB_LIST_DELETE(ItemList, *items, listItem, next);
+      free(listItem);
+    }
+  });
+}
+
 Item* findItemByName(char* name) {
   SGLIB_LIST_MAP_ON_ELEMENTS(Item, items, item, next, {
     if (toLowerCaseCompare(name, item->name)) {
@@ -71,17 +80,6 @@ char inventoryHasItem(char* name) {
   });
 
   return foundItem;
-}
-
-void addItemToList(ItemList* list, Item* item) {
-  createItemList(&list, item);
-}
-
-void addItemToInventory(char* name) {
-  Item* item = findItemByName(name);
-  if (item != NULL) {
-    addItemToList(inventory, item);
-  }
 }
 
 void getAllItemNames(ItemList* list, char* itemNames) {

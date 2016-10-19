@@ -41,6 +41,7 @@ enum ErrorType {
   CON_ACTION_COMMAND_EXPECTED,
   CON_ILLEGAL_INSTRUCTION,
   CON_OVERSIZE_INSTRUCTION,
+  CON_BAD_JSON
 };
 
 typedef struct ErrorList {
