@@ -8,11 +8,9 @@
 
 extern const char str_syntax_error_end_of_command_expected[];
 extern const char str_syntax_error_command_expected[];
-extern const char str_syntax_error_word_expected[];
 extern const char str_syntax_error_item_expected[];
 extern const char str_syntax_error_preposition_expected[];
 extern const char str_syntax_error_unrecognised_token[];
-extern const char str_syntax_error_item_unavailable[];
 extern const char str_syntax_error_no_such_action[];
 extern const char str_parse_error_item_not_found[];
 extern const char str_terminal_system_error[];
@@ -33,9 +31,6 @@ void print_error(char* output, enum ErrorType errorCode, char* val) {
       break;
     case ERR_COMMAND_EXPECTED:
       sprintf(tmpOutput, str_syntax_error_command_expected);
-      break;
-    case ERR_WORD_EXPECTED:
-      sprintf(tmpOutput, str_syntax_error_word_expected);
       break;
     case ERR_ITEM_EXPECTED:
       sprintf(tmpOutput, str_syntax_error_item_expected, val);
@@ -66,9 +61,9 @@ void print_error(char* output, enum ErrorType errorCode, char* val) {
 
 void print_errors(char* input, char* output) {
   if (RUNSTATE == SE_TERMINAL) {
-    sprintf(output, "%s\r\n\r\n%s\r\n", output, str_terminal_system_error);
+    sprintf(output, "%s%s\r\n", output, str_terminal_system_error);
   } else {
-    sprintf(output, "%s\r\n\r\nYou wrote: %s\r\n", output, input);
+    sprintf(output, "%sYou wrote: %s\r\n", output, input);
   }
 
   SGLIB_LIST_MAP_ON_ELEMENTS(ErrorList, errorList, mappedError, next, {

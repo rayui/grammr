@@ -20,9 +20,11 @@ NameList* parser_name_stack_tail = NULL;
 Token* currToken;
 InstructionList* lastInstruction;
 
+extern Location* currentLocation;
 extern Item* items;
 extern Actions* actions;
 extern enum RunState RUNSTATE;
+extern ItemList* inventory;
 
 void parser_readtok() {
   currToken = currToken->next;
@@ -121,9 +123,9 @@ void parser_item() {
 void parser_action(InstructionList** instructions) {
   Token* token = currToken;
   Actions* action = NULL;
-  Location* location = NULL;
   Item* item = NULL;
-  char numItems = 0;
+  char* subject = NULL;
+  char* object = NULL;
 
   parser_accept(TOK_VERB);
   parser_accept(TOK_PREPOSITION);
@@ -135,30 +137,38 @@ void parser_action(InstructionList** instructions) {
     }
   }
 
-  SGLIB_LIST_LEN(NameList, parser_name_stack, next, numItems);
+  //get instruction string
+  //search instruction string for $s and $o
+  //compare number of args to length of parser_name_stack
+  //incorrect number of args
 
-  if (numItems > 0) {
-    //ref to first item in parser_name_stack will now be at head
-    item = findItemByName(parser_name_stack->name);
-    location = findLocationByName(parser_name_stack->name);
+  subject = parser_name_stack ? parser_name_stack->name : NULL;
 
-    if (item != NULL || location != NULL) {
+  if (subject) {
+    object = parser_name_stack->next ? parser_name_stack->next->name : NULL;
+    item = findItemInList(currentLocation->items, subject);
+    if (item == NULL)
+      item = findItemInList(inventory, subject);
+    if (item != NULL) {
       action = findActionByNameAndItem(actions, item, parser_action_reg);
-      if (action == NULL) {
+      if (action == NULL)
         action = findDefaultActionByName(actions, parser_action_reg);
-      }
+    } else if (locationHasExit(currentLocation->name, subject)) {
+      action = findDefaultActionByName(actions, parser_action_reg);
     } else {
-      parser_error(ERR_ITEM_EXPECTED, parser_name_stack->name);
+      parser_error(ERR_ITEM_NOT_FOUND, subject);
     }
   } else {
-    action = findActionByName(actions, parser_action_reg);
+    action = findDefaultActionByName(actions, parser_action_reg);
   }
 
-  if (action != NULL) {
-    lastInstruction = inst_insert(instructions, action->instructions, lastInstruction, numItems > 0 ? parser_name_stack->name : NULL, numItems > 1 ? parser_name_stack->next->name : NULL);
-  } else {
-    parser_error(ERR_NO_SUCH_ACTION, token->val);
-  }
+  if (action == NULL) {
+    parser_error(ERR_NO_SUCH_ACTION, parser_action_reg);
+    return;
+  } 
+  
+  lastInstruction = inst_insert(instructions, action->instructions, lastInstruction, subject, object);
+  
 }
 
 void parser_command(InstructionList** instructions) {

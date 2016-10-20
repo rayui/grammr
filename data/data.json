@@ -169,10 +169,18 @@
   "id": 14,
   "name": "use with",
   "instruction": "
-    PR,Using $S and $O...;
+    EQ,$O,Mobile phone;
+    NT;
+    IF;
+    GT,ERROR;
+    PR,BEEP BOOP BEEP BOOP...;
     PL;
     PR,You are now connected to the Internet;
     PL;
+    GT,END;
+    LB,ERROR;
+    PR,You mash the $O ineffectively against the $S;
+    LB,END;
   "
 },
 {

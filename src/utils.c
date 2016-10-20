@@ -57,7 +57,7 @@ void toLowerCase(char* str) {
 
 char toLowerCaseContains(char *str1, char* str2) {
   char compare = 0;
-  char* str1Lwr = malloc(strlen(str1));
+  char str1Lwr[MAXNAMESZ];
   char str2Lwr[MAXNAMESZ];
 
   strcpy(str1Lwr, str1);
@@ -69,8 +69,6 @@ char toLowerCaseContains(char *str1, char* str2) {
   if (strstr(str1Lwr, str2Lwr) != NULL) {
     compare = 1;
   }
-
-  free(str1Lwr);
 
   return compare;
 }

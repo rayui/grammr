@@ -13,7 +13,6 @@
 #include "../include/parser.h"
 #include "../include/interpreter.h"
 
-extern ErrorList* errorList;
 extern Location* currentLocation;
 extern Actions* actions;
 extern ItemList* inventory;
@@ -158,6 +157,15 @@ void intrpt_goto(char* arg1) {
   strcpy(gotoLabel, arg1);
 }
 
+void intrpt_goto_if(char* arg1) {
+  if (equalityRegister == 0) {
+    skip = SKIP_GOTO;
+    strcpy(gotoLabel, arg1);
+  } else {
+    skip = SKIP_NONE;
+  }  
+}
+
 void intrpt_label(void) {
   skip = SKIP_NONE;
 }
@@ -261,6 +269,8 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
       break;
     case INST_GOTO:
       intrpt_goto(arg1);
+    case INST_GOTO_IF:
+      intrpt_goto_if(arg1);
       break;
     case INST_LABEL:
       intrpt_label();

@@ -43,6 +43,8 @@ enum Instruction inst_get_instruction_code(char* instructionStr) {
     return INST_RETURN;
   } else if (strComp(instruction, "gt")) {
     return INST_GOTO;
+  } else if (strComp(instruction, "gi")) {
+    return INST_GOTO_IF;
   } else if (strComp(instruction, "lb")) {
     return INST_LABEL;
   } else if (strComp(instruction, "pr")) {
