@@ -36,7 +36,6 @@ typedef struct InstructionList {
 } InstructionList;
 
 enum Instruction inst_get_instruction_code(char* instruction);
-void inst_convert_special_variable(char* arg, char* direct, char* indirect);
 void free_instructions(InstructionList* instructions);
 InstructionList* inst_create(char* instructionStr);
 InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect);

@@ -58,9 +58,11 @@ Actions* findDefaultActionByName(Actions* actions, char* name) {
 }
 
 Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name) {
-  char i;
+  int i = 0;
 
-  for (i = 0; i < MAX_ACTIONS; i++) {
+  SGLIB_LIST_LEN(Actions, actions, next, i);
+
+  while (i--) {
     SGLIB_LIST_MAP_ON_ELEMENTS(Actions, actions, action, next, {
       if (action->id == (item->actions)[i]) {
         if (strComp(action->name, name)) {

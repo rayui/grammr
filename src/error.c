@@ -70,13 +70,13 @@ void print_error(char* output, enum ErrorType errorCode, char* val) {
 void print_errors(char* input, char* output) {
   if (RUNSTATE == SE_TERMINAL) {
     sprintf(output, "%s%s\r\n", output, str_terminal_system_error);
-  } else {
-    sprintf(output, "%sYou wrote: %s\r\n", output, input);
   }
 
   SGLIB_LIST_MAP_ON_ELEMENTS(ErrorList, errorList, mappedError, next, {
     print_error(output, mappedError->error, mappedError->val);
   });
+
+  sprintf(output, "%s\r\nYou wrote: %s\r\n", output, input);
 }
 
 void free_errors() {

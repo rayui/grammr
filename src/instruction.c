@@ -66,22 +66,6 @@ enum Instruction inst_get_instruction_code(char* instructionStr) {
   return INST_INVALID;
 }
 
-void inst_convert_special_variable(char* arg, char* direct, char* indirect) {
-  char* argRepl;
-
-  if (arg == NULL) return;
-
-  if (direct) {
-    argRepl = replace_str(arg, "$S", direct);
-    strcpy(arg, argRepl);
-  }
-
-  if (indirect) {
-    argRepl = replace_str(arg, "$O", indirect);
-    strcpy(arg, argRepl);
-  }
-}
-
 void free_instructions(InstructionList* instructions) {
   InstructionList* instruction = instructions;
 
@@ -162,7 +146,7 @@ InstructionList* inst_insert(InstructionList** instructions, char* newInstructio
   InstructionList* instruction = NULL;
 
   //create an instruction to set special variables $SO and $O here
-  sprintf(tmpStr, "SP,%s,%s;", direct, indirect);
+  sprintf(tmpStr, "SP,%s,%s", direct, indirect);
   instruction = inst_create(tmpStr);
   if (instruction != NULL) {
     SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);

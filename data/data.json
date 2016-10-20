@@ -8,14 +8,13 @@
     NT;
     GI,ERROR;
     LS,$S;
-    PR,Current location: ;
-    PR,$L;
+    PD,$L;
     GT,END;
     LB,ERROR;
     PR,Couldn't move to ;
     PR,$S;
-    LB,END;
     PR,. ;
+    LB,END;
   "
 },
 {
@@ -33,16 +32,7 @@
   "name": "look",
   "default": 1,
   "instruction": "
-    PR,Current location: ;
-    PR,$L;
-    PL;
     PD,$L;
-    PL;
-    PR,You can see: ;
-    PI,$L;
-    PL;
-    PR,There are exits to: ;
-    PE,$L;
   "
 },
 {
@@ -62,10 +52,7 @@
   "default": 0,
   "instruction": "
     IA,$S,$I;
-    PR,You put the ;
-    PR,$S;
-    PR,in your inventory;
-    PR,. ;
+    PR,You put the $S in your inventory.;
   "
 },
 {
@@ -75,9 +62,7 @@
   "default": 0,
   "instruction": "
     ID,$S,$I;
-    PR,You dropped the ;
-    PR,$S;
-    PR,. ;
+    PR,You dropped the $S.;
   "
 },
 {
@@ -92,9 +77,6 @@
     LB,ENTRANCE;
     LS,Front entrance;
     LB,END;
-    PR,Current location: ;
-    PR,$L;
-    PL;
   "
 },
 {
@@ -124,10 +106,9 @@
   "id": 14,
   "name": "use with mobile phone",
   "instruction": "
-    PR,BEEP BOOP BEEP BOOP...;
+    PR,BEEP BOOP BEEP BOOP... says the $O...;
     PL;
     PR,You are now connected to the Internet;
-    PL;
   "
 },
 {
@@ -135,10 +116,7 @@
   "id": 15,
   "name": "use with oyster machine",
   "instruction": "
-    PR,BEEP BOOP BEEP BOOP...;
-    PL;
     PR,Your Oyster card had $15 on it.;
-    PL;
   "
 },
 {
@@ -194,7 +172,7 @@
 {
   "type": "item",
   "name": "Stairs",
-  "description": "They sport a heavily worn carpet and peeling gloss white ballustrade, of which one of the supports is missing",
+  "description": "They sport a heavily worn carpet and peeling gloss white ballustrade of which one of the supports is missing",
   "actions": [11, 12, 13]
 },
 {

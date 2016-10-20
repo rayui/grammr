@@ -63,6 +63,8 @@ char* intrpt_convert_special_variable(char* arg) {
 }
 
 void intrpt_set_params(char* arg1, char* arg2) {
+  memset(subject, 0, MAX_INST_ARG_SIZE);
+  memset(object, 0, MAX_INST_ARG_SIZE);
   strcpy(subject, arg1);
   strcpy(object, arg2);
 }
@@ -206,7 +208,18 @@ void intrpt_label(void) {
 }
 
 void intrpt_print(char* output, char* arg1) {
-  sprintf(output, "%s%s", output, arg1);
+  char* tmpStr;
+
+  if (arg1 != NULL) {
+    if (subject)
+      tmpStr = replace_str(arg1, "$S", subject);
+    if (object) {
+      tmpStr = replace_str(tmpStr, "$O", object);
+    }
+    tmpStr = replace_str(tmpStr, "$L", currentLocation->name);
+  }
+
+  sprintf(output, "%s%s\r\n", output, tmpStr);
 }
 
 void intrpt_printdesc(char* output, char* arg1) {
@@ -335,7 +348,7 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
       intrprt_error(ERR_UNKNOWN_INSTRUCTION, fn);
   }
 
-  printOutput("%d %02X %s %s\r\n", equalityRegister, fn, arg1, arg2);
+  //printOutput("%d %02X %s %s\r\n", equalityRegister, fn, arg1, arg2);
 }
 
 void interpret(InstructionList** instructions, char* output) {

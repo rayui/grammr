@@ -37,9 +37,11 @@ int main() {
   textcolor(TEXT_COLOR);
   cursor(true);
 
-  printOutput("LOADING GAME...");
+  printStatus("LOADING GAME...");
 
   parseConfigFile("data.pet");
+
+  clrscr();
 
   if (RUNSTATE == SE_OK) {
     currentLocation = locations;
@@ -47,23 +49,27 @@ int main() {
     while(RUNSTATE != SE_TERMINAL) {
       RUNSTATE = SE_OK;
 
+      printClock();
+      printLocation(currentLocation->name);
+      printLocalExits(currentLocation->exits);
+      printLocalItems(currentLocation->items);
+
       memset(input, 0, COMMAND_SIZE);
       memset(output, 0, MAXOUTPUTSIZE);
       acceptInput(&input);
+      clrscr();
 
       tokenHead = NULL;
       instructions = NULL;
 
-      clrscr();
-
-      printOutput("LEXING. ");
+      printStatus("LEXING.");
       lex(&tokenHead, input);
 
       if(RUNSTATE == SE_OK) {
-        printOutput("PARSING. ");
+        printStatus("PARSING.");
         parse(&tokenHead, &instructions);
         if(RUNSTATE == SE_OK) {
-          printOutput("INTERPRETING.\r\n");
+          printStatus("INTERPRETING.");
           interpret(&instructions, output);
         }
         free_instructions(instructions);
@@ -75,7 +81,8 @@ int main() {
       if (RUNSTATE != SE_OK) {
         print_errors(input, output);
       }
-      printOutput("%s\r\n", output);
+
+      printOutput(output);
 
       free_errors();
     }

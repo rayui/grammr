@@ -7,15 +7,18 @@
 #define COMMAND_SIZE 256
 #define INPUT_WIDTH 30
 
-#define printOutput(...) {\
-  if (wherey() > 22) {\
-    cgetc();\
-    clrscr();\
-    gotoxy(0, 0);\
-  }\
-  cprintf(##__VA_ARGS__);\
-}
+typedef struct Coords {
+  char x;
+  char y;
+} Coords;
 
+void printClock(void);
+void printLocation(char* input);
+void printLocalItems(struct ItemList* items);
+void printLocalExits(struct LocationList* exits);
 void acceptInput(char** input);
+void printPrompt(char* input);
+void printStatus(char* input);
+void printOutput(char* output);
 
 #endif

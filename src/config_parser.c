@@ -294,7 +294,6 @@ void con_location_exits() {
     arrLen = con_tok[con_counter].size;
     con_accept(JSMN_ARRAY);
     for(i = 0; i < arrLen; i++) {
-      printOutput("%s", );
       if (con_accept(JSMN_STRING)) {
         //loop
         //we fill in the locations later
