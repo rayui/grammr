@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "../include/error.h"
 #include "../include/sglib.h"
 #include "../include/utils.h"
 #include "../include/io.h"
@@ -14,6 +15,13 @@ extern Location *currentLocation;
 Location* createLocation(char* name, char* description, LocationList* exits, ItemList* items)
 {
   Location* location = malloc(sizeof(Location));
+  if (location == NULL) {
+    create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, name);
+    return NULL;
+  }
+
+  location->name = malloc(strlen(name) + 1);
+  location->description = malloc(strlen(description) + 1);
 
   strcpy(location->name, name);
   strcpy(location->description, description);

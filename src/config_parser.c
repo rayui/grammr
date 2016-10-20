@@ -314,14 +314,14 @@ void con_location() {
   if (con_name()) {
     if (con_description()) {
       location = createLocation(con_word_reg_b, con_word_reg_c, NULL, NULL);
-
-      SGLIB_LIST_ADD_AFTER(Location, locationsTail, location, next);
-      if (locations == NULL) {
-        locations = locationsTail;
+      if (location != NULL) {
+        SGLIB_LIST_ADD_AFTER(Location, locationsTail, location, next);
+        if (locations == NULL) {
+          locations = locationsTail;
+        }
+        locationsTail = location;
       }
-
-      locationsTail = location;
-
+      
       if (con_acceptVal("items")) {
         con_location_items(location);
       }

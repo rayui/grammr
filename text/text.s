@@ -22,6 +22,12 @@ _str_system_error_no_memory: .asciiz "Out of memory at %s! Instruction too long;
 .export _str_parse_error_item_not_found
 _str_parse_error_item_not_found: .asciiz "I can't see a %s around here."
 
+.export _str_parse_error_item_not_in_inventory
+_str_parse_error_item_not_in_inventory: .asciiz "I'm not carrying that."
+
+.export _str_parse_error_item_in_inventory
+_str_parse_error_item_in_inventory: .asciiz "You've already got that with you."
+
 .export _str_terminal_system_error
 _str_terminal_system_error: .asciiz "TERMINAL FAILURE\r\n\r\n"
 

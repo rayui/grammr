@@ -61,19 +61,10 @@
   "name": "take",
   "default": 0,
   "instruction": "
-    LI,$L,$S;
-    NT;
-    GI,ERROR;
     IA,$S,$I;
     PR,You put the ;
     PR,$S;
     PR,in your inventory;
-    GT,END;
-    LB,ERROR;
-    PR,There's no ;
-    PR,$S;
-    PR,here;
-    LB,END;
     PR,. ;
   "
 },
@@ -83,15 +74,8 @@
   "name": "drop",
   "default": 0,
   "instruction": "
-    II,$S;
-    NT;
-    GI,ERROR;
     ID,$S,$I;
     PR,You dropped the ;
-    GT,END;
-    LB,ERROR;
-    PR,You're not carrying a ;
-    LB,END;
     PR,$S;
     PR,. ;
   "
@@ -166,7 +150,13 @@
     PL;
     PR,The ticket barrier slides aside...;
     PL;
-    LS,Bus stop;
+    EQ,$L,Local Tube station;
+    GI,LOCAL;
+    LS,Local Tube Station;
+    GT,END;
+    LB,LOCAL;
+    LS,Central Tube Station;
+    LB,END;
     AC,2;
     PL;
   "
@@ -255,6 +245,12 @@
 },
 {
   "type": "item",
+  "name": "ES Newspaper",
+  "description": "Another bleak publication that focusses on supporting the meta-interests of the wealthy elite, in serif.",
+  "actions": [4,5]
+},
+{
+  "type": "item",
   "name": "Oyster Machine",
   "description": "You can top up your Oyster Card here",
 },
@@ -296,7 +292,7 @@
   "name": "Street",
   "description": "You are on a dark, grey, London street. It is raining",
   "items": ["Lamp post"],
-  "exits": ["Front entrance", "Bus stop", "Tube station"]
+  "exits": ["Front entrance", "Bus stop", "Local Tube station"]
 },
 {
   "type": "location",
@@ -307,8 +303,15 @@
 },
 {
   "type": "location",
-  "name": "Tube station",
+  "name": "Local Tube station",
   "description": "You are at a tube station somewhere on the Central Line",
   "items": ["Metro Newspaper", "Oyster Machine", "Ticket barrier"],
   "exits": ["Street"]
+},
+{
+  "type": "location",
+  "name": "Central Tube station",
+  "description": "You are at a central tube station somewhere further from home on the Central Line. It's larger and busier and more grey than the local one.",
+  "items": ["ES Newspaper", "Oyster Machine", "Ticket barrier"],
+  "exits": []
 }

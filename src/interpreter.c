@@ -30,16 +30,24 @@ void intrprt_error(enum ErrorType error, char* val) {
   create_error(SE_INTRPRT, error, val);
 }
 
-char intrpt_object_in_context(char* name) {
+Item* intrpt_item_in_context(char* name) {
   if (
       inventoryHasItem(name) ||
-      findItemInList(currentLocation->items, name) ||
+      findItemInList(currentLocation->items, name)
+      ) {
+    return findItemByName(name);
+  }
+  return NULL;
+}
+
+Location* intrpt_location_in_context(char* name) {
+  if (
       locationHasExit(currentLocation->name, name) ||
       toLowerCaseCompare(name, currentLocation->name)
       ) {
-    return 1;
+    return findLocationByName(name);
   }
-  return 0;
+  return NULL;
 }
 
 char* intrpt_convert_special_variable(char* arg) {
@@ -121,10 +129,13 @@ void intrpt_inventoryhasitem(char* arg1) {
   equalityRegister = inventoryHasItem(arg1);
 }
 
-void intrprt_inventoryorcurrentlocationhasitem(char* arg1, char* arg2) {
-  int inv = inventoryHasItem(arg2);
-  intrpt_locationhasitem(arg1, arg2);
-  equalityRegister = equalityRegister || inv;
+void intrprt_itemincontext(char* arg1) {
+  Item* item = intrpt_item_in_context(arg1);
+  if (item) {
+    equalityRegister = 1;
+  } else {
+    equalityRegister = 0;
+  }
 }
 
 void intrpt_hasexit(char* arg1, char* arg2) {
@@ -148,28 +159,27 @@ void intrpt_setloc(char* arg1) {
 }
 
 void intrpt_additem(char* arg1, char* arg2) {
-  Item* object, subject;
+  Item* subject = findItemInList(currentLocation->items, arg1);
 
-  if (toLowerCaseCompare(arg2, "$i")) {
-    //add item to the inventory
-    object = findItemInList(currentLocation->items, arg1);
-    deleteItemList(&(currentLocation->items), object);
-    createItemList(&inventory, object);
+  if (subject != NULL && toLowerCaseCompare(arg2, "$i")) {
+    deleteItemList(&(currentLocation->items), subject);
+    createItemList(&inventory, subject);
+  } else if (inventoryHasItem(arg1)) {
+    intrprt_error(ERR_ITEM_IN_INVENTORY, arg1);
   } else {
-    //put one item inside another
+    intrprt_error(ERR_ITEM_NOT_FOUND, arg1);
   }
 }
 
 void intrpt_delitem(char* arg1, char* arg2) {
-  Item* object, subject;
+  Item* subject;
 
-  if (toLowerCaseCompare(arg2, "$i")) {
-    //add item to the inventory
-    object = findItemInList(inventory, arg1);
-    deleteItemList(&inventory, object);
-    createItemList(&(currentLocation->items), object);
+  if (toLowerCaseCompare(arg2, "$i") && inventoryHasItem(arg1)) {
+    subject = findItemInList(inventory, arg1);
+    deleteItemList(&inventory, subject);
+    createItemList(&(currentLocation->items), subject);
   } else {
-    //put one item inside another
+    intrprt_error(ERR_ITEM_NOT_IN_INVENTORY, arg1);
   }
 }
 
@@ -200,18 +210,13 @@ void intrpt_print(char* output, char* arg1) {
 }
 
 void intrpt_printdesc(char* output, char* arg1) {
-  char inContext = intrpt_object_in_context(arg1);
-  Item* item;
-  Location* loc;
+  Item* item = intrpt_item_in_context(arg1);
+  Location* loc = intrpt_location_in_context(arg1);
 
-  if (inContext) {
-    item = findItemByName(arg1);
-    if (item != NULL) {
-      sprintf(output, "%s%s", output, item->description);
-    } else {
-      loc = findLocationByName(arg1);
-      sprintf(output, "%s%s", output, loc->description);  
-    }
+  if (item) {
+    sprintf(output, "%s%s", output, item->description);
+  } else if (loc) {
+    sprintf(output, "%s%s", output, loc->description);  
   } else {
     intrprt_error(ERR_ITEM_NOT_FOUND, arg1);
   }
@@ -275,8 +280,8 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
     case INST_ITEMININVENTORY:
       intrpt_inventoryhasitem(arg1);
       break;
-    case INST_ITEMININVENTORYORLOCATION:
-      intrprt_inventoryorcurrentlocationhasitem(arg1, arg2);
+    case INST_ITEMINCONTEXT:
+      intrprt_itemincontext(arg1);
       break;
     case INST_HASEXIT:
       intrpt_hasexit(arg1, arg2);

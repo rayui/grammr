@@ -27,8 +27,8 @@ enum Instruction inst_get_instruction_code(char* instructionStr) {
     return INST_ITEMINLOCATION;
   } else if (strComp(instruction, "ii")) {
     return INST_ITEMININVENTORY;
-  } else if (strComp(instruction, "il")) {
-    return INST_ITEMININVENTORYORLOCATION;
+  } else if (strComp(instruction, "ic")) {
+    return INST_ITEMINCONTEXT;
   } else if (strComp(instruction, "he")) {
     return INST_HASEXIT;
   } else if (strComp(instruction, "nt")) {

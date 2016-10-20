@@ -17,10 +17,10 @@ Item* createItem(char* name, char* description) {
   char i = 0;
   Item* item = malloc(sizeof(Item));
 
-  item->name = malloc((strlen(name) + 1) * sizeof(char));
+  item->name = malloc((strlen(name) + 1));
   strcpy(item->name, name);
 
-  item->description = malloc((strlen(description) + 1) * sizeof(char));
+  item->description = malloc((strlen(description) + 1));
   strcpy(item->description, description);
 
   for(i = 0; i < MAXINSTRUCTIONS; i++) {
