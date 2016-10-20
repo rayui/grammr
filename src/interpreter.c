@@ -20,18 +20,43 @@ extern enum RunState RUNSTATE;
 
 int equalityRegister = 0;
 int skip = SKIP_NONE;
-
 char gotoLabel[MAX_INST_ARG_SIZE];
+char subject[MAX_INST_ARG_SIZE];
+char object[MAX_INST_ARG_SIZE];
 
 InstructionList* currInstruction = NULL;
 
-enum RunState ERR = SE_OK;
+void intrprt_error(enum ErrorType error, char* val) {
+  create_error(SE_INTRPRT, error, val);
+}
+
+char intrpt_object_in_context(char* name) {
+  if (
+      inventoryHasItem(name) ||
+      findItemInList(currentLocation->items, name) ||
+      locationHasExit(currentLocation->name, name) ||
+      toLowerCaseCompare(name, currentLocation->name)
+      ) {
+    return 1;
+  }
+  return 0;
+}
 
 char* intrpt_convert_special_variable(char* arg) {
   if (toLowerCaseCompare(arg, "$l")) {
     return currentLocation->name;
+  } else if (toLowerCaseCompare(arg, "$s")) {
+    return subject;
+  } else if (toLowerCaseCompare(arg, "$o")) {
+    return object;
   }
+
   return arg;
+}
+
+void intrpt_set_params(char* arg1, char* arg2) {
+  strcpy(subject, arg1);
+  strcpy(object, arg2);
 }
 
 void intrpt_action(char* output, InstructionList* instructions, char* actionIDStr, char* args) {
@@ -62,15 +87,15 @@ void intrpt_action(char* output, InstructionList* instructions, char* actionIDSt
 
     lastInstruction = inst_insert(&instructions, action->instructions, currInstruction, arg1, arg2);
     if (lastInstruction == NULL) {
-      RUNSTATE = SE_TERMINAL;
+      create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, action->name);
     }
   } else {
-    sprintf(output, "%sNO SUCH ACTION: %d\r\n", output, actionId);
+    intrprt_error(ERR_NO_SUCH_ACTION, actionIDStr);
   }  
 }
 
 void intrpt_invalid(char* output, enum Instruction fn, char* arg1, char* arg2) {
-  sprintf(output, "%s\r\nINVALID INSTRUCTION: %d a1 %s a2 %s\r\n", output, fn, arg1, arg2);
+  intrprt_error(ERR_INVALID_INSTRUCTION, fn);
 }
 
 void intrpt_eq(char* arg1, char* arg2) {
@@ -111,10 +136,10 @@ void intrpt_not() {
 }
 
 void intrpt_if() {
-  if (equalityRegister == 0) {
-    skip = SKIP_ONE;
-  } else {
+  if (equalityRegister == 1) {
     skip = SKIP_NONE;
+  } else {
+    skip = SKIP_ONE; 
   }
 }
 
@@ -158,12 +183,12 @@ void intrpt_goto(char* arg1) {
 }
 
 void intrpt_goto_if(char* arg1) {
-  if (equalityRegister == 0) {
+  if (equalityRegister == 1) {
     skip = SKIP_GOTO;
     strcpy(gotoLabel, arg1);
   } else {
     skip = SKIP_NONE;
-  }  
+  }
 }
 
 void intrpt_label(void) {
@@ -175,16 +200,20 @@ void intrpt_print(char* output, char* arg1) {
 }
 
 void intrpt_printdesc(char* output, char* arg1) {
-  Location* loc = findLocationByName(arg1);
+  char inContext = intrpt_object_in_context(arg1);
   Item* item;
+  Location* loc;
 
-  if (loc != NULL) {
-    sprintf(output, "%s%s", output, loc->description);
-  } else {
+  if (inContext) {
     item = findItemByName(arg1);
     if (item != NULL) {
       sprintf(output, "%s%s", output, item->description);
+    } else {
+      loc = findLocationByName(arg1);
+      sprintf(output, "%s%s", output, loc->description);  
     }
+  } else {
+    intrprt_error(ERR_ITEM_NOT_FOUND, arg1);
   }
 }
 
@@ -198,7 +227,7 @@ void intrpt_printexits(char* output, char* arg1) {
     getAllLocationNames(currentLocation->exits, exits);
     sprintf(output, "%s%s", output, exits);
   } else {
-    printOutput("NO SUCH LOCATION %s\r\n", arg1);
+    intrprt_error(ERR_LOCATION_NOT_FOUND, arg1);
   }
 }
 
@@ -212,7 +241,7 @@ void intrpt_printitems(char* output, char* arg1) {
     getAllItemNames(currentLocation->items, itemNames);
     sprintf(output, "%s%s", output, itemNames);
   } else {
-    printOutput("NO SUCH LOCATION %s\r\n", arg1);
+    intrprt_error(ERR_LOCATION_NOT_FOUND, arg1);
   }
 }
 
@@ -225,7 +254,7 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
   char* arg1 = instruction->arg1;
   char* arg2 = instruction->arg2;
 
-  if (fn != INST_ACTION) {
+  if (fn != INST_SET_PARAMS) {
     arg1 = intrpt_convert_special_variable(arg1);
     arg2 = intrpt_convert_special_variable(arg2);
   }
@@ -233,6 +262,9 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
   switch (fn) {
     case INST_INVALID:
       intrpt_invalid(output, fn, arg1, arg2);
+      break;
+    case INST_SET_PARAMS:
+      intrpt_set_params(arg1, arg2);
       break;
     case INST_EQ:
       intrpt_eq(arg1, arg2);
@@ -269,6 +301,7 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
       break;
     case INST_GOTO:
       intrpt_goto(arg1);
+      break;
     case INST_GOTO_IF:
       intrpt_goto_if(arg1);
       break;
@@ -294,8 +327,10 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
       intrpt_action(output, instructions, arg1, arg2);
       break;
     default:
-      sprintf(output, "%sUNKOWN TOKEN: %d %s %s\r\n", output, fn, arg1, arg2);
+      intrprt_error(ERR_UNKNOWN_INSTRUCTION, fn);
   }
+
+  printOutput("%d %02X %s %s\r\n", equalityRegister, fn, arg1, arg2);
 }
 
 void interpret(InstructionList** instructions, char* output) {

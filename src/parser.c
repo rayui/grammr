@@ -137,23 +137,20 @@ void parser_action(InstructionList** instructions) {
     }
   }
 
-  //get instruction string
-  //search instruction string for $s and $o
-  //compare number of args to length of parser_name_stack
-  //incorrect number of args
-
   subject = parser_name_stack ? parser_name_stack->name : NULL;
 
   if (subject) {
     object = parser_name_stack->next ? parser_name_stack->next->name : NULL;
-    item = findItemInList(currentLocation->items, subject);
-    if (item == NULL)
-      item = findItemInList(inventory, subject);
+    item = findItemByName(subject);
     if (item != NULL) {
+      if (object) {
+        strcat(parser_action_reg, " ");
+        strcat(parser_action_reg, object);
+      }
       action = findActionByNameAndItem(actions, item, parser_action_reg);
       if (action == NULL)
         action = findDefaultActionByName(actions, parser_action_reg);
-    } else if (locationHasExit(currentLocation->name, subject)) {
+    } else if (findLocationByName(subject)) {
       action = findDefaultActionByName(actions, parser_action_reg);
     } else {
       parser_error(ERR_ITEM_NOT_FOUND, subject);
@@ -165,10 +162,9 @@ void parser_action(InstructionList** instructions) {
   if (action == NULL) {
     parser_error(ERR_NO_SUCH_ACTION, parser_action_reg);
     return;
-  } 
-  
-  lastInstruction = inst_insert(instructions, action->instructions, lastInstruction, subject, object);
-  
+  }
+
+  lastInstruction = inst_insert(instructions, action->instructions, lastInstruction, subject, object);  
 }
 
 void parser_command(InstructionList** instructions) {

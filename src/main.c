@@ -56,21 +56,21 @@ int main() {
 
       clrscr();
 
-      printOutput(".");
+      printOutput("LEXING. ");
       lex(&tokenHead, input);
 
       if(RUNSTATE == SE_OK) {
-        printOutput(".");
+        printOutput("PARSING. ");
         parse(&tokenHead, &instructions);
         if(RUNSTATE == SE_OK) {
-          printOutput(".");
+          printOutput("INTERPRETING.\r\n");
           interpret(&instructions, output);
         }
         free_instructions(instructions);
       }
 
       free_tokens(&tokenHead);
-      //clrscr();
+      clrscr();
 
       if (RUNSTATE != SE_OK) {
         print_errors(input, output);

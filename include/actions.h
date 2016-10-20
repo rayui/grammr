@@ -1,7 +1,7 @@
 #ifndef ACTIONS
 #define ACTIONS
 
-#define MAX_ACTION_SIZE 32
+#define MAX_ACTION_SIZE 64
 #define MAX_ACTIONS 5
 
 typedef struct Actions {

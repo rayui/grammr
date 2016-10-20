@@ -5,6 +5,7 @@
 
 enum Instruction {
   INST_INVALID,
+  INST_SET_PARAMS,
   INST_EQ,
   INST_ITEMINLOCATION,
   INST_ITEMININVENTORY,
@@ -37,5 +38,5 @@ typedef struct InstructionList {
 enum Instruction inst_get_instruction_code(char* instruction);
 void inst_convert_special_variable(char* arg, char* direct, char* indirect);
 void free_instructions(InstructionList* instructions);
-InstructionList* inst_create(char* instructionStr, char* direct, char* indirect);
+InstructionList* inst_create(char* instructionStr);
 InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect);

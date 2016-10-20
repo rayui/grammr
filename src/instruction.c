@@ -21,6 +21,8 @@ enum Instruction inst_get_instruction_code(char* instructionStr) {
 
   if (strComp(instruction, "eq")) {
     return INST_EQ;
+  } else if (strComp(instruction, "sp")) {
+    return INST_SET_PARAMS;
   } else if (strComp(instruction, "li")) {
     return INST_ITEMINLOCATION;
   } else if (strComp(instruction, "ii")) {
@@ -62,14 +64,6 @@ enum Instruction inst_get_instruction_code(char* instructionStr) {
   }
 
   return INST_INVALID;
-}
-
-char inst_object_in_context(char* object) {
-  if (inventoryHasItem(object) || findItemInList(currentLocation->items, object) ||
-      findLocationByName(object) || locationHasExit(currentLocation->name, object)) {
-    return 1;
-  }
-  return 0;
 }
 
 void inst_convert_special_variable(char* arg, char* direct, char* indirect) {
@@ -117,7 +111,7 @@ char* inst_create_arg(char* val) {
   return arg;
 }
 
-InstructionList* inst_create(char* instructionStr, char* direct, char* indirect) {
+InstructionList* inst_create(char* instructionStr) {
   InstructionList* instruction;
   static char tmpStr[MAX_INST_ARG_SIZE];
   char *first_comma = NULL;
@@ -146,17 +140,14 @@ InstructionList* inst_create(char* instructionStr, char* direct, char* indirect)
       second_comma += 1;
 
       strncpy(tmpStr, first_comma, second_comma - first_comma - 1);
-      inst_convert_special_variable(tmpStr, direct, indirect);
       instruction->arg1 = inst_create_arg(tmpStr);
 
       memset(tmpStr, 0, MAX_INST_ARG_SIZE);
 
       strncpy(tmpStr, second_comma, strlen(second_comma));
-      inst_convert_special_variable(tmpStr, direct, indirect);
       instruction->arg2 = inst_create_arg(tmpStr);
     } else {
       strncpy(tmpStr, first_comma, strlen(first_comma));
-      inst_convert_special_variable(tmpStr, direct, indirect);
 
       instruction->arg1 = inst_create_arg(tmpStr);
     }
@@ -170,26 +161,24 @@ InstructionList* inst_insert(InstructionList** instructions, char* newInstructio
   static char tmpStr[MAX_INSTRUCTION_LENGTH];
   InstructionList* instruction = NULL;
 
-  //check if direct and indirect objects are in context here,
-  //viz in current location or in inventory or is an exit (or a person?)
-
-  if (direct && !inst_object_in_context(direct)) {
-    create_error(SE_PARSER, ERR_ITEM_NOT_FOUND, direct);
-  }
-  if (indirect && !inst_object_in_context(indirect)) {
-    create_error(SE_PARSER, ERR_ITEM_NOT_FOUND, indirect);
+  //create an instruction to set special variables $SO and $O here
+  sprintf(tmpStr, "SP,%s,%s;", direct, indirect);
+  instruction = inst_create(tmpStr);
+  if (instruction != NULL) {
+    SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);
+    last = instruction;
   }
 
   strcpy(tmpStr, newInstructions);
   instructionStr = strtok(tmpStr, CON_SPLIT_INSTR_CHAR);
 
   while(instructionStr != NULL) {
-    instruction = inst_create(instructionStr, direct, indirect);
+    instruction = inst_create(instructionStr);
     if (instruction == NULL) {
       create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, instruction->fn);
       return NULL;
     }
-    SGLIB_LIST_ADD_AFTER(struct InstructionList, last, instruction, next);
+    SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);
     if (*instructions == NULL) {
       *instructions = last;
     }

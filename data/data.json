@@ -6,8 +6,7 @@
   "instruction": "
     HE,$L,$S;
     NT;
-    IF;
-    GT,ERROR;
+    GI,ERROR;
     LS,$S;
     PR,Current location: ;
     PR,$L;
@@ -25,7 +24,7 @@
   "name": "go to",
   "default": 1,
   "instruction": "
-    ac,0,$S;
+    AC,0,$S;
   "
 },
 {
@@ -52,17 +51,8 @@
   "name": "look at",
   "default": 1,
   "instruction": "
-    LI,$L,$S;
-    NT;
-    IF;
-    GT,ERROR;
     PD,$S;
-    GT,END;
-    LB,ERROR;
-    PR,You couldn't see a ;
-    PR,$S;
-    LB,END;
-    PR,. ;
+    PR,.;
   "
 },
 {
@@ -73,8 +63,7 @@
   "instruction": "
     LI,$L,$S;
     NT;
-    IF;
-    GT,ERROR;
+    GI,ERROR;
     IA,$S,$I;
     PR,You put the ;
     PR,$S;
@@ -96,8 +85,7 @@
   "instruction": "
     II,$S;
     NT;
-    IF;
-    GT,ERROR;
+    GI,ERROR;
     ID,$S,$I;
     PR,You dropped the ;
     GT,END;
@@ -110,28 +98,11 @@
 },
 {
   "type": "action",
-  "id": 10,
-  "name": "use",
-  "default": 0,
-  "instruction": "
-    EQ,$L,Bedroom;
-    IF;
-    GT,LANDING;
-    AC,0,Bedroom;
-    GT,END;
-    LB,LANDING;
-    AC,0,Landing;
-    LB,END;
-  "
-},
-{
-  "type": "action",
   "id": 11,
   "name": "use",
   "instruction": "
     EQ,$L,Landing;
-    IF;
-    GT,ENTRANCE;
+    GI,ENTRANCE;
     LS,Landing;
     GT,END;
     LB,ENTRANCE;
@@ -167,27 +138,44 @@
 {
   "type": "action",
   "id": 14,
-  "name": "use with",
+  "name": "use with mobile phone",
   "instruction": "
-    EQ,$O,Mobile phone;
-    NT;
-    IF;
-    GT,ERROR;
     PR,BEEP BOOP BEEP BOOP...;
     PL;
     PR,You are now connected to the Internet;
     PL;
-    GT,END;
-    LB,ERROR;
-    PR,You mash the $O ineffectively against the $S;
-    LB,END;
+  "
+},
+{
+  "type": "action",
+  "id": 15,
+  "name": "use with oyster machine",
+  "instruction": "
+    PR,BEEP BOOP BEEP BOOP...;
+    PL;
+    PR,Your Oyster card had $15 on it.;
+    PL;
+  "
+},
+{
+  "type": "action",
+  "id": 16,
+  "name": "use with ticket barrier",
+  "instruction": "
+    PR,BEEP BOOP BEEP BOOP...;
+    PL;
+    PR,The ticket barrier slides aside...;
+    PL;
+    LS,Bus stop;
+    AC,2;
+    PL;
   "
 },
 {
   "type": "item",
   "name": "Oyster card",
   "description": "You have $5 of credit on this card",
-  "actions":[4,5]
+  "actions":[4,5,15,16]
 },
 {
   "type": "item",
@@ -212,18 +200,6 @@
   "name": "RFID Badge",
   "description": "An encrypted RFID identity badge that allows access to your office",
   "actions":[4,5]
-},
-{
-  "type": "item",
-  "name": "Bedroom door handle",
-  "description": "It's a handle. On your bedroom door",
-  "actions":[10]
-},
-{
-  "type": "item",
-  "name": "Door",
-  "description": "A battered pine bedroom door",
-  "actions":[10]
 },
 {
   "type": "item",
@@ -274,12 +250,13 @@
 {
   "type": "item",
   "name": "Metro Newspaper",
-  "description": "A rather bleak publication that focusses on supporting the meta-interests of the wealthy elite"
+  "description": "A rather bleak publication that focusses on supporting the meta-interests of the wealthy elite",
+  "actions": [4,5]
 },
 {
   "type": "item",
   "name": "Oyster Machine",
-  "description": "You can top up your Oyster Card here"
+  "description": "You can top up your Oyster Card here",
 },
 {
   "type": "item",
@@ -290,14 +267,14 @@
   "type": "location",
   "name": "Bedroom",
   "description": "You awake in a darkened room",
-  "items": ["Oyster card", "Office keys", "RFID Badge", "Laptop", "Mobile phone", "Door", "Bedroom door handle"],
+  "items": ["Oyster card", "Office keys", "RFID Badge", "Laptop", "Mobile phone"],
   "exits": ["Landing"]
 },
 {
   "type": "location",
   "name": "Landing",
   "description": "It's cold. The bare floorboards creak as you walk",
-  "items": ["Door", "Stairs"],
+  "items": ["Stairs"],
   "exits": ["Bedroom", "Bathroom"]
 },
 {
