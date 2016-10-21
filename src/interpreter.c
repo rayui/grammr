@@ -70,10 +70,9 @@ void intrpt_set_params(char* arg1, char* arg2) {
   strcpy(object, arg2);
 }
 
-void intrpt_action(char* output, InstructionList* instructions, char* actionIDStr, char* args) {
+void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args) {
   Actions* action;
   InstructionList* lastInstruction;
-  char actionId;
   char *first_comma;
   static char arg1[MAX_INST_ARG_SIZE];
   static char arg2[MAX_INST_ARG_SIZE];
@@ -105,7 +104,7 @@ void intrpt_action(char* output, InstructionList* instructions, char* actionIDSt
   }  
 }
 
-void intrpt_invalid(char* output, enum Instruction fn, char* arg1, char* arg2) {
+void intrpt_invalid(enum Instruction fn) {
   intrprt_error(ERR_INVALID_INSTRUCTION, fn);
 }
 
@@ -294,7 +293,7 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
 
   switch (fn) {
     case INST_INVALID:
-      intrpt_invalid(output, fn, arg1, arg2);
+      intrpt_invalid(fn);
       break;
     case INST_SET_PARAMS:
       intrpt_set_params(arg1, arg2);
@@ -360,13 +359,13 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
       intrpt_newline(output);
       break;
     case INST_ACTION:
-      intrpt_action(output, instructions, arg1, arg2);
+      intrpt_action(instructions, arg1, arg2);
       break;
     default:
       intrprt_error(ERR_UNKNOWN_INSTRUCTION, fn);
   }
 
-  printInstruction(equalityRegister, fn, arg1 ? arg1 : "NULL", arg2 ? arg2 : "NULL");
+  printInstruction(CLOCK, equalityRegister, fn, arg1 ? arg1 : "NULL", arg2 ? arg2 : "NULL");
 
   CLOCK++;
 }

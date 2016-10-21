@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "../include/io.h"
 #include "../include/utils.h"
 #include "../include/lexer.h"
 
@@ -14,6 +13,14 @@
  */
 
 //stolen from https://github.com/zserge/jsmn/blob/master/example/jsondump.c
+
+char* getNextCharBeforeLimit(char* haystack, char needle, int limit) {
+  char buf[64] = {'\0'};
+
+  strncpy(buf, haystack, limit);
+
+  return strrchr(buf, needle);
+}
 
 void *realloc_it(void *ptrmem, size_t size) {
   void *p = realloc(ptrmem, size);
@@ -137,12 +144,13 @@ int isStringAlpha(char *s) {
 }
 
 void decimalToTimeStr(char* timeStr, long time) {
+  long slowTime = time >> 2;
   char days = 0;
   char hours = 0;
   char minutes = 0;
 
-  minutes = time % 60;
-  hours = ((time - minutes) / 60) % 24;
+  minutes = slowTime % 60;
+  hours = ((slowTime - minutes) / 60) % 24;
 
   sprintf(timeStr, "%02d:%02d", hours, minutes);
 }

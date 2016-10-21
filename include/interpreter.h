@@ -12,8 +12,8 @@
 #define MAXOUTPUTSIZE 1024
 
 char* intrpt_convert_special_variable(char* arg);
-void intrpt_action(char* output, InstructionList* instructions, char* arg1, char* arg2);
-void intrpt_invalid(char* output, enum Instruction fn, char* arg1, char* arg2);
+void intrpt_action(InstructionList* instructions, char* arg1, char* arg2);
+void intrpt_invalid(enum Instruction fn);
 void intrpt_eq(char* arg1, char* arg2);
 void intrpt_locationhasitem(char* arg1, char* arg2);
 void intrpt_inventoryhasitem(char* arg1);

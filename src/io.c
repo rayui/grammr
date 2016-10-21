@@ -9,7 +9,6 @@
 #include "../include/utils.h"
 
 extern const char str_command[];
-extern long CLOCK;
 const Coords clockPos = {0, 0};
 const Coords promptPos = {0, 23};
 const Coords locationPos = {8, 0};
@@ -18,25 +17,32 @@ const Coords statusPos = {0, 2};
 const Coords itemsPos = {0, 2};
 const Coords exitsPos = {0, 5};
 
-void printClock(void) {
-	char timeStr[8];
-	decimalToTimeStr(timeStr, CLOCK);
-	sprintf(timeStr, "%s", timeStr);
-	cputsxy(clockPos.x, clockPos.y, timeStr);
+void printClock(long time) {
+	char buf[9] = {0};
+	decimalToTimeStr(buf, time);
+	sprintf(buf, "%-8s\0", buf);
+	textcolor(CLOCK_COLOUR);
+	cputsxy(clockPos.x, clockPos.y, buf);
 }
 
 void printLocation(char* input) {
+	textcolor(LOCATION_COLOUR);
 	cputsxy(locationPos.x, locationPos.y, input);
 }
 
-void printStatus(char* input) {
+void printSplash(char* input) {
+	textcolor(SPLASH_COLOUR);
 	cputsxy(statusPos.x, statusPos.y, input);
 }
 
-void printLocalExits(struct LocationList* exits) {
-	char names[256] = {0};
-	getAllLocationNames(exits, names);
+void printStatus(char* input) {
+	textcolor(STATUS_COLOUR);
+	cputsxy(statusPos.x, statusPos.y, input);
+}
+
+void printLocalExits(char* names) {
 	gotoxy(exitsPos.x, exitsPos.y);
+	textcolor(EXITS_COLOUR);
 	if (strlen(names) > 0) {
 		cprintf("Exits: %s", names);
 	} else {
@@ -44,28 +50,30 @@ void printLocalExits(struct LocationList* exits) {
 	}
 }
 
-void printLocalItems(struct ItemList* items) {
-	char names[256] = {0};
-	getAllItemNames(items, names);
+void printLocalItems(char* names) {
 	gotoxy(itemsPos.x, itemsPos.y);
-
+	textcolor(ITEMS_COLOUR);
 	cprintf("You can see: %s", names);
 }
 
 void printOutput(char* output) {
 	gotoxy(0, textPos.y);
+	textcolor(TEXT_COLOUR);
 	cprintf(output);
 }
 
-void printInstruction(int equality, enum Instruction fn, char *arg1, char *arg2) {
-	char debug[64];
+void printInstruction(long time, int equality, enum Instruction fn, char *arg1, char *arg2) {
+	char debug[64] = {0};
 	char i = 6;
+
+	printClock(time);
+
 	while (i--) {
 		cclearxy(textPos.x + 6, textPos.y + i, 20);	
 	}
-  sprintf(debug, "TIME: %lu\r\n", CLOCK);
-  cputsxy(textPos.x, textPos.y, debug);
-  sprintf(debug, "EQ:   %d\r\nFN: %02X\r\nA1: %.10s\r\nA2: %.10s", equality, fn, arg1, arg2);
+	
+	textcolor(DEBUG_COLOUR);
+  sprintf(debug, "EQ: %d\r\nFN: %02X\r\nA1: %.10s\r\nA2: %.10s", equality, fn, arg1, arg2);
   cputsxy(textPos.x, textPos.y + 2, debug);
 }
 
@@ -73,6 +81,8 @@ void printPrompt(char* input) {
 		int offset = strlen(input) - INPUT_WIDTH;
 		char* output = malloc(sizeof(char) * INPUT_WIDTH);
 		memset(output, 0, INPUT_WIDTH);
+
+		textcolor(PROMPT_COLOUR);
 		cputsxy(promptPos.x, promptPos.y, output);
 		cputsxy(promptPos.x, promptPos.y, str_command);
 		free(output);

@@ -362,10 +362,13 @@ void con_action() {
 void con_object() {
   if (con_type()) {
     if (con_compare_word_reg(con_word_reg_a, "item")) {
+      printSplash("PARSING ITEMS...");
       con_item();
     } else if (con_compare_word_reg(con_word_reg_a, "location")) {
+      printSplash("PARSING LOCATIONS...");
       con_location();
     } else if (con_compare_word_reg(con_word_reg_a, "action")) {
+      printSplash("PARSING ACTIONS...");
       con_action();
     } else {
       con_error(ERR_JSON_OBJECT_EXPECTED);
@@ -436,6 +439,7 @@ void parseConfigFile(char* filename) {
   }
   memset(source, 0, CONFIGFILEBUFFSIZE);
 
+  printSplash("READING DATA FILE...");
   for(;;) {
     fp_bytes = fread(buf, sizeof(char), CONFIGFILEBUFFSIZE, fp);
 
@@ -483,13 +487,16 @@ void parseConfigFile(char* filename) {
     }
 
     //now parse the file into it
+    printSplash("PARSING DATA FILE...");
     jsmn_init(&p);
     jsmn = jsmn_parse(&p, source, source_len, con_tok, con_tok_num);
+
     if (jsmn >= 0) {
       while (con_counter < con_tok_num && RUNSTATE == SE_OK) {
         con_objects();
       }
       //now fill in the exits
+      printSplash("CALCULATING MAP...");
       con_fill_exits(con_tok_num);
     } else {
       con_error(ERR_CONFIG_BAD_JSON);

@@ -7,6 +7,7 @@
 #include "../include/yammadore.h"
 #include "../include/io.h"
 #include "../include/error.h"
+#include "../include/utils.h"
 #include "../include/lexer.h"
 #include "../include/instruction.h"
 #include "../include/parser.h"
@@ -27,18 +28,36 @@ ItemList* inventory = NULL;
 long CLOCK = 0;
 enum RunState RUNSTATE = SE_OK;
 
+void drawSplash() {
+  clrscr();
+  bordercolor(BG_COLOR);
+  bgcolor(BG_COLOR);
+  cursor(true);
+
+  printSplash("LOADING GAME...");
+}
+
+void drawHUD() {
+  char buf[256] = {0};
+
+  printClock(CLOCK);
+  printLocation(currentLocation->name);
+
+  buf[0] = 0;
+  getAllLocationNames(currentLocation->exits, buf);
+  printLocalExits(buf);
+
+  buf[0] = 0;
+  getAllItemNames(currentLocation->items, buf);
+  printLocalItems(buf);
+}
+
 int main() {
   int i = 0;
   char* input = malloc(COMMAND_SIZE * sizeof(char));
   char* output = malloc(MAXOUTPUTSIZE * sizeof(char));
 
-  clrscr();
-  bordercolor(BG_COLOR);
-  bgcolor(BG_COLOR);
-  textcolor(TEXT_COLOR);
-  cursor(true);
-
-  printStatus("LOADING GAME...");
+  drawSplash();
 
   parseConfigFile("data.pet");
 
@@ -50,13 +69,10 @@ int main() {
     while(RUNSTATE != SE_TERMINAL) {
       RUNSTATE = SE_OK;
 
-      printClock();
-      printLocation(currentLocation->name);
-      printLocalExits(currentLocation->exits);
-      printLocalItems(currentLocation->items);
+      drawHUD();
 
       memset(input, 0, COMMAND_SIZE);
-      memset(output, 0, MAXOUTPUTSIZE);
+      output[0] = 0;
       acceptInput(&input);
       clrscr();
 

@@ -8,6 +8,7 @@
   }\
 }
 
+char* getNextCharBeforeLimit(char* haystack, char needle, int limit);
 void *realloc_it(void *ptrmem, size_t size);
 void toC64Case(char* str);
 void toLowerCase(char* str);
