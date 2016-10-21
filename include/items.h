@@ -8,7 +8,7 @@
 typedef struct Item {
   char *name;
   char *description;
-  char actions[MAXINSTRUCTIONS];
+  int actions[MAXINSTRUCTIONS];
   struct Item *next;
 } Item;
 

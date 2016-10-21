@@ -22,8 +22,8 @@ int source_len = 0;
 int con_counter = 0;
 jsmntok_t* con_tok;
 
-char con_int_reg;
-char con_int_reg_b;
+int con_int_reg;
+int con_int_reg_b;
 char con_word_reg_a[MAX_ITEM_NAME_LENGTH];
 char con_word_reg_b[MAX_ITEM_NAME_LENGTH];
 char con_word_reg_c[MAXINSTRUCTIONSIZE];
@@ -215,7 +215,7 @@ int con_action_argument(int reg) {
   return NULL;
 }
 
-void con_item_actions(char* actions) {
+void con_item_actions(int* actions) {
   int i = 0;
   int arrLen = 0;
 
@@ -339,7 +339,7 @@ void con_location() {
 
 void con_action() {
   Actions* action;
-  char id;
+  int id;
   char isDefault = 0;
 
   if (con_id()) {

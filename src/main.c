@@ -24,6 +24,7 @@ Item* items = NULL;
 Location* currentLocation;
 Location* locations = NULL;
 ItemList* inventory = NULL;
+long CLOCK = 0;
 enum RunState RUNSTATE = SE_OK;
 
 int main() {

@@ -8,12 +8,9 @@
     NT;
     GI,ERROR;
     LS,$S;
-    PD,$L;
     GT,END;
     LB,ERROR;
-    PR,Couldn't move to ;
-    PR,$S;
-    PR,. ;
+    PR,Couldn't move to $S.;
     LB,END;
   "
 },
@@ -79,13 +76,7 @@
   "name": "use",
   "default": 0,
   "instruction": "
-    EQ,$L,Landing;
-    GI,ENTRANCE;
-    LS,Landing;
-    GT,END;
-    LB,ENTRANCE;
-    LS,Front entrance;
-    LB,END;
+    AC,255,Landing,Front entrance;
   "
 },
 {
@@ -96,7 +87,7 @@
   "instruction": "
     EQ,$L,Landing;
     IF;
-    AC,11,$L;
+    AC,11;
   "
 },
 {
@@ -107,7 +98,7 @@
   "instruction": "
     EQ,$L,Front entrance;
     IF;
-    AC,11,$L;
+    AC,11;
   "
 },
 {
@@ -115,7 +106,7 @@
   "id": 14,
   "name": "use with mobile phone",
   "instruction": "
-    PR,BEEP BOOP BEEP BOOP... says the $O...;
+    PR,BEEP BOOP BEEP BOOP...;
     PL;
     PR,You are now connected to the Internet;
   "
@@ -137,15 +128,24 @@
     PL;
     PR,The ticket barrier slides aside...;
     PL;
-    EQ,$L,Local Tube station;
-    GI,LOCAL;
-    LS,Local Tube Station;
-    GT,END;
-    LB,LOCAL;
-    LS,Central Tube Station;
-    LB,END;
+    AC,255,Local Tube Station,Central Tube Station;
     AC,2;
     PL;
+  "
+},
+{
+  "type": "action",
+  "id": 255,
+  "name": "door",
+  "default": 0,
+  "instruction": "
+    EQ,$L,$S;
+    GI,DOOR;
+    LS,$S;
+    GT,END;
+    LB,DOOR;
+    LS,$O;
+    LB,END;
   "
 },
 {

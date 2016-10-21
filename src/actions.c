@@ -81,8 +81,8 @@ void getAllActionNamesForItem(Actions* actions, Item* item, char* actionNames) {
   Actions* action;
   
   for (i = 0; i < MAXINSTRUCTIONS; i++) {
-    if ((item->actions)[i] > 0) {
-      action = findActionById(actions, (item->actions)[i]);
+    if (item->actions[i] > 0) {
+      action = findActionById(actions, item->actions[i]);
       if (action != NULL) {
         if (i > 0) {
           strcat(actionNames, ", ");

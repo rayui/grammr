@@ -20,5 +20,6 @@ void acceptInput(char** input);
 void printPrompt(char* input);
 void printStatus(char* input);
 void printOutput(char* output);
+void printInstruction(int equality, enum Instruction fn, char *arg1, char *arg2);
 
 #endif

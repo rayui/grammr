@@ -1,12 +1,15 @@
 #include <conio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include "../include/io.h"
 #include "../include/locations.h"
 #include "../include/items.h"
+#include "../include/utils.h"
 
 extern const char str_command[];
+extern long CLOCK;
 const Coords clockPos = {0, 0};
 const Coords promptPos = {0, 23};
 const Coords locationPos = {8, 0};
@@ -16,7 +19,10 @@ const Coords itemsPos = {0, 2};
 const Coords exitsPos = {0, 5};
 
 void printClock(void) {
-	cputsxy(clockPos.x, clockPos.y, "00:00");
+	char timeStr[8];
+	decimalToTimeStr(timeStr, CLOCK);
+	sprintf(timeStr, "%s", timeStr);
+	cputsxy(clockPos.x, clockPos.y, timeStr);
 }
 
 void printLocation(char* input) {
@@ -31,7 +37,11 @@ void printLocalExits(struct LocationList* exits) {
 	char names[256] = {0};
 	getAllLocationNames(exits, names);
 	gotoxy(exitsPos.x, exitsPos.y);
-	cprintf("Exits: %s", names);
+	if (strlen(names) > 0) {
+		cprintf("Exits: %s", names);
+	} else {
+		cprintf("There are no exits");
+	}
 }
 
 void printLocalItems(struct ItemList* items) {
@@ -45,6 +55,18 @@ void printLocalItems(struct ItemList* items) {
 void printOutput(char* output) {
 	gotoxy(0, textPos.y);
 	cprintf(output);
+}
+
+void printInstruction(int equality, enum Instruction fn, char *arg1, char *arg2) {
+	char debug[64];
+	char i = 6;
+	while (i--) {
+		cclearxy(textPos.x + 6, textPos.y + i, 20);	
+	}
+  sprintf(debug, "TIME: %lu\r\n", CLOCK);
+  cputsxy(textPos.x, textPos.y, debug);
+  sprintf(debug, "EQ:   %d\r\nFN: %02X\r\nA1: %.10s\r\nA2: %.10s", equality, fn, arg1, arg2);
+  cputsxy(textPos.x, textPos.y + 2, debug);
 }
 
 void printPrompt(char* input) {

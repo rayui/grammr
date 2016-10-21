@@ -17,6 +17,7 @@ extern Location* currentLocation;
 extern Actions* actions;
 extern ItemList* inventory;
 extern enum RunState RUNSTATE;
+extern long CLOCK;
 
 int equalityRegister = 0;
 int skip = SKIP_NONE;
@@ -285,7 +286,6 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
   enum Instruction fn = instruction->fn;
   char* arg1 = instruction->arg1;
   char* arg2 = instruction->arg2;
-  char debug[64];
 
   if (fn != INST_SET_PARAMS) {
     arg1 = intrpt_convert_special_variable(arg1);
@@ -366,8 +366,9 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
       intrprt_error(ERR_UNKNOWN_INSTRUCTION, fn);
   }
 
-  sprintf(debug, "%d %02X %s %s", equalityRegister, fn, arg1, arg2);
-  printOutput(debug);
+  printInstruction(equalityRegister, fn, arg1 ? arg1 : "NULL", arg2 ? arg2 : "NULL");
+
+  CLOCK++;
 }
 
 void interpret(InstructionList** instructions, char* output) {

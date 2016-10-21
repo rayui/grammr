@@ -18,3 +18,4 @@ int numItemsInCharArray(size_t arraySize);
 int isStringNumeric(char* val);
 int isStringAlpha(char *s);
 char strComp(char *str1, char* str2);
+void decimalToTimeStr(char* timeStr, long time);

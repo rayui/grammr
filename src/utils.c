@@ -135,3 +135,14 @@ int isStringAlpha(char *s) {
     ++s;
   return *s == 0;
 }
+
+void decimalToTimeStr(char* timeStr, long time) {
+  char days = 0;
+  char hours = 0;
+  char minutes = 0;
+
+  minutes = time % 60;
+  hours = ((time - minutes) / 60) % 24;
+
+  sprintf(timeStr, "%02d:%02d", hours, minutes);
+}
