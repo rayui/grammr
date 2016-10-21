@@ -124,7 +124,7 @@
   "id": 16,
   "name": "use with ticket barrier",
   "instruction": "
-    PR,BEEP BOOP BEEP BOOP...;
+    PR,BEEP BEEP...;
     PL;
     PR,The ticket barrier slides aside...;
     PL;

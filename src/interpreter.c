@@ -99,6 +99,10 @@ void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args)
     if (lastInstruction == NULL) {
       create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, action->name);
     }
+
+    //reset subject and object to current values
+    lastInstruction = inst_insert(&instructions, "SP,$S,$O", lastInstruction, subject, object);
+    
   } else {
     intrprt_error(ERR_NO_SUCH_ACTION, actionIDStr);
   }  
