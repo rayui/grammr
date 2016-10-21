@@ -219,7 +219,7 @@ void intrpt_print(char* output, char* arg1) {
     tmpStr = replace_str(tmpStr, "$L", currentLocation->name);
   }
 
-  sprintf(output, "%s%s\r\n", output, tmpStr);
+  sprintf(output, "%s%s", output, tmpStr);
 }
 
 void intrpt_printdesc(char* output, char* arg1) {
@@ -227,9 +227,9 @@ void intrpt_printdesc(char* output, char* arg1) {
   Location* loc = intrpt_location_in_context(arg1);
 
   if (item) {
-    sprintf(output, "%s%s", output, item->description);
+    sprintf(output, "%s\r\n%s", output, item->description);
   } else if (loc) {
-    sprintf(output, "%s%s", output, loc->description);  
+    sprintf(output, "%s\r\n%s", output, loc->description);  
   } else {
     intrprt_error(ERR_ITEM_NOT_FOUND, arg1);
   }
@@ -263,6 +263,20 @@ void intrpt_printitems(char* output, char* arg1) {
   }
 }
 
+void intrpt_printactions(char* output, char* arg1) {
+  char actionNames[MAXACTIONSTEXTLENGTH];
+  Item* item = findItemByName(arg1);
+
+  memset(actionNames, 0, MAXACTIONSTEXTLENGTH);
+
+  if (item != NULL) {
+    getAllActionNamesForItem(actions, item, actionNames);
+    sprintf(output, "%s%s", output, actionNames);
+  } else {
+    intrprt_error(ERR_ACTIONS_NOT_FOUND, arg1);
+  }
+}
+
 void intrpt_newline(char* output) {
   sprintf(output, "%s\r\n", output);
 }
@@ -271,6 +285,7 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
   enum Instruction fn = instruction->fn;
   char* arg1 = instruction->arg1;
   char* arg2 = instruction->arg2;
+  char debug[64];
 
   if (fn != INST_SET_PARAMS) {
     arg1 = intrpt_convert_special_variable(arg1);
@@ -338,6 +353,9 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
     case INST_PRINTITEMS:
       intrpt_printitems(output, arg1);
       break;
+    case INST_PRINTACTIONS:
+      intrpt_printactions(output, arg1);
+      break;
     case INST_NEWLINE:
       intrpt_newline(output);
       break;
@@ -348,7 +366,8 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
       intrprt_error(ERR_UNKNOWN_INSTRUCTION, fn);
   }
 
-  //printOutput("%d %02X %s %s\r\n", equalityRegister, fn, arg1, arg2);
+  sprintf(debug, "%d %02X %s %s", equalityRegister, fn, arg1, arg2);
+  printOutput(debug);
 }
 
 void interpret(InstructionList** instructions, char* output) {

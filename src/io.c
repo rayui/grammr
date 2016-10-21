@@ -10,10 +10,10 @@ extern const char str_command[];
 const Coords clockPos = {0, 0};
 const Coords promptPos = {0, 23};
 const Coords locationPos = {8, 0};
-const Coords textPos = {0, 7};
+const Coords textPos = {0, 8};
 const Coords statusPos = {0, 2};
-const Coords itemsPos = {0, 4};
-const Coords exitsPos = {0, 2};
+const Coords itemsPos = {0, 2};
+const Coords exitsPos = {0, 5};
 
 void printClock(void) {
 	cputsxy(clockPos.x, clockPos.y, "00:00");

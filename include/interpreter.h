@@ -8,6 +8,7 @@
 
 #define MAXEXITSTEXTLENGTH 128
 #define MAXITEMSTEXTLENGTH 128
+#define MAXACTIONSTEXTLENGTH 128
 #define MAXOUTPUTSIZE 1024
 
 char* intrpt_convert_special_variable(char* arg);
@@ -30,6 +31,7 @@ void intrpt_print(char* output, char* arg1);
 void intrpt_printdesc(char* output, char* arg1);
 void intrpt_printexits(char* output, char* arg1);
 void intrpt_printitems(char* output, char* arg1);
+void intrpt_printactions(char* output, char* arg1);
 void intrpt_newline(char* output);
 void intrpt_instruction(char* output, InstructionList* instructions, InstructionList* instruction);
 void interpret(InstructionList** instructions, char* output);

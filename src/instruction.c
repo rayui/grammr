@@ -57,6 +57,8 @@ enum Instruction inst_get_instruction_code(char* instructionStr) {
     return INST_PRINTEXITS;
   } else if (strComp(instruction, "pi")) {
     return INST_PRINTITEMS;
+  } else if (strComp(instruction, "pa")) {
+    return INST_PRINTACTIONS;
   } else if (strComp(instruction, "pl")) {
     return INST_NEWLINE;
   } else if (strComp(instruction, "ac")) {

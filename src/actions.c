@@ -74,3 +74,22 @@ Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name
 
   return NULL;
 }
+
+void getAllActionNamesForItem(Actions* actions, Item* item, char* actionNames) {
+  char i = 0;
+  char name[MAX_ACTION_SIZE];
+  Actions* action;
+  
+  for (i = 0; i < MAXINSTRUCTIONS; i++) {
+    if ((item->actions)[i] > 0) {
+      action = findActionById(actions, (item->actions)[i]);
+      if (action != NULL) {
+        if (i > 0) {
+          strcat(actionNames, ", ");
+        }
+        strcat(actionNames, action->name);
+      }
+    }
+  }
+
+}
