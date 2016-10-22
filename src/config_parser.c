@@ -443,11 +443,9 @@ void parseConfigFile(char* filename) {
   for(;;) {
     fp_bytes = fread(buf, sizeof(char), CONFIGFILEBUFFSIZE, fp);
 
-    if (fp_bytes < 0) {
-      con_error(ERR_FILE);
-      break;
-    } else if (fp_bytes == 0) {
+    if (fp_bytes == 0) {
       //could be an error but ignore, just break
+      con_error(ERR_FILE);
       break;
     }
 

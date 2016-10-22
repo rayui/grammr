@@ -146,6 +146,7 @@ InstructionList* inst_insert(InstructionList** instructions, char* newInstructio
   char* instructionStr;
   static char tmpStr[MAX_INSTRUCTION_LENGTH];
   InstructionList* instruction = NULL;
+  char fnStr[4];
 
   //create an instruction to set special variables $SO and $O here
   sprintf(tmpStr, "SP,%s,%s", direct, indirect);
@@ -161,7 +162,8 @@ InstructionList* inst_insert(InstructionList** instructions, char* newInstructio
   while(instructionStr != NULL) {
     instruction = inst_create(instructionStr);
     if (instruction == NULL) {
-      create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, instruction->fn);
+      sprintf(fnStr, "%s", instruction->fn);
+      create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, fnStr);
       return NULL;
     }
     SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);

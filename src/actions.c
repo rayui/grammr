@@ -77,7 +77,6 @@ Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name
 
 void getAllActionNamesForItem(Actions* actions, Item* item, char* actionNames) {
   char i = 0;
-  char name[MAX_ACTION_SIZE];
   Actions* action;
   
   for (i = 0; i < MAXINSTRUCTIONS; i++) {

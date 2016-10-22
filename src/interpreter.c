@@ -109,7 +109,10 @@ void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args)
 }
 
 void intrpt_invalid(enum Instruction fn) {
-  intrprt_error(ERR_INVALID_INSTRUCTION, fn);
+  char fnStr[4];
+  sprintf(fnStr, "%s", fn);
+
+  intrprt_error(ERR_INVALID_INSTRUCTION, fnStr);
 }
 
 void intrpt_eq(char* arg1, char* arg2) {
@@ -366,7 +369,7 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
       intrpt_action(instructions, arg1, arg2);
       break;
     default:
-      intrprt_error(ERR_UNKNOWN_INSTRUCTION, fn);
+      intrpt_invalid(fn);
   }
 
   printInstruction(CLOCK, equalityRegister, fn, arg1 ? arg1 : "NULL", arg2 ? arg2 : "NULL");

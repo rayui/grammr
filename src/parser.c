@@ -106,7 +106,12 @@ int parser_accept(enum TokenType type) {
 }
 
 void parser_error(enum ErrorType error, char* val) {
-  create_error(SE_PARSER, error, val);
+  enum ErrorType errType = SE_PARSER;
+
+  if (error == ERR_QUIT)
+    errType = SE_TERMINAL;
+
+  create_error(errType, error, val);
   parser_readtok();
 }
 

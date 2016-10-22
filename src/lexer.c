@@ -52,7 +52,7 @@ char isVerb(char* val) {
   if (strComp(val, "look") || strComp(val, "go") ||
       strComp(val, "use") || strComp(val, "put") ||
       strComp(val, "take") || strComp(val, "drop") ||
-      strComp(val, "call")
+      strComp(val, "call") || strComp(val, "quit")
   ) {
     return 1;
   }
@@ -108,7 +108,6 @@ Token* readtok(Token** tail, char* input) {
 }
 
 void lex(Token** tokenHead, char* source) {
-  enum TokenType type;
   Token* tail = NULL;
   static char input[MAXCOMMANDSIZE];
 

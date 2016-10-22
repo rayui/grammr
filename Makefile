@@ -54,7 +54,7 @@ items.o: utils.o debugmalloc.o
 	cc65 -O -t c64 --static-locals $(SRC_DIR)items.c $(BUILD_DIR)utils.o -o $(BUILD_DIR)items.s
 	ca65 $(BUILD_DIR)items.s -o $(BUILD_DIR)items.o
 
-actions.o: actions.o debugmalloc.o
+actions.o: debugmalloc.o
 	cc65 -O -t c64 --static-locals $(SRC_DIR)actions.c $(BUILD_DIR)utils.o -o $(BUILD_DIR)actions.s
 	ca65 $(BUILD_DIR)actions.s -o $(BUILD_DIR)actions.o
 
