@@ -1,7 +1,8 @@
 #ifndef PARSER
 #define PARSER
 
-#define MAXARGSIZE 32
+#define MAXNAMESIZE 24
+#define MAXARGSIZE 24
 
 typedef struct NameList {
   char name[MAXARGSIZE];

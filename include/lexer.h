@@ -2,7 +2,6 @@
 #define LEXER
 
 #define MAXTOKSZ 24
-#define MAXNAMESZ 24
 #define MAXDIRECTIONSZ 6
 #define MAXCOMMANDSIZE 256
 

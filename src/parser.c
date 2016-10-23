@@ -12,11 +12,11 @@
 #include "../include/lexer.h"
 #include "../include/parser.h"
 
-int parser_counter = 0;
-char parser_word_reg[MAXNAMESZ];
-char parser_action_reg[MAXNAMESZ];
-NameList* parser_name_stack = NULL;
-NameList* parser_name_stack_tail = NULL;
+static int parser_counter = 0;
+static char parser_word_reg[MAXNAMESIZE];
+static char parser_action_reg[MAXNAMESIZE];
+static NameList* parser_name_stack = NULL;
+static NameList* parser_name_stack_tail = NULL;
 Token* currToken;
 InstructionList* lastInstruction;
 
@@ -32,7 +32,7 @@ void parser_readtok() {
 }
 
 void parser_set_action_reg() {
-  memset(parser_action_reg, 0, MAXNAMESZ);
+  memset(parser_action_reg, 0, MAXNAMESIZE);
   strcpy(parser_action_reg, currToken->val);
 }
 
@@ -49,7 +49,7 @@ void parser_set_word_reg() {
 }
 
 void parser_empty_word_reg() {
-  memset(parser_word_reg, 0, MAXNAMESZ);
+  memset(parser_word_reg, 0, MAXNAMESIZE);
 }
 
 void parser_empty_name_list() {

@@ -38,13 +38,13 @@ Location* locationsTail;
 Actions* actionsTail;
 
 void con_set_int_reg() {
-  char int_reg[MAXARGSIZE];
+  char int_reg[INT_AS_STRING_MAX_CHARS];
   sprintf(int_reg, "%.*s", con_tok[con_counter].end - con_tok[con_counter].start, source + con_tok[con_counter].start);
   con_int_reg = atoi(int_reg);
 }
 
 void con_set_int_reg_b() {
-  char int_reg[MAXARGSIZE];
+  char int_reg[INT_AS_STRING_MAX_CHARS];
   sprintf(int_reg, "%.*s", con_tok[con_counter].end - con_tok[con_counter].start, source + con_tok[con_counter].start);
   con_int_reg_b = atoi(int_reg);
 }
