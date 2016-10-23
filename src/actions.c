@@ -63,11 +63,10 @@ Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name
   char actionName[MAX_ACTION_SIZE] = {0};
   Actions* action;
 
-  if (actionsArray == NULL) {
+  if (actionsArray == NULL)
     return NULL;
-  }
 
-  for (i = 0; i < MAXINSTRUCTIONS; i++) {
+  for (i = 1; i <= actionsArray[0]; i++) {
     if (actionsArray[i] > 0) {
       action = findActionById(actions, actionsArray[i]);
       if (toLowerCaseCompare(action->name, name)) {
@@ -82,8 +81,11 @@ Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name
 void getAllActionNamesForItem(Actions* actions, Item* item, char* actionNames) {
   char i = 0;
   Actions* action;
+
+  if (item->actions == NULL)
+    return;
   
-  for (i = 0; i < MAXINSTRUCTIONS; i++) {
+  for (i = 1; i <= item->actions[0]; i++) {
     if (item->actions[i] > 0) {
       action = findActionById(actions, item->actions[i]);
       if (action != NULL) {

@@ -23,7 +23,7 @@ int con_type(void);
 int con_name(void);
 int con_description(void);
 void con_item(void);
-void con_item_actions(int* actions);
+void con_item_actions(Item* item);
 void con_location_items(Location* location);
 void con_location_exits(void);
 void con_location(void);

@@ -23,9 +23,7 @@ Item* createItem(char* name, char* description) {
   item->description = malloc((strlen(description) + 1));
   strcpy(item->description, description);
 
-  for(i = 0; i < MAXINSTRUCTIONS; i++) {
-    (item->actions)[i] = -1;
-  }
+  item->actions = NULL;
 
   SGLIB_LIST_ADD(Item, items, item, next);
 

@@ -215,26 +215,30 @@ int con_action_argument(int reg) {
   return NULL;
 }
 
-void con_item_actions(int* actions) {
+void con_item_actions(Item* item) {
   int i = 0;
   int arrLen = 0;
 
   if (con_peek(JSMN_ARRAY)) {
     arrLen = con_tok[con_counter].size;
-    if (arrLen <= MAXINSTRUCTIONS) {
-      con_accept(JSMN_ARRAY);
-      for(i = 0; i < arrLen; i++) {
-        if (con_peek(JSMN_PRIMITIVE)) {
-          con_set_int_reg();
-          con_accept(JSMN_PRIMITIVE);
-          actions[i] = con_int_reg;
-        } else {
-          con_error(ERR_JSON_NUMBER_EXPECTED);
-        }
+    con_accept(JSMN_ARRAY);
+    item->actions = malloc((arrLen + 1) * sizeof(int));
+
+    if (item->actions == NULL)
+      con_error(ERR_OUT_OF_MEMORY);
+
+    item->actions[0] = arrLen;
+
+    for(i = 1; i < arrLen + 1; i++) {
+      if (con_peek(JSMN_PRIMITIVE)) {
+        con_set_int_reg();
+        con_accept(JSMN_PRIMITIVE);
+        item->actions[i] = con_int_reg;
+      } else {
+        con_error(ERR_JSON_NUMBER_EXPECTED);
       }
-    } else {
-      con_error(ERR_CONFIG_TOO_MANY_ACTIONS);
     }
+
   } else {
     con_error(ERR_JSON_OBJECT_EXPECTED);
   }
@@ -247,7 +251,7 @@ void con_item() {
     if (con_description()) {
       item = createItem(con_word_reg_b, con_word_reg_c);
       if (con_acceptVal("actions")) {
-        con_item_actions(item->actions);
+        con_item_actions(item);
       }
     } else {
       con_error(ERR_CONFIG_DESCRIPTION_EXPECTED);

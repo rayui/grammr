@@ -3,12 +3,11 @@
 
 #define MAX_ITEM_NAME_LENGTH 40
 #define MAX_ITEM_DESCRIPTION_LENGTH 512
-#define MAXINSTRUCTIONS 5
 
 typedef struct Item {
   char *name;
   char *description;
-  int actions[MAXINSTRUCTIONS];
+  int* actions;
   struct Item *next;
 } Item;
 
