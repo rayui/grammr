@@ -135,6 +135,14 @@
 },
 {
   "type": "action",
+  "id": 17,
+  "name": "use",
+  "instruction": "
+    PR,You used the shower. Congratulations on being a functioning adult, nerd.
+  "
+}
+{
+  "type": "action",
   "id": 255,
   "name": "door",
   "default": 0,
@@ -187,7 +195,8 @@
 {
   "type": "item",
   "name": "Shower",
-  "description": "It's dilapidated. The shower head slowly drips and the curtain has mildew"
+  "description": "It's dilapidated. The shower head slowly drips and the curtain has mildew",
+  "actions": [17]
 },
 {
   "type": "item",

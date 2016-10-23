@@ -32,7 +32,6 @@ char isNumber(char* val);
 char isConjunction(char* val);
 char isVerb(char* val);
 char isConjunction(char* val);
-char isVerbPhrasal(char* val);
 enum TokenType tokenTypeFromValue(char* val);
 Token* readtok(Token** tokens, char* input);
 char getVerbTransitivityByName(char* name);

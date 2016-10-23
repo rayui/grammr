@@ -67,17 +67,15 @@ int main() {
     currentLocation = locations;
 
     while(RUNSTATE != SE_TERMINAL) {
+      memset(input, 0, COMMAND_SIZE);
+      output[0] = 0;
+      tokenHead = NULL;
+      instructions = NULL;
       RUNSTATE = SE_OK;
 
       drawHUD();
-
-      memset(input, 0, COMMAND_SIZE);
-      output[0] = 0;
       acceptInput(&input);
       clrscr();
-
-      tokenHead = NULL;
-      instructions = NULL;
 
       printStatus("LEXING.");
       lex(&tokenHead, input);

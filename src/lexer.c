@@ -52,10 +52,18 @@ char isVerb(char* val) {
   if (strComp(val, "look") || strComp(val, "go") ||
       strComp(val, "use") || strComp(val, "put") ||
       strComp(val, "take") || strComp(val, "drop") ||
-      strComp(val, "call") || strComp(val, "quit")
+      strComp(val, "call")
   ) {
     return 1;
   }
+  return 0;
+}
+
+char isQuit(char* val) {
+  if (strComp(val, "quit")) {
+    return 1;
+  }
+
   return 0;
 }
 
@@ -75,6 +83,9 @@ enum TokenType tokenTypeFromValue(char* val) {
     return TOK_NUMBER;
   } else if (isStringAlpha(val)) {
     return TOK_WORD;
+  } else if (isQuit(val)) {
+    RUNSTATE = SE_TERMINAL;
+    return TOK_QUIT;
   } else {
     return TOK_EOL;
   }
@@ -110,8 +121,6 @@ Token* readtok(Token** tail, char* input) {
 void lex(Token** tokenHead, char* source) {
   Token* tail = NULL;
   static char input[MAXCOMMANDSIZE];
-
-  RUNSTATE = SE_OK;
 
   strncpy(input, source, MAXCOMMANDSIZE - 1);
   input[MAXCOMMANDSIZE] = '\0';

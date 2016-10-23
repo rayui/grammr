@@ -59,17 +59,21 @@ Actions* findDefaultActionByName(Actions* actions, char* name) {
 
 Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name) {
   int i = 0;
+  int* actionsArray = item->actions;
+  char actionName[MAX_ACTION_SIZE] = {0};
+  Actions* action;
 
-  SGLIB_LIST_LEN(Actions, actions, next, i);
+  if (actionsArray == NULL) {
+    return NULL;
+  }
 
-  while (i--) {
-    SGLIB_LIST_MAP_ON_ELEMENTS(Actions, actions, action, next, {
-      if (action->id == (item->actions)[i]) {
-        if (strComp(action->name, name)) {
-          return action;
-        }
+  for (i = 0; i < MAXINSTRUCTIONS; i++) {
+    if (actionsArray[i] > 0) {
+      action = findActionById(actions, actionsArray[i]);
+      if (toLowerCaseCompare(action->name, name)) {
+        return action;
       }
-    });
+    }
   }
 
   return NULL;

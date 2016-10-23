@@ -106,12 +106,7 @@ int parser_accept(enum TokenType type) {
 }
 
 void parser_error(enum ErrorType error, char* val) {
-  enum ErrorType errType = SE_PARSER;
-
-  if (error == ERR_QUIT)
-    errType = SE_TERMINAL;
-
-  create_error(errType, error, val);
+  create_error(SE_PARSER, error, val);
   parser_readtok();
 }
 
@@ -155,6 +150,7 @@ void parser_action(InstructionList** instructions) {
       action = findActionByNameAndItem(actions, item, parser_action_reg);
       if (action == NULL)
         action = findDefaultActionByName(actions, parser_action_reg);
+      
     } else if (findLocationByName(subject)) {
       action = findDefaultActionByName(actions, parser_action_reg);
     } else {
@@ -208,7 +204,6 @@ void parse(Token** tokenHead, InstructionList** instructions) {
   currToken = *tokenHead;
   lastInstruction = *instructions;
 
-  RUNSTATE = SE_OK;
   parser_counter = 0;
 
   while(currToken != NULL && RUNSTATE == SE_OK) {
