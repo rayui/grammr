@@ -6,7 +6,6 @@
 typedef struct Actions {
   char id;
   char name[MAX_ACTION_SIZE];
-  char args;
   char isDefault;
   char* instructions;
   struct Actions* next;
