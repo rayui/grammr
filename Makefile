@@ -4,6 +4,7 @@ LIB_DIR=include/
 TEXT_DIR=text/
 DATA_DIR=data/
 DIST_DIR=dist/
+CC65_DIR:=$(shell dirname `which cc65`)/..
 
 all: grammr create_image
 
@@ -18,9 +19,9 @@ grammr: io.o error.o lexer.o parser.o interpreter.o locations.o items.o instruct
 	ca65 $(BUILD_DIR)main.s -o $(BUILD_DIR)grammr.o
 	ld65 -o $(BUILD_DIR)grammr -t c64 $(BUILD_DIR)grammr.o $(BUILD_DIR)error.o $(BUILD_DIR)lexer.o \
 		$(BUILD_DIR)parser.o $(BUILD_DIR)interpreter.o $(BUILD_DIR)locations.o $(BUILD_DIR)items.o \
-		$(BUILD_DIR)actions.o\
+		$(BUILD_DIR)actions.o \
 		$(BUILD_DIR)jsmn.o $(BUILD_DIR)config_parser.o $(BUILD_DIR)instruction.o $(BUILD_DIR)text.o \
-		$(BUILD_DIR)utils.o $(BUILD_DIR)debugmalloc.o $(BUILD_DIR)io.o c64.lib
+		$(BUILD_DIR)utils.o $(BUILD_DIR)debugmalloc.o $(BUILD_DIR)io.o $(CC65_DIR)/lib/c64.lib
 
 io.o: text.o debugmalloc.o
 	cc65 -O -t c64 --static-locals $(SRC_DIR)io.c $(BUILD_DIR)text.o -o $(BUILD_DIR)io.s
