@@ -5,13 +5,13 @@
 
 typedef struct Actions {
   char id;
-  char name[MAX_ACTION_SIZE];
+  char* name;
   char isDefault;
   char* instructions;
   struct Actions* next;
 } Actions;
 
-Actions* createAction(char id, char* name, char* instructions, char isDefault);
+Actions* createAction(char id, char* name, char isDefault, char* instructions);
 Actions* findActionById(Actions* actions, char id);
 Actions* findActionByName(Actions* actions, char* name);
 Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name);

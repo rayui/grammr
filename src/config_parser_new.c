@@ -11,10 +11,7 @@
 #include "../include/config_parser_new.h"
 
 FILE* fp;
-size_t fp_bytes;
-
 char *source;
-
 extern Item* items;
 extern Location* locations;
 extern Actions* actions;
@@ -28,9 +25,7 @@ void con_error(enum ErrorType error) {
 }
 
 char readOneByte(void) {
-  char lastByte;
-  lastByte = fgetc(fp);
-  return lastByte;
+  return fgetc(fp);
 }
 
 char readNBytes(char* str, char n) {
@@ -107,6 +102,12 @@ void readAction() {
 
   action = createAction(id, name, isDefault, instructions);
   SGLIB_LIST_ADD_AFTER(Actions, actionsTail, action, next);
+
+  if (actions == NULL) {
+    actions = actionsTail;
+  }
+
+  actionsTail = action;
 }
 
 void readLocation() {
@@ -140,23 +141,31 @@ void readLocation() {
   items[0] = byteLen;
   readNBytes(items + 1, byteLen);
 
-  createLocation(id, name, desc, exits, items);
+  location = createLocation(id, name, desc, NULL, NULL);
   SGLIB_LIST_ADD_AFTER(Location, locationsTail, location, next);
+
+  if (locations == NULL) {
+    locations = locationsTail;
+  }
+
+  locationsTail = location;
 }
 
 void readObjects() {
   char type;
 
   type = readOneByte();
-  while (type != EOF) {
+  while (!feof(fp)) {
+    clrscr();
     if (type == OBJECT_ITEM) {
+      printSplash("PARSING ITEM...");
       readItem();
     } else if (type == OBJECT_ACTION) {
+      printSplash("PARSING ACTION...");
       readAction();
     } else if (type == OBJECT_LOCATION) {
-      clrscr();
+      printSplash("PARSING LOCATION...");
       readLocation();
-      cgetc();
     }
     type = readOneByte();
   }
@@ -181,8 +190,7 @@ void parseConfigFile(char* filename) {
   printSplash("READING DATA FILE...");
   readObjects();
   
-  fclose(fp);
-
   //clean up
   free(source);
+  fclose(fp);
 }

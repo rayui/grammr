@@ -12,7 +12,7 @@
 extern Location *locations;
 extern Location *currentLocation;
 
-Location* createLocation(char* name, char* description, LocationList* exits, ItemList* items)
+Location* createLocation(char id, char* name, char* description, LocationList* exits, ItemList* items)
 {
   Location* location = malloc(sizeof(Location));
   if (location == NULL) {
@@ -20,12 +20,9 @@ Location* createLocation(char* name, char* description, LocationList* exits, Ite
     return NULL;
   }
 
-  location->name = malloc(strlen(name) + 1);
-  location->description = malloc(strlen(description) + 1);
-
-  strcpy(location->name, name);
-  strcpy(location->description, description);
-
+  location->id = id;
+  location->name = name;
+  location->description = description;
   location->exits = exits;
   location->items = items;
 

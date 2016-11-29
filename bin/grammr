@@ -1,2 +1,2 @@
 #!/bin/sh
-x64 -kernal /usr/lib/vice/C64/kernel -basic /usr/lib/vice/C64/basic -chargen /usr/lib/vice/VIC20/chargen -symkeymap /usr/lib/vice/C64/x11_sym.vkm -dos1541 /usr/lib/vice/DRIVES/dos1541 -drive8type 1541 -autostart dist/grammr.d64 +sound -VICIIfilter 2
+x64 -kernal /usr/lib/vice/C64/kernel -basic /usr/lib/vice/C64/basic -chargen /usr/lib/vice/VIC20/chargen -symkeymap /usr/lib/vice/C64/x11_sym.vkm -dos1541 /usr/lib/vice/DRIVES/dos1541 -drive8type 1541 -autostart dist/grammr.d64 +sound -VICIIfilter 2 -warp

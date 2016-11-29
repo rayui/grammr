@@ -13,19 +13,13 @@
 extern Item* items;
 extern ItemList* inventory;
 
-Item* createItem(char* name, char* description) {
-  char i = 0;
+Item* createItem(char id, char* name, char* description, char* actions) {
   Item* item = malloc(sizeof(Item));
 
-  item->name = malloc((strlen(name) + 1));
-  strcpy(item->name, name);
-
-  item->description = malloc((strlen(description) + 1));
-  strcpy(item->description, description);
-
-  item->actions = NULL;
-
-  SGLIB_LIST_ADD(Item, items, item, next);
+  item->id = id;
+  item->name = name;
+  item->description = description;
+  item->actions = actions;
 
   return item;
 }

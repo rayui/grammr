@@ -6,9 +6,7 @@
 #include "../include/items.h"
 #include "../include/actions.h"
 
-Actions* createAction(char id, char* name, char* instructions, char isDefault) {
-  int instLen = strlen(instructions);
-
+Actions* createAction(char id, char* name, char isDefault, char* instructions) {
   Actions* action = malloc(sizeof(struct Actions));
   if (action == NULL) {
     return NULL;
@@ -17,11 +15,9 @@ Actions* createAction(char id, char* name, char* instructions, char isDefault) {
   toLowerCase(name);
 
   action->id = id;
-  strcpy(action->name, name);
-  action->instructions = malloc(instLen + 1 * sizeof(char));
-  strcpy(action->instructions, instructions);
+  action->name = name;
+  action->instructions = instructions;
   action->isDefault = isDefault;
-  (action->instructions)[instLen] = 0;
   action->next = NULL;
 
   return action;
@@ -58,8 +54,8 @@ Actions* findDefaultActionByName(Actions* actions, char* name) {
 }
 
 Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name) {
-  int i = 0;
-  int* actionsArray = item->actions;
+  char i = 0;
+  char* actionsArray = item->actions;
   char actionName[MAX_ACTION_SIZE] = {0};
   Actions* action;
 
