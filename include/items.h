@@ -23,6 +23,7 @@ Item* createItem(char id, char* name, char* description, char* actions);
 ItemList* createItemList(ItemList** items, Item* item);
 void deleteItemList(ItemList** items, Item* item);
 struct Item* findItemByName(char* name);
+struct Item* findItemById(char id);
 Item* findItemInList(ItemList* list, char* name);
 char inventoryHasItem(char* name);
 void getAllItemNames(ItemList* list, char* itemNames);

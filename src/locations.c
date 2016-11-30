@@ -51,6 +51,16 @@ Location* findLocationByName(char* name) {
   return foundLocation;
 }
 
+Location* findLocationById(char id) {
+  SGLIB_LIST_MAP_ON_ELEMENTS(Location, locations, location, next, {
+    if (location->id == id) {
+      return location;
+    }
+  });
+
+  return NULL;
+}
+
 int locationHasExit(char* locationName, char* exitName) {
   char foundLocation = 0;
   Location* location = findLocationByName(locationName);

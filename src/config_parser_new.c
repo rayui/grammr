@@ -46,6 +46,8 @@ char readNBytes(char* str, char n) {
     str[i] = lastByte;
   }
 
+  toC64Case(str);
+
   return i;
 }
 
@@ -79,6 +81,7 @@ void readItem() {
 }
 
 void readAction() {
+  char i;
   char byteLen;
   char id;
   char* name;
@@ -110,6 +113,16 @@ void readAction() {
   actionsTail = action;
 }
 
+void createLocationItemList(Location* location, char* items) {
+  Item* foundItem;
+  char i;
+
+  for (i = 1; i <= items[0]; i++) {
+    foundItem = findItemById(items[i]);
+    createItemList(&(location->items), foundItem);
+  }
+}
+
 void readLocation() {
   char byteLen;
   char id;
@@ -118,6 +131,7 @@ void readLocation() {
   char* exits;
   char* items;
   Location* location;
+  ItemList* locationItems;
 
   id = readOneByte();
 
@@ -142,6 +156,8 @@ void readLocation() {
   readNBytes(items + 1, byteLen);
 
   location = createLocation(id, name, desc, NULL, NULL);
+  createLocationItemList(location, items);
+
   SGLIB_LIST_ADD_AFTER(Location, locationsTail, location, next);
 
   if (locations == NULL) {

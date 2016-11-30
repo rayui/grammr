@@ -53,6 +53,16 @@ Item* findItemByName(char* name) {
   return NULL;
 }
 
+Item* findItemById(char id) {
+  SGLIB_LIST_MAP_ON_ELEMENTS(Item, items, item, next, {
+    if (item->id == id) {
+      return item;
+    }
+  });
+
+  return NULL;
+}
+
 Item* findItemInList(ItemList* list, char* name) {
   SGLIB_LIST_MAP_ON_ELEMENTS(ItemList, list, listItem, next, {
     if (toLowerCaseCompare((char *)listItem->item->name, name)) {
