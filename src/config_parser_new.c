@@ -81,7 +81,6 @@ void readItem() {
 }
 
 void readAction() {
-  char i;
   char byteLen;
   char id;
   char* name;
@@ -123,17 +122,34 @@ void createLocationItemList(Location* location, char* items) {
   }
 }
 
+void createLocationExitList(Location* location, char* exits) {
+  Location* foundExit;
+  char i;
+
+  for (i = 1; i <= exits[0]; i++) {
+    foundExit = findLocationById(exits[i]);
+    if (foundExit == NULL) {
+      foundExit = createLocation(exits[i], NULL, NULL, NULL, NULL);
+      SGLIB_LIST_ADD_AFTER(Location, locationsTail, foundExit, next);
+      locationsTail = foundExit;
+    }
+    createLocationList(&(location->exits), foundExit);
+  }
+}
+
 void readLocation() {
+  char i;
   char byteLen;
   char id;
   char* name;
   char* desc;
   char* exits;
   char* items;
-  Location* location;
+  Location* location = NULL;
   ItemList* locationItems;
 
   id = readOneByte();
+  location = findLocationById(id);
 
   byteLen = readOneByte();
   name = malloc(byteLen + 1);
@@ -145,26 +161,36 @@ void readLocation() {
   readNBytes(desc, byteLen);
   desc[byteLen] = 0;
 
+  if (location == NULL) {
+    location = createLocation(id, name, desc, NULL, NULL);
+    SGLIB_LIST_ADD_AFTER(Location, locationsTail, location, next);
+    if (locations == NULL) {
+      locations = locationsTail;
+    }
+    locationsTail = location;
+  } else {
+    location->name = name;
+    location->description = desc;
+  }
+
   byteLen = readOneByte();
   exits = malloc(byteLen + 1);
   exits[0] = byteLen;
   readNBytes(exits + 1, byteLen);
 
+  if (byteLen > 0) {
+    createLocationExitList(location, exits);
+  }
+
   byteLen = readOneByte();
   items = malloc(byteLen + 1);
   items[0] = byteLen;
   readNBytes(items + 1, byteLen);
-
-  location = createLocation(id, name, desc, NULL, NULL);
-  createLocationItemList(location, items);
-
-  SGLIB_LIST_ADD_AFTER(Location, locationsTail, location, next);
-
-  if (locations == NULL) {
-    locations = locationsTail;
+  
+  if (byteLen > 0) {
+    createLocationItemList(location, items);
   }
 
-  locationsTail = location;
 }
 
 void readObjects() {
