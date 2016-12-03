@@ -13,14 +13,14 @@ create_image:
 	c1541 -attach $(DIST_DIR)grammr.d64 -write $(BUILD_DIR)grammr
 	c1541 -attach $(DIST_DIR)grammr.d64 -write $(DATA_DIR)data.pet
 
-grammr: io.o error.o lexer.o parser.o interpreter.o locations.o items.o instruction.o utils.o config_parser_new.o\
+grammr: io.o error.o lexer.o parser.o interpreter.o locations.o items.o instruction.o utils.o config_parser.o\
 	actions.o text.o
 	cc65 -O -t c64 --static-locals $(SRC_DIR)main.c -o $(BUILD_DIR)main.s
 	ca65 $(BUILD_DIR)main.s -o $(BUILD_DIR)grammr.o
 	ld65 -o $(BUILD_DIR)grammr -t c64 $(BUILD_DIR)grammr.o $(BUILD_DIR)error.o $(BUILD_DIR)lexer.o \
 		$(BUILD_DIR)parser.o $(BUILD_DIR)interpreter.o $(BUILD_DIR)locations.o $(BUILD_DIR)items.o \
 		$(BUILD_DIR)actions.o \
-		$(BUILD_DIR)config_parser_new.o $(BUILD_DIR)instruction.o $(BUILD_DIR)text.o \
+		$(BUILD_DIR)config_parser.o $(BUILD_DIR)instruction.o $(BUILD_DIR)text.o \
 		$(BUILD_DIR)utils.o $(BUILD_DIR)io.o $(CC65_DIR)/lib/c64.lib
 
 io.o: text.o
@@ -31,11 +31,7 @@ error.o: io.o
 	cc65 -O -t c64 --static-locals $(SRC_DIR)error.c $(BUILD_DIR)text.o -o $(BUILD_DIR)error.s
 	ca65 $(BUILD_DIR)error.s -o $(BUILD_DIR)error.o
 
-config_parser_new.o: io.o instruction.o
-	cc65 -O -t c64 --static-locals $(SRC_DIR)config_parser_new.c -o $(BUILD_DIR)config_parser_new.s
-	ca65 $(BUILD_DIR)config_parser_new.s -o $(BUILD_DIR)config_parser_new.o
-
-config_parser.o: io.o instruction.o jsmn.o
+config_parser.o: io.o instruction.o
 	cc65 -O -t c64 --static-locals $(SRC_DIR)config_parser.c -o $(BUILD_DIR)config_parser.s
 	ca65 $(BUILD_DIR)config_parser.s -o $(BUILD_DIR)config_parser.o
 

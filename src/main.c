@@ -15,7 +15,7 @@
 #include "../include/locations.h"
 #include "../include/actions.h"
 #include "../include/items.h"
-#include "../include/config_parser_new.h"
+#include "../include/config_parser.h"
 
 Token* tokenHead = NULL;
 InstructionList* instructions = NULL;
