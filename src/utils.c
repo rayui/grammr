@@ -112,7 +112,7 @@ char toLowerCaseCompare(char *str1, char* str2) {
 }
 
 char *replace_str(char *str, char *orig, char *rep) {
-  static char buffer[128];
+  char buffer[128];
   char *p;
 
   if(!(p = strstr(str, orig)))  // Is 'orig' even in 'str'?

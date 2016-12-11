@@ -204,13 +204,10 @@ void readObjects() {
   while (!feof(fp)) {
     clrscr();
     if (type == OBJECT_ITEM) {
-      printSplash("PARSING ITEM...");
       readItem();
     } else if (type == OBJECT_ACTION) {
-      printSplash("PARSING ACTION...");
       readAction();
     } else if (type == OBJECT_LOCATION) {
-      printSplash("PARSING LOCATION...");
       readLocation();
     }
     type = readOneByte();

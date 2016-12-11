@@ -6,6 +6,7 @@ enum RunState {
   SE_PARSER,
   SE_INTRPRT,
   SE_TERMINAL,
+  SE_DEBUG,
   SE_QUIT
 };
 

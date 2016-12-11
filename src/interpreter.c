@@ -66,16 +66,20 @@ char* intrpt_convert_special_variable(char* arg) {
 void intrpt_set_params(char* arg1, char* arg2) {
   memset(subject, 0, MAX_INST_ARG_SIZE);
   memset(object, 0, MAX_INST_ARG_SIZE);
-  strcpy(subject, arg1);
-  strcpy(object, arg2);
+
+  if (arg1 != NULL)
+    strcpy(subject, arg1);
+
+  if (arg2 != NULL)
+    strcpy(object, arg2);
 }
 
 void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args) {
   Actions* action;
   InstructionList* lastInstruction;
   char *first_comma;
-  static char arg1[MAX_INST_ARG_SIZE];
-  static char arg2[MAX_INST_ARG_SIZE];
+  char arg1[MAX_INST_ARG_SIZE];
+  char arg2[MAX_INST_ARG_SIZE];
 
   action = findActionById(actions, atoi(actionIDStr));
 
@@ -87,25 +91,37 @@ void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args)
 
     if (first_comma) {
       strncpy(arg1, arg2, first_comma - arg2);
-      strcpy(arg2, first_comma + 1);
+      strcpy(arg2, intrpt_convert_special_variable(first_comma + 1));
     } else {
       strcpy(arg1, arg2);
     }
 
     strcpy(arg1, intrpt_convert_special_variable(arg1));
-    strcpy(arg2, intrpt_convert_special_variable(arg2));
 
-    lastInstruction = inst_insert(&instructions, action->instructions, currInstruction, arg1, arg2);
+    lastInstruction = inst_set_params(&instructions, currInstruction, arg1, first_comma ? arg2 : NULL);
+    if (lastInstruction == NULL) {
+      create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, action->name);
+    }
+
+    lastInstruction = inst_insert(&instructions, action->instructions, lastInstruction, arg1, arg2);
     if (lastInstruction == NULL) {
       create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, action->name);
     }
 
     //reset subject and object to current values
-    lastInstruction = inst_insert(&instructions, "SP,$S,$O", lastInstruction, subject, object);
+    //lastInstruction = inst_set_params(&instructions, lastInstruction, subject, object);
     
   } else {
     intrprt_error(ERR_NO_SUCH_ACTION, actionIDStr);
   }  
+}
+
+void intrpt_debug(enum Instruction fn, char* state) {
+  char debug_disabled = toLowerCaseCompare(state, "off");
+  if (debug_disabled) {
+    RUNSTATE = SE_OK;
+  }
+  RUNSTATE = SE_DEBUG;
 }
 
 void intrpt_invalid(enum Instruction fn) {
@@ -168,11 +184,11 @@ void intrpt_setloc(char* arg1) {
 }
 
 void intrpt_additem(char* arg1, char* arg2) {
-  Item* subject = findItemInList(currentLocation->items, arg1);
+  Item* item = findItemInList(currentLocation->items, arg1);
 
-  if (subject != NULL && toLowerCaseCompare(arg2, "$i")) {
-    deleteItemList(&(currentLocation->items), subject);
-    createItemList(&inventory, subject);
+  if (item != NULL && toLowerCaseCompare(arg2, "$i")) {
+    deleteItemList(&(currentLocation->items), item);
+    createItemList(&inventory, item);
   } else if (inventoryHasItem(arg1)) {
     intrprt_error(ERR_ITEM_IN_INVENTORY, arg1);
   } else {
@@ -181,12 +197,12 @@ void intrpt_additem(char* arg1, char* arg2) {
 }
 
 void intrpt_delitem(char* arg1, char* arg2) {
-  Item* subject;
+  Item* item;
 
   if (toLowerCaseCompare(arg2, "$i") && inventoryHasItem(arg1)) {
-    subject = findItemInList(inventory, arg1);
-    deleteItemList(&inventory, subject);
-    createItemList(&(currentLocation->items), subject);
+    item = findItemInList(inventory, arg1);
+    deleteItemList(&inventory, item);
+    createItemList(&(currentLocation->items), item);
   } else {
     intrprt_error(ERR_ITEM_NOT_IN_INVENTORY, arg1);
   }
@@ -298,6 +314,11 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
     arg2 = intrpt_convert_special_variable(arg2);
   }
 
+  if (RUNSTATE == SE_DEBUG) {
+    printInstruction(CLOCK, equalityRegister, fn, subject, object, arg1 != NULL ? arg1 : "NULL", arg2 != NULL ? arg2 : "NULL");
+    cgetc();
+  }
+
   switch (fn) {
     case INST_INVALID:
       intrpt_invalid(fn);
@@ -368,12 +389,13 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
     case INST_ACTION:
       intrpt_action(instructions, arg1, arg2);
       break;
+    case INST_DEBUG:
+      intrpt_debug(instructions, arg1);
+      break;      
     default:
       intrpt_invalid(fn);
   }
-
-  printInstruction(CLOCK, equalityRegister, fn, arg1 ? arg1 : "NULL", arg2 ? arg2 : "NULL");
-
+  
   CLOCK++;
 }
 
@@ -381,7 +403,12 @@ void interpret(InstructionList** instructions, char* output) {
   skip = SKIP_NONE;
   currInstruction = *instructions;
 
-  while (currInstruction != NULL && RUNSTATE == SE_OK) {
+  while (currInstruction != NULL
+    && (
+      RUNSTATE == SE_OK ||
+      RUNSTATE == SE_DEBUG
+    )
+  ) {
     if (skip == SKIP_GOTO &&
       currInstruction->fn == INST_LABEL &&
       toLowerCaseCompare(gotoLabel, currInstruction->arg1))

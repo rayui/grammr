@@ -165,7 +165,8 @@ void parser_action(InstructionList** instructions) {
     return;
   }
 
-  lastInstruction = inst_insert(instructions, action->instructions, lastInstruction, subject, object);  
+  lastInstruction = inst_set_params(instructions, lastInstruction, subject, object);
+  lastInstruction = inst_insert(instructions, action->instructions, lastInstruction, subject, object);
 }
 
 void parser_command(InstructionList** instructions) {

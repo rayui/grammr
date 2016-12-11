@@ -63,6 +63,8 @@ enum Instruction inst_get_instruction_code(char* instructionStr) {
     return INST_NEWLINE;
   } else if (strComp(instruction, "ac")) {
     return INST_ACTION;
+  } else if (strComp(instruction, "db")) {
+    return INST_DEBUG;
   }
 
   return INST_INVALID;
@@ -99,7 +101,7 @@ char* inst_create_arg(char* val) {
 
 InstructionList* inst_create(char* instructionStr) {
   InstructionList* instruction;
-  static char tmpStr[MAX_INST_ARG_SIZE];
+  char tmpStr[MAX_INST_ARG_SIZE];
   char *first_comma = NULL;
   char *second_comma = NULL;
 
@@ -142,19 +144,29 @@ InstructionList* inst_create(char* instructionStr) {
   return instruction;
 }
 
-InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect) {
-  char* instructionStr;
-  static char tmpStr[MAX_INSTRUCTION_LENGTH];
+InstructionList* inst_set_params(InstructionList** instructions, InstructionList* last, char* direct, char* indirect) {
+  char tmpStr[MAX_INSTRUCTION_LENGTH] = {0};
   InstructionList* instruction = NULL;
-  char fnStr[4];
 
   //create an instruction to set special variables $SO and $O here
-  sprintf(tmpStr, "SP,%s,%s", direct, indirect);
+  sprintf(tmpStr, "SP,%s", direct);
+  if (indirect != NULL)
+    sprintf(tmpStr, "%s,%s", tmpStr, indirect);
+
   instruction = inst_create(tmpStr);
   if (instruction != NULL) {
     SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);
     last = instruction;
   }
+
+  return last;
+}
+
+InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect) {
+  char* instructionStr;
+  char tmpStr[MAX_INSTRUCTION_LENGTH];
+  InstructionList* instruction = NULL;
+  char fnStr[4];
 
   strcpy(tmpStr, newInstructions);
   instructionStr = strtok(tmpStr, CON_SPLIT_INSTR_CHAR);
