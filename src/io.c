@@ -74,7 +74,7 @@ void printInstruction(long time, int equality, enum Instruction fn, char* subjec
 	}
 	
 	textcolor(DEBUG_COLOUR);
-  sprintf(debug, "EQ: %d\r\nFN: %03d\r\nSU: %.24s\r\nOB: %.24s\r\nA1: %.24s\r\nA2: %.24s", equality, fn, subject, object, arg1, arg2);
+  sprintf(debug, "EQ: %d\r\nSU: %.24s\r\nOB: %.24s\r\n\r\nFN: %03d\r\nA1: %.24s\r\nA2: %.24s", equality, subject, object, fn, arg1, arg2);
   cputsxy(textPos.x, textPos.y + 2, debug);
 }
 

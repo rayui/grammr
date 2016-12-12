@@ -149,6 +149,11 @@ InstructionList* inst_set_params(InstructionList** instructions, InstructionList
   InstructionList* instruction = NULL;
 
   //create an instruction to set special variables $SO and $O here
+
+  if (direct == NULL) {
+    return last;
+  }
+
   sprintf(tmpStr, "SP,%s", direct);
   if (indirect != NULL)
     sprintf(tmpStr, "%s,%s", tmpStr, indirect);
