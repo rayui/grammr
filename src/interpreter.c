@@ -78,32 +78,44 @@ void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args)
   Actions* action;
   InstructionList* lastInstruction;
   char *first_comma;
-  char arg1[MAX_INST_ARG_SIZE];
-  char arg2[MAX_INST_ARG_SIZE];
+  char *arg1 = NULL;
+  char *arg2 = NULL;
 
+  //find action by first arg (action id)
   action = findActionById(actions, atoi(actionIDStr));
 
+  //if we find an action
   if (action != NULL) {
-    strcpy(arg1, actionIDStr);
-    strcpy(arg2, args);
-    
-    first_comma = strchr(arg2, ',');
+    //args can be NULL, a string, or a string containing a comma
+    //the comma is optional and delimits two potential arguments
 
-    if (first_comma) {
-      strncpy(arg1, arg2, first_comma - arg2);
-      strcpy(arg2, intrpt_convert_special_variable(first_comma + 1));
-    } else {
-      strcpy(arg1, arg2);
+    if (args != NULL) {
+      first_comma = strchr(',', args);
+      if (first_comma) {
+        arg1 = malloc(MAXITEMSTEXTLENGTH);
+        arg2 = malloc(MAXITEMSTEXTLENGTH);
+        strncpy(arg1, args, first_comma - args);
+        strcpy(arg2, intrpt_convert_special_variable(arg1));
+        strcpy(arg2, first_comma + 1);
+      } else if (args) {
+        arg1 = malloc(MAXITEMSTEXTLENGTH);
+        strcpy(arg1, args);
+        strcpy(arg1, intrpt_convert_special_variable(arg1));
+      }
     }
 
-    strcpy(arg1, intrpt_convert_special_variable(arg1));
-
-    lastInstruction = inst_set_params(&instructions, currInstruction, arg1, first_comma ? arg2 : NULL);
+    lastInstruction = inst_set_params(&instructions, currInstruction, arg1, arg2);
     if (lastInstruction == NULL) {
       create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, action->name);
     }
 
-    lastInstruction = inst_insert(&instructions, action->instructions, lastInstruction, arg1, arg2);
+    if (arg1)
+      free(arg1);
+
+    if (arg2)
+      free(arg2);
+
+    lastInstruction = inst_insert(&instructions, action->instructions, lastInstruction);
     if (lastInstruction == NULL) {
       create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, action->name);
     }

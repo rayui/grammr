@@ -17,6 +17,7 @@ static char parser_word_reg[MAXNAMESIZE];
 static char parser_action_reg[MAXNAMESIZE];
 static NameList* parser_name_stack = NULL;
 static NameList* parser_name_stack_tail = NULL;
+static char* subject = NULL;
 Token* currToken;
 InstructionList* lastInstruction;
 
@@ -111,7 +112,6 @@ void parser_error(enum ErrorType error, char* val) {
 }
 
 void parser_item() {
-  parser_accept(TOK_PRONOUN);
   if (parser_accept(TOK_WORD)) {
     while (parser_accept(TOK_WORD)) {}
     parser_add_word_reg_to_name_list();
@@ -120,37 +120,52 @@ void parser_item() {
   }
 }
 
+char* parser_action_object_clause() {
+  if (parser_accept(TOK_CONJUNCTION)) {
+    parser_accept(TOK_ARTICLE);
+    parser_item();
+    if (parser_name_stack_tail != NULL) {
+      strcat(parser_action_reg, " ");
+      strcat(parser_action_reg, parser_name_stack_tail->name);
+      return parser_name_stack_tail->name;
+    }
+  }
+  return NULL;
+}
+
 void parser_action(InstructionList** instructions) {
   Token* token = currToken;
   Actions* action = NULL;
   Item* item = NULL;
-  char* subject = NULL;
   char* object = NULL;
 
   parser_accept(TOK_VERB);
   parser_accept(TOK_PREPOSITION);
 
-  if (parser_peek(TOK_WORD) || parser_peek(TOK_PRONOUN)) {
+  if (parser_peek(TOK_WORD) || parser_accept(TOK_ARTICLE)) {
     parser_item();
-    if (parser_accept(TOK_CONJUNCTION)) {
-      parser_item();
+    if (parser_name_stack != NULL) {
+      if (subject != NULL) {
+        free(subject);
+      }
+      subject = malloc(strlen(parser_name_stack->name) + 1);
+      strcpy(subject, parser_name_stack->name);
+      object = parser_action_object_clause();
     }
+  } else if (parser_accept(TOK_PRONOUN)) {
+    if (subject == NULL) {
+      parser_error(ERR_ITEM_NOT_FOUND, "it");
+      return;
+    }
+    object = parser_action_object_clause();
   }
 
-  subject = parser_name_stack ? parser_name_stack->name : NULL;
-
-  if (subject) {
-    object = parser_name_stack->next ? parser_name_stack->next->name : NULL;
+  if (subject != NULL) {
     item = findItemByName(subject);
     if (item != NULL) {
-      if (object) {
-        strcat(parser_action_reg, " ");
-        strcat(parser_action_reg, object);
-      }
       action = findActionByNameAndItem(actions, item, parser_action_reg);
       if (action == NULL)
         action = findDefaultActionByName(actions, parser_action_reg);
-      
     } else if (findLocationByName(subject)) {
       action = findDefaultActionByName(actions, parser_action_reg);
     } else {
@@ -166,7 +181,7 @@ void parser_action(InstructionList** instructions) {
   }
 
   lastInstruction = inst_set_params(instructions, lastInstruction, subject, object);
-  lastInstruction = inst_insert(instructions, action->instructions, lastInstruction, subject, object);
+  lastInstruction = inst_insert(instructions, action->instructions, lastInstruction);
 }
 
 void parser_command(InstructionList** instructions) {
@@ -204,7 +219,6 @@ void parser_eol() {
 void parse(Token** tokenHead, InstructionList** instructions) {
   currToken = *tokenHead;
   lastInstruction = *instructions;
-
   parser_counter = 0;
 
   while(currToken != NULL && RUNSTATE == SE_OK) {

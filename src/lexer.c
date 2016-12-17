@@ -35,6 +35,13 @@ char isPreposition(char* val) {
 }
 
 char isPronoun(char* val) {
+  if (strComp(val, "it")) {
+    return 1;
+  }
+  return 0;
+}
+
+char isArticle(char* val) {
   if (strComp(val, "the")) {
     return 1;
   }
@@ -72,6 +79,8 @@ enum TokenType tokenTypeFromValue(char* val) {
     return TOK_CONJUNCTION;
   } else if (isPronoun(val)) {
     return TOK_PRONOUN;
+  } else if (isArticle(val)) {
+    return TOK_ARTICLE;
   } else if (isPreposition(val)) {
     return TOK_PREPOSITION;
   } else if (isComplex(val)) {

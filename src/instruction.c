@@ -167,7 +167,7 @@ InstructionList* inst_set_params(InstructionList** instructions, InstructionList
   return last;
 }
 
-InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last, char* direct, char* indirect) {
+InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last) {
   char* instructionStr;
   char tmpStr[MAX_INSTRUCTION_LENGTH];
   InstructionList* instruction = NULL;
