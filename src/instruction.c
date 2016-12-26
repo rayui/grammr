@@ -144,17 +144,16 @@ InstructionList* inst_create(char* instructionStr) {
   return instruction;
 }
 
-InstructionList* inst_set_params(InstructionList** instructions, InstructionList* last, char* direct, char* indirect) {
+InstructionList* inst_set_params(InstructionList* last, char* direct, char* indirect) {
   char tmpStr[MAX_INSTRUCTION_LENGTH] = {0};
   InstructionList* instruction = NULL;
 
   //create an instruction to set special variables $SO and $O here
 
-  if (direct == NULL) {
-    return last;
-  }
+  sprintf(tmpStr, "SP");
 
-  sprintf(tmpStr, "SP,%s", direct);
+  if (direct != NULL)
+    sprintf(tmpStr, "%s,%s", tmpStr, direct);
   if (indirect != NULL)
     sprintf(tmpStr, "%s,%s", tmpStr, indirect);
 

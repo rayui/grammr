@@ -32,6 +32,6 @@ void acceptInput(char** input);
 void printPrompt(char* input);
 void printStatus(char* input);
 void printOutput(char* output);
-void printInstruction(long time, int equality, enum Instruction fn, char* subject, char* object, char *arg1, char *arg2);
+void printInstruction(long time, int equality, enum Instruction fn, char* location, char* subject, char* object, char *arg1, char *arg2);
 
 #endif

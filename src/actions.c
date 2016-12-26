@@ -6,6 +6,15 @@
 #include "../include/items.h"
 #include "../include/actions.h"
 
+char _getArity(Actions* action) {
+  if (toLowerCaseContains(action->instructions, "$o")) {
+    return 2;
+  } else if (toLowerCaseContains(action->instructions, "$s") || !(action->isDefault)) {
+    return 1;
+  }
+  return 0;
+}
+
 Actions* createAction(char id, char* name, char isDefault, char* instructions) {
   Actions* action = malloc(sizeof(struct Actions));
   if (action == NULL) {
@@ -43,19 +52,20 @@ Actions* findActionById(Actions* actions, char id) {
   return NULL;
 }
 
-Actions* findDefaultActionByName(Actions* actions, char* name) {
+Actions* findDefaultAction(Actions* actions, char* name, char numArgs) {
   SGLIB_LIST_MAP_ON_ELEMENTS(Actions, actions, action, next, {
-    if (strComp(action->name, name) && action->isDefault) {
-      return action;
+    if (strComp(action->name, name) && action->isDefault && numArgs >= _getArity(action)) {
+      if (numArgs == _getArity(action)) {
+        return action;
+      }
     }
   });
 
   return NULL;
 }
 
-Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name) {
+Actions* findActionByNameAndItem(Actions* actions, char* actionsArray, char* name) {
   char i = 0;
-  char* actionsArray = item->actions;
   char actionName[MAX_ACTION_SIZE] = {0};
   Actions* action;
 
@@ -63,9 +73,27 @@ Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name
     return NULL;
 
   for (i = 1; i <= actionsArray[0]; i++) {
-    if (actionsArray[i] > 0) {
-      action = findActionById(actions, actionsArray[i]);
-      if (toLowerCaseCompare(action->name, name)) {
+    action = findActionById(actions, actionsArray[i]);
+    if (toLowerCaseCompare(action->name, name)) {
+      return action;
+    }
+  }
+
+  return NULL;
+}
+
+Actions* findItemAction(Actions* actions, char* actionsArray, char* name, char numArgs) {
+  char i = 0;
+  char actionName[MAX_ACTION_SIZE] = {0};
+  Actions* action;
+
+  if (actionsArray == NULL)
+    return NULL;
+
+  for (i = 1; i <= actionsArray[0]; i++) {
+    action = findActionById(actions, actionsArray[i]);
+    if (toLowerCaseCompare(action->name, name)) {
+      if (numArgs == _getArity(action)) {
         return action;
       }
     }
@@ -73,6 +101,8 @@ Actions* findActionByNameAndItem(Actions* actions, struct Item* item, char* name
 
   return NULL;
 }
+
+
 
 void getAllActionNamesForItem(Actions* actions, Item* item, char* actionNames) {
   char i = 0;
@@ -82,14 +112,12 @@ void getAllActionNamesForItem(Actions* actions, Item* item, char* actionNames) {
     return;
   
   for (i = 1; i <= item->actions[0]; i++) {
-    if (item->actions[i] > 0) {
-      action = findActionById(actions, item->actions[i]);
-      if (action != NULL) {
-        if (i > 0) {
-          strcat(actionNames, ", ");
-        }
-        strcat(actionNames, action->name);
+    action = findActionById(actions, item->actions[i]);
+    if (action != NULL) {
+      if (i > 0) {
+        strcat(actionNames, ", ");
       }
+      strcat(actionNames, action->name);
     }
   }
 

@@ -31,6 +31,18 @@ void intrprt_error(enum ErrorType error, char* val) {
   create_error(SE_INTRPRT, error, val);
 }
 
+char intrpt_in_context(char* name) {
+  if (
+      inventoryHasItem(name) ||
+      findItemInList(currentLocation->items, name) ||
+      locationHasExit(currentLocation->name, name) ||
+      toLowerCaseCompare(name, currentLocation->name)
+  ) {
+    return 1;
+  }
+  return 0;
+}
+
 Item* intrpt_item_in_context(char* name) {
   if (
       inventoryHasItem(name) ||
@@ -67,11 +79,13 @@ void intrpt_set_params(char* arg1, char* arg2) {
   memset(subject, 0, MAX_INST_ARG_SIZE);
   memset(object, 0, MAX_INST_ARG_SIZE);
 
-  if (arg1 != NULL)
+  if (arg1 != NULL) {
     strcpy(subject, arg1);
+  }
 
-  if (arg2 != NULL)
+  if (arg2 != NULL) {
     strcpy(object, arg2);
+  }
 }
 
 void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args) {
@@ -95,16 +109,14 @@ void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args)
         arg1 = malloc(MAXITEMSTEXTLENGTH);
         arg2 = malloc(MAXITEMSTEXTLENGTH);
         strncpy(arg1, args, first_comma - args);
-        strcpy(arg2, intrpt_convert_special_variable(arg1));
         strcpy(arg2, first_comma + 1);
       } else if (args) {
         arg1 = malloc(MAXITEMSTEXTLENGTH);
         strcpy(arg1, args);
-        strcpy(arg1, intrpt_convert_special_variable(arg1));
       }
     }
 
-    lastInstruction = inst_set_params(&instructions, currInstruction, arg1, arg2);
+    lastInstruction = inst_set_params(currInstruction, arg1, arg2);
     if (lastInstruction == NULL) {
       create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, action->name);
     }
@@ -121,7 +133,7 @@ void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args)
     }
 
     //reset subject and object to current values
-    //lastInstruction = inst_set_params(&instructions, lastInstruction, subject, object);
+    lastInstruction = inst_set_params(lastInstruction, subject, object);
     
   } else {
     intrprt_error(ERR_NO_SUCH_ACTION, actionIDStr);
@@ -167,12 +179,7 @@ void intrpt_inventoryhasitem(char* arg1) {
 }
 
 void intrprt_itemincontext(char* arg1) {
-  Item* item = intrpt_item_in_context(arg1);
-  if (item) {
-    equalityRegister = 1;
-  } else {
-    equalityRegister = 0;
-  }
+  equalityRegister = intrpt_in_context(arg1);
 }
 
 void intrpt_hasexit(char* arg1, char* arg2) {
@@ -243,18 +250,21 @@ void intrpt_label(void) {
 }
 
 void intrpt_print(char* output, char* arg1) {
-  char* tmpStr;
+  char* tmpStr = malloc(MAXCOMMANDSIZE);
+  strcpy(tmpStr, arg1);
 
   if (arg1 != NULL) {
     if (subject)
-      tmpStr = replace_str(arg1, "$S", subject);
+      replace_str(tmpStr, "$S", subject);
     if (object) {
-      tmpStr = replace_str(tmpStr, "$O", object);
+      replace_str(tmpStr, "$O", object);
     }
-    tmpStr = replace_str(tmpStr, "$L", currentLocation->name);
+    replace_str(tmpStr, "$L", currentLocation->name);
   }
 
   sprintf(output, "%s%s", output, tmpStr);
+
+  free(tmpStr);
 }
 
 void intrpt_printdesc(char* output, char* arg1) {
@@ -327,7 +337,7 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
   }
 
   if (RUNSTATE == SE_DEBUG) {
-    printInstruction(CLOCK, equalityRegister, fn, subject, object, arg1 != NULL ? arg1 : "NULL", arg2 != NULL ? arg2 : "NULL");
+    printInstruction(CLOCK, equalityRegister, fn, currentLocation->name, subject, object, arg1 != NULL ? arg1 : "NULL", arg2 != NULL ? arg2 : "NULL");
     cgetc();
   }
 
@@ -434,4 +444,6 @@ void interpret(InstructionList** instructions, char* output) {
 
     currInstruction = currInstruction->next;
   }
+
+  *instructions = currInstruction;
 }

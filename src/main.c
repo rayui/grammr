@@ -61,8 +61,6 @@ int main() {
 
   parseConfigFile("data.pet");
 
-  clrscr();
-
   if (RUNSTATE == SE_OK) {
     currentLocation = locations;
 

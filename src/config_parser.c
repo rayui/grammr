@@ -28,9 +28,21 @@ char readOneByte(void) {
   return fgetc(fp);
 }
 
-char readNBytes(char* str, char n) {
+long readTwoBytes(void) {
+  char bytes[2] = {0};
+  long doubleByte = 0;
+
+  bytes[0] = readOneByte();
+  bytes[1] = readOneByte();
+
+  doubleByte = bytes[0] * 256 + bytes[1];
+
+  return doubleByte;
+}
+
+long readNBytes(char* str, long n) {
   char lastByte;
-  char i;
+  long i;
 
   if (str == NULL) {
     con_error(ERR_OUT_OF_MEMORY);
@@ -81,7 +93,7 @@ void readItem() {
 }
 
 void readAction() {
-  char byteLen;
+  long byteLen;
   char id;
   char* name;
   char isDefault;
@@ -97,7 +109,7 @@ void readAction() {
 
   isDefault = readOneByte();
 
-  byteLen = readOneByte();
+  byteLen = readTwoBytes();
   instructions = malloc(byteLen + 1);
   readNBytes(instructions, byteLen);
   instructions[byteLen] = 0;
@@ -138,7 +150,6 @@ void createLocationExitList(Location* location, char* exits) {
 }
 
 void readLocation() {
-  char i;
   char byteLen;
   char id;
   char* name;
@@ -146,7 +157,6 @@ void readLocation() {
   char* exits;
   char* items;
   Location* location = NULL;
-  ItemList* locationItems;
 
   id = readOneByte();
   location = findLocationById(id);

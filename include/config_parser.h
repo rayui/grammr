@@ -10,7 +10,7 @@
 
 void parseConfigFile(char* filename);
 char readOneByte(void);
-char readNBytes(char* str, char n);
+long readNBytes(char* str, long n);
 void readItem(void);  
 void readAction(void);
 void readLocation(void);

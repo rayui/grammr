@@ -62,7 +62,7 @@ void printOutput(char* output) {
 	cprintf(output);
 }
 
-void printInstruction(long time, int equality, enum Instruction fn, char* subject, char* object, char *arg1, char *arg2) {
+void printInstruction(long time, int equality, enum Instruction fn, char* location, char* subject, char* object, char *arg1, char *arg2) {
 	char debug[128] = {0};
 	char i = 6;
 
@@ -74,7 +74,7 @@ void printInstruction(long time, int equality, enum Instruction fn, char* subjec
 	}
 	
 	textcolor(DEBUG_COLOUR);
-  sprintf(debug, "EQ: %d\r\nSU: %.24s\r\nOB: %.24s\r\n\r\nFN: %03d\r\nA1: %.24s\r\nA2: %.24s", equality, subject, object, fn, arg1, arg2);
+  sprintf(debug, "EQ: %d\r\nLN: %.24s\r\nSU: %.24s\r\nOB: %.24s\r\n\r\nFN: %03d\r\nA1: %.24s\r\nA2: %.24s", equality, location, subject ? subject : "NULL", object ? object : "NULL", fn, arg1, arg2);
   cputsxy(textPos.x, textPos.y + 2, debug);
 }
 

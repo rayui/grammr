@@ -67,10 +67,11 @@ void parser_add_word_reg_to_name_list() {
   strcpy(newName->name, parser_word_reg);
 
   SGLIB_LIST_ADD_AFTER(struct NameList, parser_name_stack_tail, newName, next);
+  parser_name_stack_tail = newName;
+
   if (parser_name_stack == NULL) {
     parser_name_stack = parser_name_stack_tail;
   }
-  parser_name_stack_tail = newName;
 
   parser_empty_word_reg();
 }
@@ -125,8 +126,6 @@ char* parser_action_object_clause() {
     parser_accept(TOK_ARTICLE);
     parser_item();
     if (parser_name_stack_tail != NULL) {
-      strcat(parser_action_reg, " ");
-      strcat(parser_action_reg, parser_name_stack_tail->name);
       return parser_name_stack_tail->name;
     }
   }
@@ -138,6 +137,7 @@ void parser_action(InstructionList** instructions) {
   Actions* action = NULL;
   Item* item = NULL;
   char* object = NULL;
+  char numArgs = 0;
 
   parser_accept(TOK_VERB);
   parser_accept(TOK_PREPOSITION);
@@ -158,29 +158,44 @@ void parser_action(InstructionList** instructions) {
       return;
     }
     object = parser_action_object_clause();
+  } else {
+    if (subject != NULL) {
+      free(subject);
+      subject = NULL;
+    }
   }
 
-  if (subject != NULL) {
+  if (subject) {
+    numArgs = 1;
+    
+    if (object) {
+      numArgs = 2;
+      if (findItemByName(object) == NULL && findLocationByName(object) == NULL) {
+        parser_error(ERR_ITEM_NOT_FOUND, object);
+        return;
+      }
+    }
+
     item = findItemByName(subject);
-    if (item != NULL) {
-      action = findActionByNameAndItem(actions, item, parser_action_reg);
-      if (action == NULL)
-        action = findDefaultActionByName(actions, parser_action_reg);
+
+    if (item) {
+      action = findItemAction(actions, item->actions, parser_action_reg, numArgs);
     } else if (findLocationByName(subject)) {
-      action = findDefaultActionByName(actions, parser_action_reg);
+      action = findDefaultAction(actions, parser_action_reg, numArgs);
     } else {
       parser_error(ERR_ITEM_NOT_FOUND, subject);
     }
-  } else {
-    action = findDefaultActionByName(actions, parser_action_reg);
   }
-
+ 
   if (action == NULL) {
-    parser_error(ERR_NO_SUCH_ACTION, parser_action_reg);
-    return;
+    action = findDefaultAction(actions, parser_action_reg, numArgs);
+    if (action == NULL) {
+      parser_error(ERR_NO_SUCH_ACTION, parser_action_reg);
+      return;
+    }
   }
 
-  lastInstruction = inst_set_params(instructions, lastInstruction, subject, object);
+  lastInstruction = inst_set_params(lastInstruction, subject, object);
   lastInstruction = inst_insert(instructions, action->instructions, lastInstruction);
 }
 

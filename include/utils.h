@@ -14,7 +14,7 @@ void toC64Case(char* str);
 void toLowerCase(char* str);
 char toLowerCaseContains(char *str1, char* str2);
 char toLowerCaseCompare(char *str1, char* str2);
-char *replace_str(char *str, char *orig, char *rep);
+void replace_str(char * o_string, char * s_string, char * r_string);
 int numItemsInCharArray(size_t arraySize);
 int isStringNumeric(char* val);
 int isStringAlpha(char *s);
