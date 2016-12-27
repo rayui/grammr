@@ -9,6 +9,7 @@
 #include "../include/locations.h"
 #include "../include/actions.h"
 #include "../include/instruction.h"
+#include "../include/interpreter.h"
 #include "../include/lexer.h"
 #include "../include/parser.h"
 
@@ -19,7 +20,6 @@ static NameList* parser_name_stack = NULL;
 static NameList* parser_name_stack_tail = NULL;
 static char* subject = NULL;
 Token* currToken;
-InstructionList* lastInstruction;
 
 extern Location* currentLocation;
 extern Item* items;
@@ -132,12 +132,13 @@ char* parser_action_object_clause() {
   return NULL;
 }
 
-void parser_action(InstructionList** instructions) {
+void parser_action(char* output) {
   Token* token = currToken;
   Actions* action = NULL;
   Item* item = NULL;
   char* object = NULL;
   char numArgs = 0;
+  InstructionList* instructions = NULL;
 
   parser_accept(TOK_VERB);
   parser_accept(TOK_PREPOSITION);
@@ -166,27 +167,27 @@ void parser_action(InstructionList** instructions) {
   }
 
   if (subject) {
-    numArgs = 1;
-    
-    if (object) {
-      numArgs = 2;
-      if (findItemByName(object) == NULL && findLocationByName(object) == NULL) {
-        parser_error(ERR_ITEM_NOT_FOUND, object);
-        return;
+    if (intrpt_in_context(subject)) {
+      numArgs = 1;
+      if (object) {
+        if (intrpt_in_context(object)) {
+          numArgs = 2;
+        } else {
+          parser_error(ERR_ITEM_NOT_FOUND, object);
+          return;
+        }
       }
-    }
-
-    item = findItemByName(subject);
-
-    if (item) {
-      action = findItemAction(actions, item->actions, parser_action_reg, numArgs);
-    } else if (findLocationByName(subject)) {
-      action = findDefaultAction(actions, parser_action_reg, numArgs);
     } else {
       parser_error(ERR_ITEM_NOT_FOUND, subject);
+      return;
     }
   }
- 
+
+  if (numArgs > 0) {
+    item = findItemByName(subject);
+    action = findItemAction(actions, item->actions, parser_action_reg, numArgs);
+  }
+     
   if (action == NULL) {
     action = findDefaultAction(actions, parser_action_reg, numArgs);
     if (action == NULL) {
@@ -195,15 +196,18 @@ void parser_action(InstructionList** instructions) {
     }
   }
 
-  lastInstruction = inst_set_params(lastInstruction, subject, object);
-  lastInstruction = inst_insert(instructions, action->instructions, lastInstruction);
+  instructions = inst_set_params(NULL, subject, object);
+  inst_insert(action->instructions, instructions);
+
+  interpret(instructions, output);
+  free_instructions(instructions);
 }
 
-void parser_command(InstructionList** instructions) {
+void parser_command(char* output) {
   parser_empty_name_list();
 
   if (parser_peek(TOK_VERB)) {
-    parser_action(instructions);
+    parser_action(output);
   } else if (parser_accept(TOK_QUIT)) {
     parser_quit();
   } else {
@@ -211,13 +215,13 @@ void parser_command(InstructionList** instructions) {
   }
 }
 
-void parser_commands(InstructionList** instructions) {
-  parser_command(instructions);
+void parser_commands(char* output) {
+  parser_command(output);
 
   if (parser_accept(TOK_EOL)) {
     parser_eol();
   } else if (parser_accept(TOK_COMPLEX)) {
-    parser_commands(instructions);
+    parser_commands(output);
   } else {
     parser_error(ERR_END_OF_COMMAND_EXPECTED, currToken->val);
   }
@@ -231,12 +235,11 @@ void parser_eol() {
   return;
 }
 
-void parse(Token** tokenHead, InstructionList** instructions) {
+void parse(Token** tokenHead, char* output) {
   currToken = *tokenHead;
-  lastInstruction = *instructions;
   parser_counter = 0;
 
   while(currToken != NULL && RUNSTATE == SE_OK) {
-    parser_commands(instructions);
+    parser_commands(output);
   }
 }

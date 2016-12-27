@@ -88,7 +88,7 @@ void intrpt_set_params(char* arg1, char* arg2) {
   }
 }
 
-void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args) {
+void intrpt_action(char* actionIDStr, char* args) {
   Actions* action;
   InstructionList* lastInstruction;
   char *first_comma;
@@ -127,7 +127,7 @@ void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args)
     if (arg2)
       free(arg2);
 
-    lastInstruction = inst_insert(&instructions, action->instructions, lastInstruction);
+    lastInstruction = inst_insert(action->instructions, lastInstruction);
     if (lastInstruction == NULL) {
       create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, action->name);
     }
@@ -140,7 +140,7 @@ void intrpt_action(InstructionList* instructions, char* actionIDStr, char* args)
   }  
 }
 
-void intrpt_debug(enum Instruction fn, char* state) {
+void intrpt_debug(char* state) {
   char debug_disabled = toLowerCaseCompare(state, "off");
   if (debug_disabled) {
     RUNSTATE = SE_OK;
@@ -326,7 +326,7 @@ void intrpt_newline(char* output) {
   sprintf(output, "%s\r\n", output);
 }
 
-void intrpt_instruction(char* output, InstructionList* instructions, InstructionList* instruction) {
+void intrpt_instruction(char* output, InstructionList* instruction) {
   enum Instruction fn = instruction->fn;
   char* arg1 = instruction->arg1;
   char* arg2 = instruction->arg2;
@@ -409,10 +409,10 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
       intrpt_newline(output);
       break;
     case INST_ACTION:
-      intrpt_action(instructions, arg1, arg2);
+      intrpt_action(arg1, arg2);
       break;
     case INST_DEBUG:
-      intrpt_debug(instructions, arg1);
+      intrpt_debug(arg1);
       break;      
     default:
       intrpt_invalid(fn);
@@ -421,9 +421,9 @@ void intrpt_instruction(char* output, InstructionList* instructions, Instruction
   CLOCK++;
 }
 
-void interpret(InstructionList** instructions, char* output) {
+void interpret(InstructionList* instructions, char* output) {
   skip = SKIP_NONE;
-  currInstruction = *instructions;
+  currInstruction = instructions;
 
   while (currInstruction != NULL
     && (
@@ -439,11 +439,9 @@ void interpret(InstructionList** instructions, char* output) {
     } else if (skip == SKIP_ONE) {
       skip = SKIP_NONE;
     } else if (skip == SKIP_NONE) {
-      intrpt_instruction(output, *instructions, currInstruction);
+      intrpt_instruction(output, currInstruction);
     }
 
     currInstruction = currInstruction->next;
   }
-
-  *instructions = currInstruction;
 }

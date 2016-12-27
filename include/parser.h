@@ -27,12 +27,12 @@ int parser_accept(enum TokenType type);
 void parser_error(enum ErrorType error, char* val);
 
 void parser_item(void);
-void parser_action(InstructionList** instructions);
+void parser_action(char* output);
 
-void parser_command(InstructionList** instructions);
-void parser_commands(InstructionList** instructions);
+void parser_command(char* output);
+void parser_commands(char* output);
 
 void parser_quit(void);
 void parser_eol(void);
 
-void parse(Token** tokens, InstructionList** instructions);
+void parse(Token** tokens, char* output);

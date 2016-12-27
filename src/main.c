@@ -18,7 +18,6 @@
 #include "../include/config_parser.h"
 
 Token* tokenHead = NULL;
-InstructionList* instructions = NULL;
 ErrorList* errorList = NULL;
 Actions* actions = NULL;
 Item* items = NULL;
@@ -68,7 +67,6 @@ int main() {
       memset(input, 0, COMMAND_SIZE);
       output[0] = 0;
       tokenHead = NULL;
-      instructions = NULL;
       RUNSTATE = SE_OK;
 
       drawHUD();
@@ -80,12 +78,7 @@ int main() {
 
       if(RUNSTATE == SE_OK) {
         printStatus("PARSING.");
-        parse(&tokenHead, &instructions);
-        if(RUNSTATE == SE_OK) {
-          printStatus("INTERPRETING.");
-          interpret(&instructions, output);
-        }
-        free_instructions(instructions);
+        parse(&tokenHead, output);
       }
 
       free_tokens(&tokenHead);

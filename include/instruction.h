@@ -41,4 +41,4 @@ enum Instruction inst_get_instruction_code(char* instruction);
 void free_instructions(InstructionList* instructions);
 InstructionList* inst_set_params(InstructionList* last, char* direct, char* indirect);
 InstructionList* inst_create(char* instructionStr);
-InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last);
+InstructionList* inst_insert(char* newInstructions, InstructionList* last);

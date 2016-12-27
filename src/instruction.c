@@ -166,7 +166,7 @@ InstructionList* inst_set_params(InstructionList* last, char* direct, char* indi
   return last;
 }
 
-InstructionList* inst_insert(InstructionList** instructions, char* newInstructions, InstructionList* last) {
+InstructionList* inst_insert(char* newInstructions, InstructionList* last) {
   char* instructionStr;
   char tmpStr[MAX_INSTRUCTION_LENGTH];
   InstructionList* instruction = NULL;
@@ -183,9 +183,6 @@ InstructionList* inst_insert(InstructionList** instructions, char* newInstructio
       return NULL;
     }
     SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);
-    if (*instructions == NULL) {
-      *instructions = last;
-    }
     last = instruction;
     instructionStr = strtok(NULL, CON_SPLIT_INSTR_CHAR);
   }

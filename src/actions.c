@@ -64,23 +64,6 @@ Actions* findDefaultAction(Actions* actions, char* name, char numArgs) {
   return NULL;
 }
 
-Actions* findActionByNameAndItem(Actions* actions, char* actionsArray, char* name) {
-  char i = 0;
-  char actionName[MAX_ACTION_SIZE] = {0};
-  Actions* action;
-
-  if (actionsArray == NULL)
-    return NULL;
-
-  for (i = 1; i <= actionsArray[0]; i++) {
-    action = findActionById(actions, actionsArray[i]);
-    if (toLowerCaseCompare(action->name, name)) {
-      return action;
-    }
-  }
-
-  return NULL;
-}
 
 Actions* findItemAction(Actions* actions, char* actionsArray, char* name, char numArgs) {
   char i = 0;
@@ -101,8 +84,6 @@ Actions* findItemAction(Actions* actions, char* actionsArray, char* name, char n
 
   return NULL;
 }
-
-
 
 void getAllActionNamesForItem(Actions* actions, Item* item, char* actionNames) {
   char i = 0;
