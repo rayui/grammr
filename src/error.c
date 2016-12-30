@@ -76,7 +76,7 @@ void print_errors(char* input, char* output) {
     print_error(output, mappedError->error, mappedError->val);
   });
 
-  sprintf(output, "%s\r\nYou wrote: %s\r\n", output, input);
+  sprintf(output, "%s\r\n\r\nYou wrote: %s\r\n", output, input);
 }
 
 void free_errors() {

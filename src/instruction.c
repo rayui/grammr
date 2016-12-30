@@ -152,11 +152,12 @@ InstructionList* inst_set_params(InstructionList* last, char* direct, char* indi
 
   sprintf(tmpStr, "SP");
 
-  if (direct != NULL)
+  if (direct != NULL) {
     sprintf(tmpStr, "%s,%s", tmpStr, direct);
-  if (indirect != NULL)
-    sprintf(tmpStr, "%s,%s", tmpStr, indirect);
-
+    if (indirect != NULL)
+      sprintf(tmpStr, "%s,%s", tmpStr, indirect);
+  }
+  
   instruction = inst_create(tmpStr);
   if (instruction != NULL) {
     SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);
@@ -177,14 +178,13 @@ InstructionList* inst_insert(char* newInstructions, InstructionList* last) {
 
   while(instructionStr != NULL) {
     instruction = inst_create(instructionStr);
-    if (instruction == NULL) {
-      sprintf(fnStr, "%s", instruction->fn);
-      create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, fnStr);
-      return NULL;
+    if (instruction != NULL) {
+      SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);
+      last = instruction;
+      instructionStr = strtok(NULL, CON_SPLIT_INSTR_CHAR);
+    } else {
+      return last;
     }
-    SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);
-    last = instruction;
-    instructionStr = strtok(NULL, CON_SPLIT_INSTR_CHAR);
   }
 
   return last;

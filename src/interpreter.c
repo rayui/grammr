@@ -117,23 +117,16 @@ void intrpt_action(char* actionIDStr, char* args) {
     }
 
     lastInstruction = inst_set_params(currInstruction, arg1, arg2);
-    if (lastInstruction == NULL) {
-      create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, action->name);
-    }
+    if (lastInstruction)
+      lastInstruction = inst_insert(action->instructions, lastInstruction);
+    if (lastInstruction)
+      lastInstruction = inst_set_params(lastInstruction, subject, object);
 
     if (arg1)
       free(arg1);
 
     if (arg2)
       free(arg2);
-
-    lastInstruction = inst_insert(action->instructions, lastInstruction);
-    if (lastInstruction == NULL) {
-      create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, action->name);
-    }
-
-    //reset subject and object to current values
-    lastInstruction = inst_set_params(lastInstruction, subject, object);
     
   } else {
     intrprt_error(ERR_NO_SUCH_ACTION, actionIDStr);
@@ -272,9 +265,9 @@ void intrpt_printdesc(char* output, char* arg1) {
   Location* loc = intrpt_location_in_context(arg1);
 
   if (item) {
-    sprintf(output, "%s\r\n%s", output, item->description);
+    sprintf(output, "%s\r\n%s\r\n", output, item->description);
   } else if (loc) {
-    sprintf(output, "%s\r\n%s", output, loc->description);  
+    sprintf(output, "%s\r\n%s\r\n", output, loc->description);  
   } else {
     intrprt_error(ERR_ITEM_NOT_FOUND, arg1);
   }
