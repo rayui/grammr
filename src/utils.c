@@ -5,31 +5,6 @@
 #include "../include/utils.h"
 #include "../include/lexer.h"
 
-/* Function realloc_it() is a wrapper function for standart realloc()
- * with one difference - it frees old memory pointer in case of realloc
- * failure. Thus, DO NOT use old data pointer in anyway after call to
- * realloc_it(). If your code has some kind of fallback algorithm if
- * memory can't be re-allocated - use standart realloc() instead.
- */
-
-//stolen from https://github.com/zserge/jsmn/blob/master/example/jsondump.c
-
-char* getNextCharBeforeLimit(char* haystack, char needle, int limit) {
-  char buf[64] = {'\0'};
-
-  strncpy(buf, haystack, limit);
-
-  return strrchr(buf, needle);
-}
-
-void *realloc_it(void *ptrmem, size_t size) {
-  void *p = realloc(ptrmem, size);
-  if (!p)  {
-    free (ptrmem);
-  }
-  return p;
-}
-
 //normalise string to high char c64 symbols
 //make sure to copy original string to new memory location first if required
 void toC64Case(char* str) {
@@ -133,29 +108,29 @@ char toLowerCaseCompare(char *str1, char* str2) {
  * @return void The o_string passed is modified
  */
 void replace_str(char * o_string, char * s_string, char * r_string) {
-      //a buffer variable to do all replace things
-      char buffer[MAXCOMMANDSIZE];
-      //to store the pointer returned from strstr
-      char * ch;
- 
-      //first exit condition
-      if(!(ch = strstr(o_string, s_string)))
-              return;
- 
-      //copy all the content to buffer before the first occurrence of the search string
-      strncpy(buffer, o_string, ch-o_string);
- 
-      //prepare the buffer for appending by adding a null to the end of it
-      buffer[ch-o_string] = 0;
- 
-      //append using sprintf function
-      sprintf(buffer+(ch - o_string), "%s%s", r_string, ch + strlen(s_string));
- 
-      //empty o_string for copying
-      o_string[0] = 0;
-      strcpy(o_string, buffer);
-      //pass recursively to replace other occurrences
-      replace_str(o_string, s_string, r_string);
+  //a buffer variable to do all replace things
+  char buffer[MAXCOMMANDSIZE];
+  //to store the pointer returned from strstr
+  char * ch;
+
+  //first exit condition
+  if(!(ch = strstr(o_string, s_string)))
+          return;
+
+  //copy all the content to buffer before the first occurrence of the search string
+  strncpy(buffer, o_string, ch-o_string);
+
+  //prepare the buffer for appending by adding a null to the end of it
+  buffer[ch-o_string] = 0;
+
+  //append using sprintf function
+  sprintf(buffer+(ch - o_string), "%s%s", r_string, ch + strlen(s_string));
+
+  //empty o_string for copying
+  o_string[0] = 0;
+  strcpy(o_string, buffer);
+  //pass recursively to replace other occurrences
+  replace_str(o_string, s_string, r_string);
  }
 
 int numItemsInCharArray(size_t arraySize) {

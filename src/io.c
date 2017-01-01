@@ -16,6 +16,12 @@ const Coords textPos = {0, 8};
 const Coords statusPos = {0, 2};
 const Coords itemsPos = {0, 2};
 const Coords exitsPos = {0, 5};
+const Coords spinnerPos = {39, 2};
+const char spinner[4] = {0xBE, 0xBC, 0xAC, 0xBB};
+
+void printSpinner(char spin) {
+	cputcxy(spinnerPos.x, spinnerPos.y, spinner[spin]);
+}
 
 void printClock(long time) {
 	char buf[9] = {0};
@@ -31,8 +37,10 @@ void printLocation(char* input) {
 }
 
 void printSplash(char* input) {
+	char buf[40] = {0};
+	sprintf(buf, "%-40s", input);
 	textcolor(SPLASH_COLOUR);
-	cputsxy(statusPos.x, statusPos.y, input);
+	cputsxy(statusPos.x, statusPos.y, buf);
 }
 
 void printStatus(char* input) {

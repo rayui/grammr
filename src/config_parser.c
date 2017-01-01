@@ -16,6 +16,7 @@ extern Item* items;
 extern Location* locations;
 extern Actions* actions;
 extern enum RunState RUNSTATE;
+static char bytes = 0;
 
 Location* locationsTail;
 Actions* actionsTail;
@@ -25,6 +26,8 @@ void con_error(enum ErrorType error) {
 }
 
 char readOneByte(void) {
+  bytes++;
+  printSpinner(bytes >> 6);
   return fgetc(fp);
 }
 
@@ -212,7 +215,6 @@ void readObjects() {
 
   type = readOneByte();
   while (!feof(fp)) {
-    clrscr();
     if (type == OBJECT_ITEM) {
       printSplash("READING ITEM...");
       readItem();

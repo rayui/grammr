@@ -23,6 +23,7 @@ typedef struct Coords {
   char y;
 } Coords;
 
+void printSpinner(char spin);
 void printClock(long time);
 void printLocation(char* input);
 void printSplash(char* input);
