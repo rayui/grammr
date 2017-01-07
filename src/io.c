@@ -70,10 +70,9 @@ void printOutput(char* output) {
 void printInstruction(int equality, enum Instruction fn, char* location, char* subject, char* object, char *arg1, char *arg2) {
 	char debug[128] = {0};
 	char i = 7;
-	char numSpaces = 40 - textPos.x - 4;
 
 	while (i--) {
-		cclearxy(textPos.x + 4, textPos.y + i, numSpaces);
+		cclearxy(textPos.x, textPos.y + i, 40 - textPos.x);
 	}
 	
 	textcolor(DEBUG_COLOUR);
@@ -88,13 +87,13 @@ void printPrompt(char* input) {
 		textcolor(PROMPT_COLOUR);
 		cputsxy(promptPos.x, promptPos.y, str_command);
 
-		if (offset < 0) {
+		if (offset < 0)
 			offset = 0;
-		}
+
 		output = input + offset;
 
+		cclearxy(promptPos.x + 2 + strlen(input), promptPos.y, 1);
 		cputsxy(promptPos.x + 2, promptPos.y, output);
-		gotoxy(promptPos.x + 2 + strlen(output), promptPos.y);
 }
 
 void acceptInput(char** input) {
@@ -104,19 +103,17 @@ void acceptInput(char** input) {
 	printPrompt("");
 
 	while (charIn != 13) {
-
 		charIn = cgetc();
-
 		//20 is delete/backspace in PETSCII
 		if (charIn == 20 && count > 0) {
-			(*input)[count -  1] = 0;
 			count--;
+			(*input)[count] = '\0';
 		} else if (
-								(charIn == 32 ||
-								charIn >= 65 && charIn <= 90 ||
-								charIn >= 97 && charIn <= 122) &&
-								count < DEFAULTSTRINGSIZE - 1
-							) {
+			(charIn == 32 ||
+			charIn >= 65 && charIn <= 90 ||
+			charIn >= 97 && charIn <= 122) &&
+			count < DEFAULTSTRINGSIZE - 1
+		) {
 			(*input)[count] = charIn;
 			count++;
 		} else if (charIn == 13) {
