@@ -196,11 +196,12 @@ void parser_action(char* output) {
     }
   }
 
-  instructions = inst_set_params(NULL, subject, object);
+  instructions = inst_set_params(instructions, subject, object);
   inst_insert(action->instructions, instructions);
 
   interpret(instructions, output);
-  free_instructions(instructions);
+  if (instructions)
+    free_instructions(instructions);
 }
 
 void parser_command(char* output) {
@@ -212,18 +213,6 @@ void parser_command(char* output) {
     parser_quit();
   } else {
     parser_error(ERR_COMMAND_EXPECTED, currToken->val);
-  }
-}
-
-void parser_commands(char* output) {
-  parser_command(output);
-
-  if (parser_accept(TOK_EOL)) {
-    parser_eol();
-  } else if (parser_accept(TOK_COMPLEX)) {
-    parser_commands(output);
-  } else {
-    parser_error(ERR_END_OF_COMMAND_EXPECTED, currToken->val);
   }
 }
 
@@ -240,6 +229,14 @@ void parse(Token** tokenHead, char* output) {
   parser_counter = 0;
 
   while(currToken != NULL && RUNSTATE == SE_OK) {
-    parser_commands(output);
+    parser_command(output);
+
+    if (parser_accept(TOK_EOL)) {
+      parser_eol();
+    } else if (parser_accept(TOK_COMPLEX)) {
+      //noop
+    } else {
+      parser_error(ERR_END_OF_COMMAND_EXPECTED, currToken->val);
+    }
   }
 }

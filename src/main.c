@@ -21,7 +21,7 @@ Token* tokenHead = NULL;
 ErrorList* errorList = NULL;
 Actions* actions = NULL;
 Item* items = NULL;
-Location* currentLocation;
+Location* currentLocation = NULL;
 Location* locations = NULL;
 ItemList* inventory = NULL;
 long CLOCK = 0;
@@ -33,7 +33,7 @@ void drawSplash() {
   bgcolor(BG_COLOR);
   cursor(true);
 
-  printSplash("LOADING GAME...");
+  printStatus("LOADING GAME...");
 }
 
 void drawHUD() {
@@ -42,7 +42,6 @@ void drawHUD() {
   printClock(CLOCK);
   printLocation(currentLocation->name);
 
-  buf[0] = 0;
   getAllLocationNames(currentLocation->exits, buf);
   printLocalExits(buf);
 
@@ -52,13 +51,13 @@ void drawHUD() {
 }
 
 int main() {
-  int i = 0;
   char* input = malloc(COMMAND_SIZE * sizeof(char));
   char* output = malloc(MAXOUTPUTSIZE * sizeof(char));
 
   drawSplash();
 
   parseConfigFile("data.pet");
+  clrscr();
 
   if (RUNSTATE == SE_OK) {
     currentLocation = locations;
@@ -73,11 +72,9 @@ int main() {
       acceptInput(&input);
       clrscr();
 
-      printStatus("LEXING.");
       lex(&tokenHead, input);
 
       if(RUNSTATE == SE_OK) {
-        printStatus("PARSING.");
         parse(&tokenHead, output);
       }
 

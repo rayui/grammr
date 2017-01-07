@@ -131,6 +131,8 @@ void lex(Token** tokenHead, char* source) {
   Token* tail = NULL;
   static char input[MAXCOMMANDSIZE];
 
+  printStatus("LEXING");
+
   strncpy(input, source, MAXCOMMANDSIZE - 1);
   input[MAXCOMMANDSIZE] = '\0';
 

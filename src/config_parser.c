@@ -216,13 +216,13 @@ void readObjects() {
   type = readOneByte();
   while (!feof(fp)) {
     if (type == OBJECT_ITEM) {
-      printSplash("READING ITEM...");
+      printStatus("READING ITEM...");
       readItem();
     } else if (type == OBJECT_ACTION) {
-      printSplash("READING ACTION...");
+      printStatus("READING ACTION...");
       readAction();
     } else if (type == OBJECT_LOCATION) {
-      printSplash("READING LOCATION...");
+      printStatus("READING LOCATION...");
       readLocation();
     }
     type = readOneByte();
@@ -245,7 +245,7 @@ void parseConfigFile(char* filename) {
   }
   memset(source, 0, CONFIGFILEBUFFSIZE);
 
-  printSplash("READING DATA FILE...");
+  printStatus("READING DATA FILE...");
   readObjects();
   
   //clean up

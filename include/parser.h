@@ -30,7 +30,6 @@ void parser_item(void);
 void parser_action(char* output);
 
 void parser_command(char* output);
-void parser_commands(char* output);
 
 void parser_quit(void);
 void parser_eol(void);

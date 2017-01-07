@@ -124,7 +124,6 @@ void intrpt_action(char* actionIDStr, char* args) {
 
     if (arg1)
       free(arg1);
-
     if (arg2)
       free(arg2);
     
@@ -329,8 +328,11 @@ void intrpt_instruction(char* output, InstructionList* instruction) {
     arg2 = intrpt_convert_special_variable(arg2);
   }
 
+  printClock(CLOCK);
+  printSpinner(CLOCK);
+  printInstruction(equalityRegister, fn, currentLocation->name, subject, object, arg1, arg2);
+
   if (RUNSTATE == SE_DEBUG) {
-    printInstruction(CLOCK, equalityRegister, fn, currentLocation->name, subject, object, arg1 != NULL ? arg1 : "NULL", arg2 != NULL ? arg2 : "NULL");
     cgetc();
   }
 

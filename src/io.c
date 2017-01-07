@@ -13,14 +13,15 @@ const Coords clockPos = {0, 0};
 const Coords promptPos = {0, 23};
 const Coords locationPos = {8, 0};
 const Coords textPos = {0, 8};
-const Coords statusPos = {0, 2};
+const Coords statusPos = {0, 0};
 const Coords itemsPos = {0, 2};
 const Coords exitsPos = {0, 5};
-const Coords spinnerPos = {39, 2};
+const Coords spinnerPos = {39, 0};
 const char spinner[4] = {0xBE, 0xBC, 0xAC, 0xBB};
 
 void printSpinner(char spin) {
-	cputcxy(spinnerPos.x, spinnerPos.y, spinner[spin]);
+	textcolor(SPINNER_COLOUR);
+	cputcxy(spinnerPos.x, spinnerPos.y, spinner[spin % 4]);
 }
 
 void printClock(long time) {
@@ -36,16 +37,11 @@ void printLocation(char* input) {
 	cputsxy(locationPos.x, locationPos.y, input);
 }
 
-void printSplash(char* input) {
+void printStatus(char* input) {
 	char buf[40] = {0};
 	sprintf(buf, "%-40s", input);
 	textcolor(SPLASH_COLOUR);
 	cputsxy(statusPos.x, statusPos.y, buf);
-}
-
-void printStatus(char* input) {
-	textcolor(STATUS_COLOUR);
-	cputsxy(statusPos.x, statusPos.y, input);
 }
 
 void printLocalExits(char* names) {
@@ -70,20 +66,18 @@ void printOutput(char* output) {
 	cprintf(output);
 }
 
-void printInstruction(long time, int equality, enum Instruction fn, char* location, char* subject, char* object, char *arg1, char *arg2) {
+void printInstruction(int equality, enum Instruction fn, char* location, char* subject, char* object, char *arg1, char *arg2) {
 	char debug[128] = {0};
-	char i = 6;
-
-	clrscr();
-	printClock(time);
+	char i = 7;
+	char numSpaces = 40 - textPos.x - 4;
 
 	while (i--) {
-		cclearxy(textPos.x + 6, textPos.y + i, 20);	
+		cclearxy(textPos.x + 4, textPos.y + i, numSpaces);
 	}
 	
 	textcolor(DEBUG_COLOUR);
-  sprintf(debug, "EQ: %d\r\nLN: %.24s\r\nSU: %.24s\r\nOB: %.24s\r\n\r\nFN: %03d\r\nA1: %.24s\r\nA2: %.24s", equality, location, subject ? subject : "NULL", object ? object : "NULL", fn, arg1, arg2);
-  cputsxy(textPos.x, textPos.y + 2, debug);
+  sprintf(debug, "EQ: %d\r\nLN: %.24s\r\nSU: %.24s\r\nOB: %.24s\r\n\r\nFN: %03d\r\nA1: %.24s\r\nA2: %.24s", equality, location, subject ? subject : "NULL", object ? object : "NULL", fn, arg1 ? arg1 : "NULL", arg2 ? arg2 : "NULL");
+  cputsxy(textPos.x, textPos.y, debug);
 }
 
 void printPrompt(char* input) {
@@ -92,7 +86,7 @@ void printPrompt(char* input) {
 		memset(output, 0, INPUT_WIDTH);
 
 		textcolor(PROMPT_COLOUR);
-		cputsxy(promptPos.x, promptPos.y, output);
+		//cputsxy(promptPos.x, promptPos.y, output);
 		cputsxy(promptPos.x, promptPos.y, str_command);
 		free(output);
 
@@ -109,7 +103,7 @@ void acceptInput(char** input) {
 	char count = 0;
 	char charIn = 0;
 
-	printPrompt("\0");
+	printPrompt("");
 
 	while (charIn != 13 && count < COMMAND_SIZE) {
 
