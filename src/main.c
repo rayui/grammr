@@ -86,16 +86,12 @@ int main() {
       }
 
       printOutput(output);
-
       free_errors();
     }
+
+    free(input);
+    free(output);
+
+    return EXIT_SUCCESS;
   }
-
-  print_errors("", output);
-  free_errors();
-
-  free(input);
-  free(output);
-
-	return EXIT_SUCCESS;
 }

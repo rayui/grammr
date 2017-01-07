@@ -75,7 +75,9 @@ char isQuit(char* val) {
 }
 
 enum TokenType tokenTypeFromValue(char* val) {
-  if (isConjunction(val)) {
+  if (isQuit(val)) {
+    return TOK_QUIT;
+  } else if (isConjunction(val)) {
     return TOK_CONJUNCTION;
   } else if (isPronoun(val)) {
     return TOK_PRONOUN;
@@ -88,13 +90,10 @@ enum TokenType tokenTypeFromValue(char* val) {
   } else if (isVerb(val)) {
     return TOK_VERB;
   } else if (isNumber(val)) {
-    create_error(SE_PARSER, ERR_UNRECOGNISED_TOKEN, val);
+    create_error(SE_WARN, ERR_UNRECOGNISED_TOKEN, val);
     return TOK_NUMBER;
   } else if (isStringAlpha(val)) {
     return TOK_WORD;
-  } else if (isQuit(val)) {
-    RUNSTATE = SE_TERMINAL;
-    return TOK_QUIT;
   } else {
     return TOK_EOL;
   }

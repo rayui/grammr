@@ -108,7 +108,7 @@ int parser_accept(enum TokenType type) {
 }
 
 void parser_error(enum ErrorType error, char* val) {
-  create_error(SE_PARSER, error, val);
+  create_error(SE_WARN, error, val);
   parser_readtok();
 }
 
@@ -198,10 +198,11 @@ void parser_action(char* output) {
 
   instructions = inst_set_params(instructions, subject, object);
   inst_insert(action->instructions, instructions);
-
-  interpret(instructions, output);
-  if (instructions)
+  
+  if (instructions) {
+    interpret(instructions, output);
     free_instructions(instructions);
+  }
 }
 
 void parser_command(char* output) {
@@ -217,11 +218,7 @@ void parser_command(char* output) {
 }
 
 void parser_quit() {
-  parser_error(ERR_QUIT, currToken->val);
-}
-
-void parser_eol() {
-  return;
+  create_error(SE_TERMINAL, ERR_QUIT, currToken->val);
 }
 
 void parse(Token** tokenHead, char* output) {
@@ -231,9 +228,7 @@ void parse(Token** tokenHead, char* output) {
   while(currToken != NULL && RUNSTATE == SE_OK) {
     parser_command(output);
 
-    if (parser_accept(TOK_EOL)) {
-      parser_eol();
-    } else if (parser_accept(TOK_COMPLEX)) {
+    if (parser_accept(TOK_EOL) || parser_accept(TOK_COMPLEX)) {
       //noop
     } else {
       parser_error(ERR_END_OF_COMMAND_EXPECTED, currToken->val);

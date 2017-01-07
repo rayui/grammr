@@ -28,7 +28,7 @@ char object[MAX_INST_ARG_SIZE];
 InstructionList* currInstruction = NULL;
 
 void intrprt_error(enum ErrorType error, char* val) {
-  create_error(SE_INTRPRT, error, val);
+  create_error(SE_WARN, error, val);
 }
 
 char intrpt_in_context(char* name) {

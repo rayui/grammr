@@ -2,12 +2,9 @@
 
 enum RunState {
   SE_OK,
-  SE_CONFIG,
-  SE_PARSER,
-  SE_INTRPRT,
+  SE_WARN,
   SE_TERMINAL,
-  SE_DEBUG,
-  SE_QUIT
+  SE_DEBUG
 };
 
 enum ErrorType {

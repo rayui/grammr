@@ -18,6 +18,7 @@ extern const char str_system_error_template[];
 extern const char str_system_error_no_memory[];
 extern const char str_parse_error_item_not_in_inventory[];
 extern const char  str_parse_error_item_in_inventory[];
+extern const char  str_parse_error_quit[];
 
 extern ErrorList* errorList;
 extern enum RunState RUNSTATE;
@@ -57,6 +58,9 @@ void print_error(char* output, enum ErrorType errorCode, char* val) {
       break;
     case ERR_ITEM_IN_INVENTORY:
       sprintf(tmpOutput, str_parse_error_item_in_inventory, val);
+      break;
+    case ERR_QUIT:
+      sprintf(tmpOutput, str_parse_error_quit, val);
       break;
     default:
       sprintf(tmpOutput, str_system_error_template, errorCode, val);

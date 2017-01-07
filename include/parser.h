@@ -32,6 +32,5 @@ void parser_action(char* output);
 void parser_command(char* output);
 
 void parser_quit(void);
-void parser_eol(void);
 
 void parse(Token** tokens, char* output);
