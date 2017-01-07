@@ -69,7 +69,7 @@ void printOutput(char* output) {
 
 void printInstruction(int equality, enum Instruction fn, char* location, char* subject, char* object, char *arg1, char *arg2) {
 	char debug[128] = {0};
-	char i = 7;
+	char i = 8;
 
 	while (i--) {
 		cclearxy(textPos.x, textPos.y + i, 40 - textPos.x);
