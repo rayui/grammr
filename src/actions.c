@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../include/main.h"
 #include "../include/sglib.h"
 #include "../include/utils.h"
 #include "../include/items.h"
@@ -67,7 +68,7 @@ Actions* findDefaultAction(Actions* actions, char* name, char numArgs) {
 
 Actions* findItemAction(Actions* actions, char* actionsArray, char* name, char numArgs) {
   char i = 0;
-  char actionName[MAX_ACTION_SIZE] = {0};
+  char actionName[DEFAULTSTRINGSIZE] = {0};
   Actions* action;
 
   if (actionsArray == NULL)

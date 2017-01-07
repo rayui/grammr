@@ -6,11 +6,6 @@
 #define SKIP_GOTO 2
 #define SKIP_END 3
 
-#define MAXEXITSTEXTLENGTH 128
-#define MAXITEMSTEXTLENGTH 128
-#define MAXACTIONSTEXTLENGTH 128
-#define MAXOUTPUTSIZE 1024
-
 char* intrpt_convert_special_variable(char* arg);
 char intrpt_in_context(char* name);
 void intrpt_action(char* arg1, char* arg2);

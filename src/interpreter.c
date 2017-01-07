@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../include/main.h"
 #include "../include/sglib.h"
 #include "../include/utils.h"
 #include "../include/locations.h"
@@ -21,9 +22,9 @@ extern long CLOCK;
 
 int equalityRegister = 0;
 int skip = SKIP_NONE;
-char gotoLabel[MAX_INST_ARG_SIZE];
-char subject[MAX_INST_ARG_SIZE];
-char object[MAX_INST_ARG_SIZE];
+char gotoLabel[DEFAULTSTRINGSIZE];
+char subject[DEFAULTSTRINGSIZE];
+char object[DEFAULTSTRINGSIZE];
 
 InstructionList* currInstruction = NULL;
 
@@ -76,8 +77,8 @@ char* intrpt_convert_special_variable(char* arg) {
 }
 
 void intrpt_set_params(char* arg1, char* arg2) {
-  memset(subject, 0, MAX_INST_ARG_SIZE);
-  memset(object, 0, MAX_INST_ARG_SIZE);
+  memset(subject, 0, DEFAULTSTRINGSIZE);
+  memset(object, 0, DEFAULTSTRINGSIZE);
 
   if (arg1 != NULL) {
     strcpy(subject, arg1);
@@ -106,12 +107,12 @@ void intrpt_action(char* actionIDStr, char* args) {
     if (args != NULL) {
       first_comma = strchr(',', args);
       if (first_comma) {
-        arg1 = malloc(MAXITEMSTEXTLENGTH);
-        arg2 = malloc(MAXITEMSTEXTLENGTH);
+        arg1 = malloc(DEFAULTSTRINGSIZE);
+        arg2 = malloc(DEFAULTSTRINGSIZE);
         strncpy(arg1, args, first_comma - args);
         strcpy(arg2, first_comma + 1);
       } else if (args) {
-        arg1 = malloc(MAXITEMSTEXTLENGTH);
+        arg1 = malloc(DEFAULTSTRINGSIZE);
         strcpy(arg1, args);
       }
     }
@@ -242,7 +243,7 @@ void intrpt_label(void) {
 }
 
 void intrpt_print(char* output, char* arg1) {
-  char* tmpStr = malloc(MAXCOMMANDSIZE);
+  char* tmpStr = malloc(DEFAULTSTRINGSIZE);
   strcpy(tmpStr, arg1);
 
   if (arg1 != NULL) {
@@ -273,10 +274,10 @@ void intrpt_printdesc(char* output, char* arg1) {
 }
 
 void intrpt_printexits(char* output, char* arg1) {
-  char exits[MAXEXITSTEXTLENGTH];
+  char exits[DEFAULTSTRINGSIZE];
   Location* loc = findLocationByName(arg1);
 
-  memset(exits, 0, MAXEXITSTEXTLENGTH);
+  memset(exits, 0, DEFAULTSTRINGSIZE);
 
   if (loc != NULL) {
     getAllLocationNames(currentLocation->exits, exits);
@@ -287,10 +288,10 @@ void intrpt_printexits(char* output, char* arg1) {
 }
 
 void intrpt_printitems(char* output, char* arg1) {
-  char itemNames[MAXITEMSTEXTLENGTH];
+  char itemNames[DEFAULTSTRINGSIZE];
   Location* loc = findLocationByName(arg1);
 
-  memset(itemNames, 0, MAXITEMSTEXTLENGTH);
+  memset(itemNames, 0, DEFAULTSTRINGSIZE);
 
   if (loc != NULL) {
     getAllItemNames(currentLocation->items, itemNames);
@@ -301,10 +302,10 @@ void intrpt_printitems(char* output, char* arg1) {
 }
 
 void intrpt_printactions(char* output, char* arg1) {
-  char actionNames[MAXACTIONSTEXTLENGTH];
+  char actionNames[DEFAULTSTRINGSIZE];
   Item* item = findItemByName(arg1);
 
-  memset(actionNames, 0, MAXACTIONSTEXTLENGTH);
+  memset(actionNames, 0, DEFAULTSTRINGSIZE);
 
   if (item != NULL) {
     getAllActionNamesForItem(actions, item, actionNames);

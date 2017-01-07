@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../include/main.h"
 #include "../include/sglib.h"
 #include "../include/io.h"
 #include "../include/utils.h"
@@ -14,8 +15,8 @@
 #include "../include/parser.h"
 
 static int parser_counter = 0;
-static char parser_word_reg[MAXNAMESIZE];
-static char parser_action_reg[MAXNAMESIZE];
+static char parser_word_reg[DEFAULTSTRINGSIZE];
+static char parser_action_reg[DEFAULTSTRINGSIZE];
 static NameList* parser_name_stack = NULL;
 static NameList* parser_name_stack_tail = NULL;
 static char* subject = NULL;
@@ -33,7 +34,7 @@ void parser_readtok() {
 }
 
 void parser_set_action_reg() {
-  memset(parser_action_reg, 0, MAXNAMESIZE);
+  memset(parser_action_reg, 0, DEFAULTSTRINGSIZE);
   strcpy(parser_action_reg, currToken->val);
 }
 
@@ -50,7 +51,7 @@ void parser_set_word_reg() {
 }
 
 void parser_empty_word_reg() {
-  memset(parser_word_reg, 0, MAXNAMESIZE);
+  memset(parser_word_reg, 0, DEFAULTSTRINGSIZE);
 }
 
 void parser_empty_name_list() {

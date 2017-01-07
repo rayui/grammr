@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../include/main.h"
 #include "../include/sglib.h"
 #include "../include/io.h"
 #include "../include/error.h"
@@ -101,11 +102,11 @@ char* inst_create_arg(char* val) {
 
 InstructionList* inst_create(char* instructionStr) {
   InstructionList* instruction;
-  char tmpStr[MAX_INST_ARG_SIZE];
+  char tmpStr[DEFAULTSTRINGSIZE];
   char *first_comma = NULL;
   char *second_comma = NULL;
 
-  memset(tmpStr, 0, MAX_INST_ARG_SIZE);
+  memset(tmpStr, 0, DEFAULTSTRINGSIZE);
   
   instruction = malloc(sizeof(struct InstructionList));
   if (instruction == NULL) {
@@ -130,7 +131,7 @@ InstructionList* inst_create(char* instructionStr) {
       strncpy(tmpStr, first_comma, second_comma - first_comma - 1);
       instruction->arg1 = inst_create_arg(tmpStr);
 
-      memset(tmpStr, 0, MAX_INST_ARG_SIZE);
+      memset(tmpStr, 0, DEFAULTSTRINGSIZE);
 
       strncpy(tmpStr, second_comma, strlen(second_comma));
       instruction->arg2 = inst_create_arg(tmpStr);
@@ -145,7 +146,7 @@ InstructionList* inst_create(char* instructionStr) {
 }
 
 InstructionList* inst_set_params(InstructionList* last, char* direct, char* indirect) {
-  char tmpStr[MAX_INSTRUCTION_LENGTH] = {0};
+  char tmpStr[DEFAULTSTRINGSIZE] = {0};
   InstructionList* instruction = NULL;
 
   //create an instruction to set special variables $SO and $O here

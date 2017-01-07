@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "../include/main.h"
 #include "../include/utils.h"
 #include "../include/lexer.h"
 
@@ -109,7 +110,7 @@ char toLowerCaseCompare(char *str1, char* str2) {
  */
 void replace_str(char * o_string, char * s_string, char * r_string) {
   //a buffer variable to do all replace things
-  char buffer[MAXCOMMANDSIZE];
+  char buffer[DEFAULTSTRINGSIZE];
   //to store the pointer returned from strstr
   char * ch;
 

@@ -1,10 +1,6 @@
 #ifndef LEXER
 #define LEXER
 
-#define MAXTOKSZ 24
-#define MAXDIRECTIONSZ 6
-#define MAXCOMMANDSIZE 256
-
 enum TokenType {
   TOK_VERB,
   TOK_QUIT,
@@ -22,7 +18,7 @@ enum TokenType {
 typedef struct Token {
   int i;
   enum TokenType type;
-  char val[MAXTOKSZ];
+  char val[128];
   struct Token* next;
 } Token;
 

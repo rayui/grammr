@@ -1,9 +1,6 @@
 #ifndef ITEMS
 #define ITEMS
 
-#define MAX_ITEM_NAME_LENGTH 40
-#define MAX_ITEM_DESCRIPTION_LENGTH 512
-
 typedef struct Item {
   char id;
   char *name;

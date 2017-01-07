@@ -4,7 +4,6 @@
 #ifndef IO
 #define IO
 
-#define COMMAND_SIZE 128
 #define INPUT_WIDTH 30
 
 #define BG_COLOUR 0         //BLACK

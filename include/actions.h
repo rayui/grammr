@@ -1,8 +1,6 @@
 #ifndef ACTIONS
 #define ACTIONS
 
-#define MAX_ACTION_SIZE 64
-
 typedef struct Actions {
   char id;
   char* name;

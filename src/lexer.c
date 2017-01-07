@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../include/main.h"
 #include "../include/sglib.h"
 #include "../include/utils.h"
 #include "../include/io.h"
@@ -128,12 +129,12 @@ Token* readtok(Token** tail, char* input) {
 
 void lex(Token** tokenHead, char* source) {
   Token* tail = NULL;
-  static char input[MAXCOMMANDSIZE];
+  static char input[DEFAULTSTRINGSIZE];
 
   printStatus("LEXING");
 
-  strncpy(input, source, MAXCOMMANDSIZE - 1);
-  input[MAXCOMMANDSIZE] = '\0';
+  strncpy(input, source, DEFAULTSTRINGSIZE - 1);
+  input[DEFAULTSTRINGSIZE] = '\0';
 
   tail = readtok(tokenHead, input);
   while(tail->type != TOK_EOL) {

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include "../include/main.h"
 #include "../include/io.h"
 #include "../include/locations.h"
 #include "../include/items.h"
@@ -82,13 +83,10 @@ void printInstruction(int equality, enum Instruction fn, char* location, char* s
 
 void printPrompt(char* input) {
 		int offset = strlen(input) - INPUT_WIDTH;
-		char* output = malloc(sizeof(char) * INPUT_WIDTH);
-		memset(output, 0, INPUT_WIDTH);
+		char* output = NULL;
 
 		textcolor(PROMPT_COLOUR);
-		//cputsxy(promptPos.x, promptPos.y, output);
 		cputsxy(promptPos.x, promptPos.y, str_command);
-		free(output);
 
 		if (offset < 0) {
 			offset = 0;
@@ -105,7 +103,7 @@ void acceptInput(char** input) {
 
 	printPrompt("");
 
-	while (charIn != 13 && count < COMMAND_SIZE) {
+	while (charIn != 13) {
 
 		charIn = cgetc();
 
@@ -113,9 +111,12 @@ void acceptInput(char** input) {
 		if (charIn == 20 && count > 0) {
 			(*input)[count -  1] = 0;
 			count--;
-		} else if  (charIn == 32 ||
+		} else if (
+								(charIn == 32 ||
 								charIn >= 65 && charIn <= 90 ||
-								charIn >= 97 && charIn <= 122) {
+								charIn >= 97 && charIn <= 122) &&
+								count < DEFAULTSTRINGSIZE - 1
+							) {
 			(*input)[count] = charIn;
 			count++;
 		} else if (charIn == 13) {

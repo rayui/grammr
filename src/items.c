@@ -6,7 +6,6 @@
 #include "../include/sglib.h"
 #include "../include/io.h"
 #include "../include/instruction.h"
-#include "../include/yammadore.h"
 #include "../include/utils.h"
 #include "../include/items.h"
 

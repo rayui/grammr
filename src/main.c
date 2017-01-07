@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <conio.h>
 #include <string.h>
+#include "../include/main.h"
 #include "../include/sglib.h"
-#include "../include/yammadore.h"
 #include "../include/io.h"
 #include "../include/error.h"
 #include "../include/utils.h"
@@ -51,7 +51,7 @@ void drawHUD() {
 }
 
 int main() {
-  char* input = malloc(COMMAND_SIZE * sizeof(char));
+  char* input = malloc(DEFAULTSTRINGSIZE * sizeof(char));
   char* output = malloc(MAXOUTPUTSIZE * sizeof(char));
 
   drawSplash();
@@ -63,7 +63,7 @@ int main() {
     currentLocation = locations;
 
     while(RUNSTATE != SE_TERMINAL) {
-      memset(input, 0, COMMAND_SIZE);
+      memset(input, 0, DEFAULTSTRINGSIZE);
       output[0] = 0;
       tokenHead = NULL;
       RUNSTATE = SE_OK;
