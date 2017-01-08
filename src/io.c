@@ -40,7 +40,7 @@ void printLocation(char* input) {
 
 void printStatus(char* input) {
 	char buf[40] = {0};
-	sprintf(buf, "%-40s", input);
+	sprintf(buf, "%-*s", OUTPUT_WIDTH, input);
 	textcolor(SPLASH_COLOUR);
 	cputsxy(statusPos.x, statusPos.y, buf);
 }
@@ -62,17 +62,22 @@ void printLocalItems(char* names) {
 }
 
 void printOutput(char* output) {
-	gotoxy(0, textPos.y);
+	char* tmpStr = malloc(MAXOUTPUTSIZE * sizeof(char));
+	justifyString(output, tmpStr, OUTPUT_WIDTH);
+
 	textcolor(TEXT_COLOUR);
-	cprintf(output);
+	gotoxy(textPos.x, textPos.y);
+	cprintf(tmpStr);
+
+	free(tmpStr);
 }
 
 void printInstruction(int equality, enum Instruction fn, char* location, char* subject, char* object, char *arg1, char *arg2) {
-	char debug[128] = {0};
+	char debug[DEFAULTSTRINGSIZE] = {0};
 	char i = 8;
 
 	while (i--) {
-		cclearxy(textPos.x, textPos.y + i, 40 - textPos.x);
+		cclearxy(textPos.x, textPos.y + i, OUTPUT_WIDTH - textPos.x);
 	}
 	
 	textcolor(DEBUG_COLOUR);

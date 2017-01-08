@@ -18,3 +18,4 @@ int isStringNumeric(char* val);
 int isStringAlpha(char *s);
 char strComp(char *str1, char* str2);
 void decimalToTimeStr(char* timeStr, long time);
+void justifyString(char* input, char* output, char width);

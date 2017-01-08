@@ -168,3 +168,38 @@ void decimalToTimeStr(char* timeStr, long time) {
 
   sprintf(timeStr, "%02d:%02d", hours, minutes);
 }
+
+char getJustifyLen(char* string, char width) {
+  char i = width;
+  char* hasBreak = strchr(string, 13);
+
+  if (strlen(string) < width) {
+    return strlen(string);
+  }
+
+  if (hasBreak) {
+    if (hasBreak - string < width)
+      return hasBreak - string;
+  }
+
+  while (i--) {
+    if (string[i] == 32) {
+      return i;
+    }
+  }
+
+  return strlen(string);
+}
+
+void justifyString(char* input, char* output, char width) {
+  char* offset = input;
+  char len = getJustifyLen(offset, width);
+
+  output[0] = '\0';
+
+  while ( offset - input < strlen(input) ) {
+    sprintf(output, "%s%.*s\r\n", output, len, offset);
+    offset += len + 1;  //+1 removes the space also
+    len = getJustifyLen(offset, width);
+  }
+}

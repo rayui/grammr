@@ -5,6 +5,7 @@
 #define IO
 
 #define INPUT_WIDTH 30
+#define OUTPUT_WIDTH 40
 
 #define BG_COLOUR 0         //BLACK
 #define SPLASH_COLOUR 13    //LIGHT GREEN
