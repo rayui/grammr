@@ -91,7 +91,7 @@ void intrpt_set_params(char* arg1, char* arg2) {
 
 void intrpt_action(char* actionIDStr, char* args) {
   Actions* action;
-  InstructionList* lastInstruction;
+  InstructionList* lastInstruction = NULL;
   char *first_comma;
   char *arg1 = NULL;
   char *arg2 = NULL;
@@ -331,9 +331,9 @@ void intrpt_instruction(char* output, InstructionList* instruction) {
 
   printClock(CLOCK);
   printSpinner(CLOCK);
-  printInstruction(equalityRegister, fn, currentLocation->name, subject, object, arg1, arg2);
 
   if (RUNSTATE == SE_DEBUG) {
+    printInstruction(equalityRegister, fn, currentLocation->name, subject, object, arg1, arg2);
     cgetc();
   }
 

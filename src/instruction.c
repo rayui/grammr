@@ -102,12 +102,11 @@ char* inst_create_arg(char* val) {
 
 InstructionList* inst_create(char* instructionStr) {
   InstructionList* instruction;
-  char tmpStr[DEFAULTSTRINGSIZE];
+  char tmpStr[DEFAULTSTRINGSIZE] = {0};
   char *first_comma = NULL;
   char *second_comma = NULL;
+  char first_arg_len = 0;
 
-  memset(tmpStr, 0, DEFAULTSTRINGSIZE);
-  
   instruction = malloc(sizeof(struct InstructionList));
   if (instruction == NULL) {
     create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, instructionStr);
@@ -126,20 +125,16 @@ InstructionList* inst_create(char* instructionStr) {
     second_comma = strchr(first_comma, CON_SPLIT_ARG_CHAR);
 
     if (second_comma != NULL) {
-      second_comma += 1;
-
-      strncpy(tmpStr, first_comma, second_comma - first_comma - 1);
-      instruction->arg1 = inst_create_arg(tmpStr);
-
-      memset(tmpStr, 0, DEFAULTSTRINGSIZE);
-
-      strncpy(tmpStr, second_comma, strlen(second_comma));
+      strncpy(tmpStr, second_comma + 1, strlen(second_comma + 1));
       instruction->arg2 = inst_create_arg(tmpStr);
+      first_arg_len = second_comma - first_comma;
+      memset(tmpStr, 0, first_arg_len + 1);
     } else {
-      strncpy(tmpStr, first_comma, strlen(first_comma));
-
-      instruction->arg1 = inst_create_arg(tmpStr);
+      first_arg_len = strlen(first_comma);
     }
+
+    strncpy(tmpStr, first_comma, first_arg_len);
+    instruction->arg1 = inst_create_arg(tmpStr);
   }
 
   return instruction;

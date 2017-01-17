@@ -1,3 +1,6 @@
+#ifndef INSTRUCTIONS
+#define INSTRUCTIONS
+
 #define MAX_INSTRUCTION_LENGTH 512
 #define CON_SPLIT_INSTR_CHAR ";\0"
 #define CON_SPLIT_ARG_CHAR ','
@@ -41,3 +44,5 @@ void free_instructions(InstructionList* instructions);
 InstructionList* inst_set_params(InstructionList* last, char* direct, char* indirect);
 InstructionList* inst_create(char* instructionStr);
 InstructionList* inst_insert(char* newInstructions, InstructionList* last);
+
+#endif

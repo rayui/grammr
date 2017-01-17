@@ -1,1 +1,300 @@
-{"actions":[{"id":0,"name":"go to","isDefault":true,"instructions":"HE,$L,$S;\nNT;\nGI,ERROR;\nLS,$S;\nPR,You arrived at the $S.;\nGT,END;\nLB,ERROR;\nPR,Couldn't move to the $S.;\nLB,END;\n"},{"id":2,"name":"look","isDefault":true,"instructions":"PD,$L;"},{"id":3,"name":"take","isDefault":false,"instructions":"IA,$S,$I;\nPR,You put the $S in your inventory.;"},{"id":4,"name":"drop","isDefault":false,"instructions":"ID,$S,$I;\nPR,You dropped the $S.;"},{"id":5,"name":"look at","isDefault":true,"instructions":"PD,$S;\nPL;\nPR,[;\nPA,$S;\nPR,];"},{"id":11,"name":"use","isDefault":false,"instructions":"AC,255,Landing,Front entrance;"},{"id":12,"name":"go down","isDefault":false,"instructions":"EQ,$L,Landing;\nIF;\nAC,11;"},{"id":13,"name":"go up","isDefault":false,"instructions":"EQ,$L,Front entrance;\nIF;\nAC,11;"},{"id":14,"name":"use with","isDefault":false,"instructions":"EQ,$O,mobile phone;\nNT;\nGI,ERROR;\nPR,BEEP BOOP BEEP BOOP...;\nPL;\nPR,You are now connected to the Internet;\nGT,END;\nLB,ERROR;\nPR,The $S looks at the $O and broods silently;\nLB,END;"},{"id":15,"name":"use with","isDefault":false,"instructions":"EQ,$O,oyster machine;\nGI,MACHINE;\nEQ,$O,ticket barrier;\nGI,BARRIER;\nPR,You mash your $S ineffectively against the $O. Nothing happens.;\nPL;\nGT,END;\nLB,MACHINE;\nPR,Your $S had $15 on it.;\nGT,END;\nLB,BARRIER;\nPR,BEEP BEEP...;\nPL;\nPR,The ticket barrier slides aside...;\nPL;\nAC,255,Local Tube Station,Central Tube Station;\nAC,2;\nPL;\nLB,END;"},{"id":17,"name":"use","isDefault":false,"instructions":"PR,You used the shower. Congratulations on being a functioning adult.;"},{"id":255,"name":"door","isDefault":false,"instructions":"EQ,$L,$S;\nGI,DOOR;\nLS,$S;\nGT,END;\nLB,DOOR;\nLS,$O;\nLB,END;"}],"items":[{"id":1,"name":"Office keys","description":"An RFID key that allows access to your office","actions":[3,4]},{"id":2,"name":"Laptop","description":"It is a Toshiba T2200","actions":[3,4,14]},{"id":3,"name":"Mobile phone","description":"It is a Nokia 3210","actions":[3,4]},{"id":4,"name":"Stairs","description":"They sport a heavily worn carpet and peeling gloss white ballustrade of which one of the supports is missing","actions":[11,12,13]},{"id":5,"name":"Shower","description":"It's dilapidated. The shower head slowly drips and the curtain has mildew","actions":[17]},{"id":6,"name":"Toilet","description":"Of the traditional black abd white variety. Dubious stains skirt its rim","actions":[]},{"id":7,"name":"Boiler","description":"The pilot light is out","actions":[]},{"id":8,"name":"Lamp post","description":"UK Standard SAPA 15m phosphorescent column","actions":[]},{"id":9,"name":"Dog","description":"A scruffy dog","actions":[]},{"id":10,"name":"Front door","description":"It's a big, old front door but the lock is half hanging off. It's been that way since the immigration thing and the landlord never got around to fixing it","actions":[]},{"id":11,"name":"Shit old bike","description":"Rusted and sad, it hangs on the wall and hasn't move since your flatmate left 6 months previously","actions":[]},{"id":12,"name":"Metro newspaper","description":"A rather bleak publication that focusses on supporting the meta-interests of the wealthy elite","actions":[3,4]},{"id":13,"name":"ES newspaper","description":"Another bleak publication that focusses on supporting the meta-interests of the wealthy elite, in serif","actions":[3,4]},{"id":14,"name":"Oyster machine","description":"You can top up your Oyster Card here","actions":[]},{"id":15,"name":"Ticket barrier","description":"Use your Oyster Card to travel to other places in London","actions":[]},{"id":0,"name":"Oyster card","description":"You have $5 of credit on this card","actions":[3,4,15]}],"locations":[{"id":0,"name":"Bedroom","description":"You awake in a darkened room","exits":[1],"items":[0,1,2,3]},{"id":1,"name":"Landing","description":"It's cold. The bare floorboards creak as you walk","exits":[2,0],"items":[4]},{"id":2,"name":"Bathroom","description":"The bathroom is icy and it looks like the boiler's broken","exits":[1],"items":[5,6,7]},{"id":4,"name":"Street","description":"You are on a dark, grey, London street. It is raining","exits":[5,3,6],"items":[]},{"id":5,"name":"Bus stop","description":"You arrive at a typical TFL bus stop. There is no next bus indicator","exits":[4],"items":[9]},{"id":6,"name":"Local tube station","description":"You are at a tube station somewhere on the Central Line","exits":[4],"items":[14,15,12]},{"id":7,"name":"Central tube station","description":"You are at a central tube station somewhere further from home on the Central Line. It's larger and busier and more grey than the local one","exits":[],"items":[14,15,13]},{"id":3,"name":"Front entrance","description":"The wallpaper is damp and curling off the walls in yellow triangles around a cobwebbed gas meter","exits":[4],"items":[4,11,10]}]}
+{
+  "actions": [
+    {
+      "id": 0,
+      "name": "go to",
+      "isDefault": true,
+      "instructions": "HE,$L,$S;\nNT;\nGI,ERROR;\nLS,$S;\nPR,\"You arrived at the $S.\";\nGT,END;\nLB,ERROR;\nPR,\"Couldn't move to the $S.\";\nLB,END;\n"
+    },
+    {
+      "id": 2,
+      "name": "look",
+      "isDefault": true,
+      "instructions": "PD,$L;"
+    },
+    {
+      "id": 3,
+      "name": "take",
+      "isDefault": false,
+      "instructions": "IA,$S,$I;\nPR,You put the $S in your inventory.;"
+    },
+    {
+      "id": 4,
+      "name": "drop",
+      "isDefault": false,
+      "instructions": "ID,$S,$I;\nPR,You dropped the $S.;"
+    },
+    {
+      "id": 5,
+      "name": "look at",
+      "isDefault": true,
+      "instructions": "PD,$S;\nPL;\nPR,[;\nPA,$S;\nPR,];"
+    },
+    {
+      "id": 11,
+      "name": "use",
+      "isDefault": false,
+      "instructions": "AC,255,Landing,Front entrance;"
+    },
+    {
+      "id": 12,
+      "name": "go down",
+      "isDefault": false,
+      "instructions": "EQ,$L,Landing;\nIF;\nAC,11;"
+    },
+    {
+      "id": 13,
+      "name": "go up",
+      "isDefault": false,
+      "instructions": "EQ,$L,Front entrance;\nIF;\nAC,11;"
+    },
+    {
+      "id": 14,
+      "name": "use with",
+      "isDefault": false,
+      "instructions": "EQ,$O,mobile phone;\nNT;\nGI,ERROR;\nPR,BEEP BOOP BEEP BOOP...;\nPL;\nPR,You are now connected to the Internet;\nGT,END;\nLB,ERROR;\nPR,The $S looks at the $O and broods silently;\nLB,END;"
+    },
+    {
+      "id": 15,
+      "name": "use with",
+      "isDefault": false,
+      "instructions": "EQ,$O,oyster machine;\nGI,MACHINE;\nEQ,$O,ticket barrier;\nGI,BARRIER;\nPR,You mash your $S ineffectively against the $O. Nothing happens.;\nPL;\nGT,END;\nLB,MACHINE;\nPR,Your $S had $15 on it.;\nGT,END;\nLB,BARRIER;\nPR,BEEP BEEP...;\nPL;\nPR,The ticket barrier slides aside...;\nPL;\nAC,255,Local Tube Station,Central Tube Station;\nAC,2;\nPL;\nLB,END;"
+    },
+    {
+      "id": 17,
+      "name": "use",
+      "isDefault": false,
+      "instructions": "PR,You used the shower. Congratulations on being a functioning adult.;"
+    },
+    {
+      "id": 255,
+      "name": "door",
+      "isDefault": false,
+      "instructions": "EQ,$L,$S;\nGI,DOOR;\nLS,$S;\nGT,END;\nLB,DOOR;\nLS,$O;\nLB,END;"
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "name": "Office keys",
+      "description": "An RFID key that allows access to your office",
+      "actions": [
+        3,
+        4
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Laptop",
+      "description": "It is a Toshiba T2200",
+      "actions": [
+        3,
+        4,
+        14
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Mobile phone",
+      "description": "It is a Nokia 3210",
+      "actions": [
+        3,
+        4
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Stairs",
+      "description": "They sport a heavily worn carpet and peeling gloss white ballustrade of which one of the supports is missing",
+      "actions": [
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Shower",
+      "description": "It's dilapidated. The shower head slowly drips and the curtain has mildew",
+      "actions": [
+        17
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Toilet",
+      "description": "Of the traditional black abd white variety. Dubious stains skirt its rim",
+      "actions": []
+    },
+    {
+      "id": 7,
+      "name": "Boiler",
+      "description": "The pilot light is out",
+      "actions": []
+    },
+    {
+      "id": 8,
+      "name": "Lamp post",
+      "description": "UK Standard SAPA 15m phosphorescent column",
+      "actions": []
+    },
+    {
+      "id": 9,
+      "name": "Dog",
+      "description": "A scruffy dog",
+      "actions": []
+    },
+    {
+      "id": 10,
+      "name": "Front door",
+      "description": "It's a big, old front door but the lock is half hanging off. It's been that way since the immigration thing and the landlord never got around to fixing it",
+      "actions": []
+    },
+    {
+      "id": 11,
+      "name": "Shit old bike",
+      "description": "Rusted and sad, it hangs on the wall and hasn't move since your flatmate left 6 months previously",
+      "actions": []
+    },
+    {
+      "id": 12,
+      "name": "Metro newspaper",
+      "description": "A rather bleak publication that focusses on supporting the meta-interests of the wealthy elite",
+      "actions": [
+        3,
+        4
+      ]
+    },
+    {
+      "id": 13,
+      "name": "ES newspaper",
+      "description": "Another bleak publication that focusses on supporting the meta-interests of the wealthy elite, in serif",
+      "actions": [
+        3,
+        4
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Oyster machine",
+      "description": "You can top up your Oyster Card here",
+      "actions": []
+    },
+    {
+      "id": 15,
+      "name": "Ticket barrier",
+      "description": "Use your Oyster Card to travel to other places in London",
+      "actions": []
+    },
+    {
+      "id": 0,
+      "name": "Oyster card",
+      "description": "You have $5 of credit on this card",
+      "actions": [
+        3,
+        4,
+        15
+      ]
+    }
+  ],
+  "locations": [
+    {
+      "id": 0,
+      "name": "Bedroom",
+      "description": "You awake in a darkened room",
+      "exits": [
+        1
+      ],
+      "items": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Landing",
+      "description": "It's cold. The bare floorboards creak as you walk",
+      "exits": [
+        2,
+        0
+      ],
+      "items": [
+        4
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Bathroom",
+      "description": "The bathroom is icy and it looks like the boiler's broken",
+      "exits": [
+        1
+      ],
+      "items": [
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Street",
+      "description": "You are on a dark, grey, London street. It is raining",
+      "exits": [
+        5,
+        3,
+        6
+      ],
+      "items": []
+    },
+    {
+      "id": 5,
+      "name": "Bus stop",
+      "description": "You arrive at a typical TFL bus stop. There is no next bus indicator",
+      "exits": [
+        4
+      ],
+      "items": [
+        9
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Local tube station",
+      "description": "You are at a tube station somewhere on the Central Line",
+      "exits": [
+        4
+      ],
+      "items": [
+        14,
+        15,
+        12
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Central tube station",
+      "description": "You are at a central tube station somewhere further from home on the Central Line. It's larger and busier and more grey than the local one",
+      "exits": [],
+      "items": [
+        14,
+        15,
+        13
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Front entrance",
+      "description": "The wallpaper is damp and curling off the walls in yellow triangles around a cobwebbed gas meter",
+      "exits": [
+        4
+      ],
+      "items": [
+        4,
+        11,
+        10
+      ]
+    }
+  ]
+}
