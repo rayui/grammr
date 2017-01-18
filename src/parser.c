@@ -139,7 +139,7 @@ void parser_action(char* output) {
   Item* item = NULL;
   char* object = NULL;
   char numArgs = 0;
-  InstructionList* instructions = NULL;
+  Instruction* instructions = NULL;
 
   parser_accept(TOK_VERB);
   parser_accept(TOK_PREPOSITION);

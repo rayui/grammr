@@ -5,7 +5,7 @@
 #define CON_SPLIT_INSTR_CHAR ";\0"
 #define CON_SPLIT_ARG_CHAR ','
 
-enum Instruction {
+enum InstructionType {
   INST_INVALID,
   INST_SET_PARAMS,
   INST_EQ,
@@ -32,17 +32,17 @@ enum Instruction {
   INST_DEBUG
 };
 
-typedef struct InstructionList {
-  enum Instruction fn;
+typedef struct Instruction {
+  enum InstructionType fn;
   char *arg1;
   char *arg2;
-  struct InstructionList* next;
-} InstructionList;
+  struct Instruction* next;
+} Instruction;
 
-enum Instruction inst_get_instruction_code(char* instruction);
-void free_instructions(InstructionList* instructions);
-InstructionList* inst_set_params(InstructionList* last, char* direct, char* indirect);
-InstructionList* inst_create(char* instructionStr);
-InstructionList* inst_insert(char* newInstructions, InstructionList* last);
+enum InstructionType inst_get_instruction_code(char* instruction);
+void free_instructions(Instruction* instructions);
+Instruction* inst_set_params(Instruction* last, char* direct, char* indirect);
+Instruction* inst_create(char* instructionStr);
+Instruction* inst_insert(char* newInstructions, Instruction* last);
 
 #endif

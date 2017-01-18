@@ -13,7 +13,7 @@
 extern Location* currentLocation;
 extern enum RunState RUNSTATE;
 
-enum Instruction inst_get_instruction_code(char* instructionStr) {
+enum InstructionType inst_get_instruction_code(char* instructionStr) {
   char instruction[3];
 
   strncpy(instruction, instructionStr, 2);
@@ -71,10 +71,10 @@ enum Instruction inst_get_instruction_code(char* instructionStr) {
   return INST_INVALID;
 }
 
-void free_instructions(InstructionList* instructions) {
-  InstructionList* instruction = instructions;
+void free_instructions(Instruction* instructions) {
+  Instruction* instruction = instructions;
 
-  SGLIB_LIST_MAP_ON_ELEMENTS(InstructionList, instructions, instruction, next, {
+  SGLIB_LIST_MAP_ON_ELEMENTS(Instruction, instructions, instruction, next, {
     if (instruction->arg1 != NULL) {
       free(instruction->arg1);
     }
@@ -100,14 +100,14 @@ char* inst_create_arg(char* val) {
   return arg;
 }
 
-InstructionList* inst_create(char* instructionStr) {
-  InstructionList* instruction;
+Instruction* inst_create(char* instructionStr) {
+  Instruction* instruction;
   char tmpStr[DEFAULTSTRINGSIZE] = {0};
   char *first_comma = NULL;
   char *second_comma = NULL;
   char first_arg_len = 0;
 
-  instruction = malloc(sizeof(struct InstructionList));
+  instruction = malloc(sizeof(struct Instruction));
   if (instruction == NULL) {
     create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, instructionStr);
     return NULL;
@@ -140,9 +140,9 @@ InstructionList* inst_create(char* instructionStr) {
   return instruction;
 }
 
-InstructionList* inst_set_params(InstructionList* last, char* direct, char* indirect) {
+Instruction* inst_set_params(Instruction* last, char* direct, char* indirect) {
   char tmpStr[DEFAULTSTRINGSIZE] = {0};
-  InstructionList* instruction = NULL;
+  Instruction* instruction = NULL;
 
   //create an instruction to set special variables $SO and $O here
 
@@ -156,17 +156,17 @@ InstructionList* inst_set_params(InstructionList* last, char* direct, char* indi
   
   instruction = inst_create(tmpStr);
   if (instruction != NULL) {
-    SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);
+    SGLIB_LIST_ADD_AFTER(Instruction, last, instruction, next);
     last = instruction;
   }
 
   return last;
 }
 
-InstructionList* inst_insert(char* newInstructions, InstructionList* last) {
+Instruction* inst_insert(char* newInstructions, Instruction* last) {
   char* instructionStr;
   char tmpStr[MAX_INSTRUCTION_LENGTH];
-  InstructionList* instruction = NULL;
+  Instruction* instruction = NULL;
   char fnStr[4];
 
   strcpy(tmpStr, newInstructions);
@@ -175,7 +175,7 @@ InstructionList* inst_insert(char* newInstructions, InstructionList* last) {
   while(instructionStr != NULL) {
     instruction = inst_create(instructionStr);
     if (instruction != NULL) {
-      SGLIB_LIST_ADD_AFTER(InstructionList, last, instruction, next);
+      SGLIB_LIST_ADD_AFTER(Instruction, last, instruction, next);
       last = instruction;
       instructionStr = strtok(NULL, CON_SPLIT_INSTR_CHAR);
     } else {

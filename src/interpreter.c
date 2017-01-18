@@ -26,7 +26,7 @@ char gotoLabel[DEFAULTSTRINGSIZE];
 char subject[DEFAULTSTRINGSIZE];
 char object[DEFAULTSTRINGSIZE];
 
-InstructionList* currInstruction = NULL;
+Instruction* programCounter = NULL;
 
 void intrprt_error(enum ErrorType error, char* val) {
   create_error(SE_WARN, error, val);
@@ -91,7 +91,7 @@ void intrpt_set_params(char* arg1, char* arg2) {
 
 void intrpt_action(char* actionIDStr, char* args) {
   Actions* action;
-  InstructionList* lastInstruction = NULL;
+  Instruction* lastInstruction = NULL;
   char *first_comma;
   char *arg1 = NULL;
   char *arg2 = NULL;
@@ -117,7 +117,7 @@ void intrpt_action(char* actionIDStr, char* args) {
       }
     }
 
-    lastInstruction = inst_set_params(currInstruction, arg1, arg2);
+    lastInstruction = inst_set_params(programCounter, arg1, arg2);
     if (lastInstruction)
       lastInstruction = inst_insert(action->instructions, lastInstruction);
     if (lastInstruction)
@@ -141,7 +141,7 @@ void intrpt_debug(char* state) {
   RUNSTATE = SE_DEBUG;
 }
 
-void intrpt_invalid(enum Instruction fn) {
+void intrpt_invalid(enum InstructionType fn) {
   char fnStr[4];
   sprintf(fnStr, "%s", fn);
 
@@ -319,7 +319,7 @@ void intrpt_newline(char* output) {
   sprintf(output, "%s\r\n", output);
 }
 
-void intrpt_instruction(char* output, InstructionList* instruction) {
+void intrpt_instruction(char* output, Instruction* instruction) {
   enum Instruction fn = instruction->fn;
   char* arg1 = instruction->arg1;
   char* arg2 = instruction->arg2;
@@ -417,27 +417,27 @@ void intrpt_instruction(char* output, InstructionList* instruction) {
   CLOCK++;
 }
 
-void interpret(InstructionList* instructions, char* output) {
+void interpret(Instruction* instructions, char* output) {
   skip = SKIP_NONE;
-  currInstruction = instructions;
+  programCounter = instructions;
 
-  while (currInstruction != NULL
+  while (programCounter != NULL
     && (
       RUNSTATE == SE_OK ||
       RUNSTATE == SE_DEBUG
     )
   ) {
     if (skip == SKIP_GOTO &&
-      currInstruction->fn == INST_LABEL &&
-      toLowerCaseCompare(gotoLabel, currInstruction->arg1))
+      programCounter->fn == INST_LABEL &&
+      toLowerCaseCompare(gotoLabel, programCounter->arg1))
     {
       skip = SKIP_NONE;
     } else if (skip == SKIP_ONE) {
       skip = SKIP_NONE;
     } else if (skip == SKIP_NONE) {
-      intrpt_instruction(output, currInstruction);
+      intrpt_instruction(output, programCounter);
     }
 
-    currInstruction = currInstruction->next;
+    programCounter = programCounter->next;
   }
 }

@@ -72,7 +72,7 @@ void printOutput(char* output) {
 	free(tmpStr);
 }
 
-void printInstruction(int equality, enum Instruction fn, char* location, char* subject, char* object, char *arg1, char *arg2) {
+void printInstruction(int equality, enum InstructionType fn, char* location, char* subject, char* object, char *arg1, char *arg2) {
 	char debug[DEFAULTSTRINGSIZE] = {0};
 	char i = 8;
 

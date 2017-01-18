@@ -9,7 +9,7 @@
 char* intrpt_convert_special_variable(char* arg);
 char intrpt_in_context(char* name);
 void intrpt_action(char* arg1, char* arg2);
-void intrpt_invalid(enum Instruction fn);
+void intrpt_invalid(enum InstructionType fn);
 void intrpt_eq(char* arg1, char* arg2);
 void intrpt_locationhasitem(char* arg1, char* arg2);
 void intrpt_inventoryhasitem(char* arg1);
@@ -28,5 +28,5 @@ void intrpt_printexits(char* output, char* arg1);
 void intrpt_printitems(char* output, char* arg1);
 void intrpt_printactions(char* output, char* arg1);
 void intrpt_newline(char* output);
-void intrpt_instruction(char* output, InstructionList* instruction);
-void interpret(InstructionList* instructions, char* output);
+void intrpt_instruction(char* output, Instruction* instruction);
+void interpret(Instruction* instructions, char* output);
