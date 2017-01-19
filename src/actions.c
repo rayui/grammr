@@ -7,15 +7,6 @@
 #include "../include/items.h"
 #include "../include/actions.h"
 
-char _getArity(Actions* action) {
-  if (toLowerCaseContains(action->instructions, "$o")) {
-    return 2;
-  } else if (toLowerCaseContains(action->instructions, "$s") || !(action->isDefault)) {
-    return 1;
-  }
-  return 0;
-}
-
 Actions* createAction(char id, char* name, char isDefault, char* instructions) {
   Actions* action = malloc(sizeof(struct Actions));
   if (action == NULL) {
@@ -26,7 +17,7 @@ Actions* createAction(char id, char* name, char isDefault, char* instructions) {
 
   action->id = id;
   action->name = name;
-  action->instructions = instructions;
+  action->instructions = inst_add(instructions);
   action->isDefault = isDefault;
   action->next = NULL;
 
@@ -55,10 +46,8 @@ Actions* findActionById(Actions* actions, char id) {
 
 Actions* findDefaultAction(Actions* actions, char* name, char numArgs) {
   SGLIB_LIST_MAP_ON_ELEMENTS(Actions, actions, action, next, {
-    if (strComp(action->name, name) && action->isDefault && numArgs >= _getArity(action)) {
-      if (numArgs == _getArity(action)) {
-        return action;
-      }
+    if (strComp(action->name, name) && action->isDefault) {
+      return action;
     }
   });
 
@@ -77,9 +66,7 @@ Actions* findItemAction(Actions* actions, char* actionsArray, char* name, char n
   for (i = 1; i <= actionsArray[0]; i++) {
     action = findActionById(actions, actionsArray[i]);
     if (toLowerCaseCompare(action->name, name)) {
-      if (numArgs == _getArity(action)) {
-        return action;
-      }
+      return action;
     }
   }
 

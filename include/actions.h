@@ -1,3 +1,5 @@
+#include "../include/instruction.h"
+
 #ifndef ACTIONS
 #define ACTIONS
 
@@ -5,7 +7,7 @@ typedef struct Actions {
   char id;
   char* name;
   char isDefault;
-  char* instructions;
+  Instruction* instructions;
   struct Actions* next;
 } Actions;
 

@@ -25,7 +25,6 @@ typedef struct Token {
 #endif
 
 char isNumber(char* val);
-char isConjunction(char* val);
 char isVerb(char* val);
 char isConjunction(char* val);
 enum TokenType tokenTypeFromValue(char* val);

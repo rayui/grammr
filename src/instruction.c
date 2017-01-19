@@ -140,34 +140,12 @@ Instruction* inst_create(char* instructionStr) {
   return instruction;
 }
 
-Instruction* inst_set_params(Instruction* last, char* direct, char* indirect) {
-  char tmpStr[DEFAULTSTRINGSIZE] = {0};
-  Instruction* instruction = NULL;
-
-  //create an instruction to set special variables $SO and $O here
-
-  sprintf(tmpStr, "SP");
-
-  if (direct != NULL) {
-    sprintf(tmpStr, "%s,%s", tmpStr, direct);
-    if (indirect != NULL)
-      sprintf(tmpStr, "%s,%s", tmpStr, indirect);
-  }
-  
-  instruction = inst_create(tmpStr);
-  if (instruction != NULL) {
-    SGLIB_LIST_ADD_AFTER(Instruction, last, instruction, next);
-    last = instruction;
-  }
-
-  return last;
-}
-
-Instruction* inst_insert(char* newInstructions, Instruction* last) {
+Instruction* inst_add(char* newInstructions) {
   char* instructionStr;
   char tmpStr[MAX_INSTRUCTION_LENGTH];
   Instruction* instruction = NULL;
-  char fnStr[4];
+  Instruction* head = NULL;
+  Instruction* last = NULL;
 
   strcpy(tmpStr, newInstructions);
   instructionStr = strtok(tmpStr, CON_SPLIT_INSTR_CHAR);
@@ -175,13 +153,13 @@ Instruction* inst_insert(char* newInstructions, Instruction* last) {
   while(instructionStr != NULL) {
     instruction = inst_create(instructionStr);
     if (instruction != NULL) {
+      if (head == NULL)
+        head = instruction;
       SGLIB_LIST_ADD_AFTER(Instruction, last, instruction, next);
       last = instruction;
       instructionStr = strtok(NULL, CON_SPLIT_INSTR_CHAR);
-    } else {
-      return last;
     }
   }
 
-  return last;
+  return head;
 }

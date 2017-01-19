@@ -139,7 +139,6 @@ void parser_action(char* output) {
   Item* item = NULL;
   char* object = NULL;
   char numArgs = 0;
-  Instruction* instructions = NULL;
 
   parser_accept(TOK_VERB);
   parser_accept(TOK_PREPOSITION);
@@ -196,14 +195,8 @@ void parser_action(char* output) {
       return;
     }
   }
-
-  instructions = inst_set_params(instructions, subject, object);
-  inst_insert(action->instructions, instructions);
   
-  if (instructions) {
-    interpret(instructions, output);
-    free_instructions(instructions);
-  }
+  interpret(subject, object, action->instructions, output);
 }
 
 void parser_command(char* output) {

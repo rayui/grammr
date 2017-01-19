@@ -41,8 +41,9 @@ typedef struct Instruction {
 
 enum InstructionType inst_get_instruction_code(char* instruction);
 void free_instructions(Instruction* instructions);
-Instruction* inst_set_params(Instruction* last, char* direct, char* indirect);
+Instruction* inst_set_params(char* direct, char* indirect);
 Instruction* inst_create(char* instructionStr);
 Instruction* inst_insert(char* newInstructions, Instruction* last);
+Instruction* inst_add(char* newInstructions);
 
 #endif

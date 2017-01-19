@@ -26,7 +26,32 @@ char gotoLabel[DEFAULTSTRINGSIZE];
 char subject[DEFAULTSTRINGSIZE];
 char object[DEFAULTSTRINGSIZE];
 
-Instruction* programCounter = NULL;
+Instruction* currentInstruction = NULL;
+
+char stackPointer;
+Instruction* stack[5] = {NULL};
+
+void intprt_push_to_stack(Instruction* instruction) {
+  stack[stackPointer] = instruction;
+  stackPointer++;
+
+  if (stackPointer > 5) {
+    create_error(SE_TERMINAL, ERR_STACK_OVERFLOW, "");
+  }
+}
+
+Instruction* intprt_pop_from_stack(void) {
+  Instruction* instruction = NULL;
+
+  if (stackPointer > 0) {
+    stackPointer--;
+  }
+
+  instruction = stack[stackPointer];
+  stack[stackPointer] = NULL;  
+
+  return instruction;
+}
 
 void intrprt_error(enum ErrorType error, char* val) {
   create_error(SE_WARN, error, val);
@@ -91,42 +116,30 @@ void intrpt_set_params(char* arg1, char* arg2) {
 
 void intrpt_action(char* actionIDStr, char* args) {
   Actions* action;
-  Instruction* lastInstruction = NULL;
   char *first_comma;
-  char *arg1 = NULL;
-  char *arg2 = NULL;
 
   //find action by first arg (action id)
   action = findActionById(actions, atoi(actionIDStr));
 
   //if we find an action
-  if (action != NULL) {
+  if (action) {
     //args can be NULL, a string, or a string containing a comma
     //the comma is optional and delimits two potential arguments
 
-    if (args != NULL) {
-      first_comma = strchr(',', args);
+    if (args) {
+      memset(subject, 0, DEFAULTSTRINGSIZE);
+      first_comma = strchr(args, ',');
       if (first_comma) {
-        arg1 = malloc(DEFAULTSTRINGSIZE);
-        arg2 = malloc(DEFAULTSTRINGSIZE);
-        strncpy(arg1, args, first_comma - args);
-        strcpy(arg2, first_comma + 1);
-      } else if (args) {
-        arg1 = malloc(DEFAULTSTRINGSIZE);
-        strcpy(arg1, args);
+        memset(object, 0, DEFAULTSTRINGSIZE);
+        strncpy(subject, args, first_comma - args);
+        strcpy(object, first_comma + 1);
+      } else {
+        strcpy(subject, args);
       }
     }
 
-    lastInstruction = inst_set_params(programCounter, arg1, arg2);
-    if (lastInstruction)
-      lastInstruction = inst_insert(action->instructions, lastInstruction);
-    if (lastInstruction)
-      lastInstruction = inst_set_params(lastInstruction, subject, object);
-
-    if (arg1)
-      free(arg1);
-    if (arg2)
-      free(arg2);
+    intprt_push_to_stack(currentInstruction->next);
+    currentInstruction = action->instructions;
     
   } else {
     intrprt_error(ERR_NO_SUCH_ACTION, actionIDStr);
@@ -417,27 +430,38 @@ void intrpt_instruction(char* output, Instruction* instruction) {
   CLOCK++;
 }
 
-void interpret(Instruction* instructions, char* output) {
+void interpret(char* arg1, char* arg2, Instruction* instructions, char* output) {
+  char next = 0;
   skip = SKIP_NONE;
-  programCounter = instructions;
+  currentInstruction = instructions;
+  stackPointer = 0;
 
-  while (programCounter != NULL
+  strcpy(subject, arg1);
+  strcpy(object, arg2);
+
+  while (currentInstruction != NULL
     && (
       RUNSTATE == SE_OK ||
       RUNSTATE == SE_DEBUG
     )
   ) {
+    next = (currentInstruction->fn != INST_ACTION);
+
     if (skip == SKIP_GOTO &&
-      programCounter->fn == INST_LABEL &&
-      toLowerCaseCompare(gotoLabel, programCounter->arg1))
+      currentInstruction->fn == INST_LABEL &&
+      toLowerCaseCompare(gotoLabel, currentInstruction->arg1))
     {
       skip = SKIP_NONE;
     } else if (skip == SKIP_ONE) {
       skip = SKIP_NONE;
     } else if (skip == SKIP_NONE) {
-      intrpt_instruction(output, programCounter);
+      intrpt_instruction(output, currentInstruction);
     }
 
-    programCounter = programCounter->next;
+    if (next)
+      currentInstruction = currentInstruction->next;
+    if (currentInstruction == NULL)
+      currentInstruction = intprt_pop_from_stack();
+    
   }
 }
