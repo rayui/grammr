@@ -59,14 +59,13 @@ int main() {
   parseConfigFile("data.pet");
   clrscr();
 
-  if (RUNSTATE == SE_OK) {
+  if (RUNSTATE == SE_OK || RUNSTATE == SE_DEBUG) {
     currentLocation = locations;
 
     while(RUNSTATE != SE_TERMINAL) {
       memset(input, 0, DEFAULTSTRINGSIZE);
       output[0] = 0;
       tokenHead = NULL;
-      RUNSTATE = SE_OK;
 
       drawHUD();
       acceptInput(&input);
@@ -74,14 +73,14 @@ int main() {
 
       lex(&tokenHead, input);
 
-      if(RUNSTATE == SE_OK) {
+      if(RUNSTATE != SE_TERMINAL) {
         parse(&tokenHead, output);
       }
 
       free_tokens(&tokenHead);
       clrscr();
 
-      if (RUNSTATE != SE_OK) {
+      if (RUNSTATE == SE_TERMINAL || RUNSTATE == SE_WARN) {
         print_errors(input, output);
       }
 

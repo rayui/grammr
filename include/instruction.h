@@ -3,7 +3,7 @@
 
 #define MAX_INSTRUCTION_LENGTH 512
 #define CON_SPLIT_INSTR_CHAR ";\0"
-#define CON_SPLIT_ARG_CHAR ','
+#define CON_SPLIT_ARG_CHAR ","
 
 enum InstructionType {
   INST_INVALID,
@@ -32,10 +32,20 @@ enum InstructionType {
   INST_DEBUG
 };
 
+enum InstructionArgType {
+  INST_ARG_STRING,
+  INST_ARG_NUM
+};
+
+typedef struct InstructionArg {
+  enum InstructionArgType type;
+  char* val;
+  struct InstructionArg* next;
+} InstructionArg;
+
 typedef struct Instruction {
   enum InstructionType fn;
-  char *arg1;
-  char *arg2;
+  InstructionArg* arg;
   struct Instruction* next;
 } Instruction;
 

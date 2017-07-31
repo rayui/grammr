@@ -72,69 +72,58 @@ enum InstructionType inst_get_instruction_code(char* instructionStr) {
 }
 
 void free_instructions(Instruction* instructions) {
-  Instruction* instruction = instructions;
-
-  SGLIB_LIST_MAP_ON_ELEMENTS(Instruction, instructions, instruction, next, {
-    if (instruction->arg1 != NULL) {
-      free(instruction->arg1);
-    }
-    if (instruction->arg2 != NULL) {
-      free(instruction->arg2);
-    }
-    free(instruction);
-  });
+  //figure this out for when we reload config
 }
 
-char* inst_create_arg(char* val) {
-  char* arg;
-  int len = strlen(val);
+InstructionArg* inst_create_arg(char* val) {
+  InstructionArg* arg = malloc(sizeof(struct InstructionArg));
+  char len = strlen(val);
 
-  arg = malloc(len + 1);
   if (arg == NULL) {
+    create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, val);
     return NULL;
   }
 
-  strncpy(arg, val, len);
-  arg[len] = '\0';
+  arg->val = val;
+  arg->next = NULL;
 
   return arg;
+
 }
 
 Instruction* inst_create(char* instructionStr) {
-  Instruction* instruction;
-  char tmpStr[DEFAULTSTRINGSIZE] = {0};
-  char *first_comma = NULL;
-  char *second_comma = NULL;
-  char first_arg_len = 0;
+  char len = 0;
+  char* token = NULL;
+  char* running = strdup(instructionStr);
 
-  instruction = malloc(sizeof(struct Instruction));
+  Instruction* instruction = malloc(sizeof(struct Instruction));
+  InstructionArg* arg = NULL;
+  InstructionArg* last = NULL;
+
   if (instruction == NULL) {
     create_error(SE_TERMINAL, ERR_OUT_OF_MEMORY, instructionStr);
     return NULL;
   }
 
-  instruction->fn = inst_get_instruction_code(instructionStr);
-  instruction->arg1 = NULL;
-  instruction->arg2 = NULL;
+  instruction->arg = NULL;
   instruction->next = NULL;
 
-  first_comma = strchr(instructionStr, CON_SPLIT_ARG_CHAR);
+  token = strsep(&running, ",");
+  if (token == NULL) {
+    create_error(SE_WARN, ERR_INVALID_INSTRUCTION, instructionStr);
+    return NULL;
+  }
 
-  if (first_comma != NULL) {
-    first_comma += 1;
-    second_comma = strchr(first_comma, CON_SPLIT_ARG_CHAR);
+  instruction->fn = inst_get_instruction_code(instructionStr);
 
-    if (second_comma != NULL) {
-      strncpy(tmpStr, second_comma + 1, strlen(second_comma + 1));
-      instruction->arg2 = inst_create_arg(tmpStr);
-      first_arg_len = second_comma - first_comma;
-      memset(tmpStr, 0, first_arg_len + 1);
-    } else {
-      first_arg_len = strlen(first_comma);
-    }
-
-    strncpy(tmpStr, first_comma, first_arg_len);
-    instruction->arg1 = inst_create_arg(tmpStr);
+  token = strsep(&running, ",");
+  while (token != NULL) {
+    arg = inst_create_arg(token);
+    SGLIB_LIST_ADD_AFTER(InstructionArg, last, arg, next);
+    if (instruction->arg == NULL)
+      instruction->arg = arg;
+    last = arg;
+    token = strsep(&running, ",");
   }
 
   return instruction;
@@ -143,6 +132,7 @@ Instruction* inst_create(char* instructionStr) {
 Instruction* inst_add(char* newInstructions) {
   char* instructionStr;
   char tmpStr[MAX_INSTRUCTION_LENGTH];
+  char debug[128];
   Instruction* instruction = NULL;
   Instruction* head = NULL;
   Instruction* last = NULL;
@@ -153,9 +143,9 @@ Instruction* inst_add(char* newInstructions) {
   while(instructionStr != NULL) {
     instruction = inst_create(instructionStr);
     if (instruction != NULL) {
+      SGLIB_LIST_ADD_AFTER(Instructio>fn, last, instruction, next);
       if (head == NULL)
         head = instruction;
-      SGLIB_LIST_ADD_AFTER(Instruction, last, instruction, next);
       last = instruction;
       instructionStr = strtok(NULL, CON_SPLIT_INSTR_CHAR);
     }

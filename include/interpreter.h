@@ -1,3 +1,5 @@
+#include "../include/instruction.h"
+
 #ifndef INTERPRETER
 #define INTERPRETER
 
@@ -6,9 +8,15 @@
 #define SKIP_GOTO 2
 #define SKIP_END 3
 
+typedef struct Stack {
+  Instruction* pointer;
+  char* subject;
+  char* object;
+} Stack;
+
 char* intrpt_convert_special_variable(char* arg);
 char intrpt_in_context(char* name);
-void intrpt_action(char* actionIDStr, char* args);
+void intrpt_action(char* actionIDStr, char* arg1, char* arg2);
 void intrpt_invalid(enum InstructionType fn);
 void intrpt_eq(char* arg1, char* arg2);
 void intrpt_locationhasitem(char* arg1, char* arg2);

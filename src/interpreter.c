@@ -23,16 +23,18 @@ extern long CLOCK;
 int equalityRegister = 0;
 int skip = SKIP_NONE;
 char gotoLabel[DEFAULTSTRINGSIZE];
-char subject[DEFAULTSTRINGSIZE];
-char object[DEFAULTSTRINGSIZE];
+char* subject;
+char* object;
 
 Instruction* currentInstruction = NULL;
 
 char stackPointer;
-Instruction* stack[5] = {NULL};
+Stack* stack[5] = {NULL};
 
 void intprt_push_to_stack(Instruction* instruction) {
-  stack[stackPointer] = instruction;
+  stack[stackPointer]->pointer = instruction;
+  stack[stackPointer]->subject = subject;
+  stack[stackPointer]->object = object;
   stackPointer++;
 
   if (stackPointer > 5) {
@@ -45,9 +47,9 @@ Instruction* intprt_pop_from_stack(void) {
 
   if (stackPointer > 0) {
     stackPointer--;
+    instruction = stack[stackPointer]->pointer;
   }
 
-  instruction = stack[stackPointer];
   stack[stackPointer] = NULL;  
 
   return instruction;
@@ -101,42 +103,16 @@ char* intrpt_convert_special_variable(char* arg) {
   return arg;
 }
 
-void intrpt_set_params(char* arg1, char* arg2) {
-  memset(subject, 0, DEFAULTSTRINGSIZE);
-  memset(object, 0, DEFAULTSTRINGSIZE);
-
-  if (arg1 != NULL) {
-    strcpy(subject, arg1);
-  }
-
-  if (arg2 != NULL) {
-    strcpy(object, arg2);
-  }
-}
-
-void intrpt_action(char* actionIDStr, char* args) {
+void intrpt_action(char* actionIDStr, char* arg1, char* arg2) {
   Actions* action;
-  char *first_comma;
 
   //find action by first arg (action id)
   action = findActionById(actions, atoi(actionIDStr));
 
   //if we find an action
   if (action) {
-    //args can be NULL, a string, or a string containing a comma
-    //the comma is optional and delimits two potential arguments
-
-    if (args) {
-      memset(subject, 0, DEFAULTSTRINGSIZE);
-      first_comma = strchr(args, ',');
-      if (first_comma) {
-        memset(object, 0, DEFAULTSTRINGSIZE);
-        strncpy(subject, args, first_comma - args);
-        strcpy(object, first_comma + 1);
-      } else {
-        strcpy(subject, args);
-      }
-    }
+    subject = arg1;
+    object = arg2;
 
     intprt_push_to_stack(currentInstruction->next);
     currentInstruction = action->instructions;
@@ -334,12 +310,24 @@ void intrpt_newline(char* output) {
 
 void intrpt_instruction(char* output, Instruction* instruction) {
   enum Instruction fn = instruction->fn;
-  char* arg1 = instruction->arg1;
-  char* arg2 = instruction->arg2;
+  char* arg1 = NULL;
+  char* arg2 = NULL;
+  char* arg3 = NULL;
 
+  if (instruction->arg) {
+    arg1 = instruction->arg->val;
+    if (instruction->arg->next) {
+      arg2 =  instruction->arg->next->val;
+      if (instruction->arg->next->next)
+        arg3 = instruction->arg->next->next->val;
+    }
+  }
+
+  
   if (fn != INST_SET_PARAMS) {
     arg1 = intrpt_convert_special_variable(arg1);
     arg2 = intrpt_convert_special_variable(arg2);
+    arg3 = intrpt_convert_special_variable(arg3);
   }
 
   printClock(CLOCK);
@@ -353,9 +341,6 @@ void intrpt_instruction(char* output, Instruction* instruction) {
   switch (fn) {
     case INST_INVALID:
       intrpt_invalid(fn);
-      break;
-    case INST_SET_PARAMS:
-      intrpt_set_params(arg1, arg2);
       break;
     case INST_EQ:
       intrpt_eq(arg1, arg2);
@@ -418,7 +403,7 @@ void intrpt_instruction(char* output, Instruction* instruction) {
       intrpt_newline(output);
       break;
     case INST_ACTION:
-      intrpt_action(arg1, arg2);
+      intrpt_action(arg1, arg2, arg3);
       break;
     case INST_DEBUG:
       intrpt_debug(arg1);
@@ -449,7 +434,7 @@ void interpret(char* arg1, char* arg2, Instruction* instructions, char* output) 
 
     if (skip == SKIP_GOTO &&
       currentInstruction->fn == INST_LABEL &&
-      toLowerCaseCompare(gotoLabel, currentInstruction->arg1))
+      toLowerCaseCompare(gotoLabel, currentInstruction->arg->val))
     {
       skip = SKIP_NONE;
     } else if (skip == SKIP_ONE) {

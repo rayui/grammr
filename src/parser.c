@@ -220,6 +220,7 @@ void parse(Token** tokenHead, char* output) {
   parser_counter = 0;
 
   while(currToken != NULL && RUNSTATE == SE_OK) {
+    RUNSTATE = SE_DEBUG;
     parser_command(output);
 
     if (parser_accept(TOK_EOL) || parser_accept(TOK_COMPLEX)) {

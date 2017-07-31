@@ -19,3 +19,5 @@ int isStringAlpha(char *s);
 char strComp(char *str1, char* str2);
 void decimalToTimeStr(char* timeStr, long time);
 void justifyString(char* input, char* output, char width);
+char* getNextToken(char* searchStr, char delim);
+char* strsep(char **stringp, const char *delim);
